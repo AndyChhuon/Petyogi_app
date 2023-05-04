@@ -205,7 +205,7 @@ export const Colors = {
   primaryColor: "#D5957D",
   grayColor: "#949494",
   greenColor: "#15D21E",
-  goldColor: "#F6E9c9",
+  goldColor: "#FCE79A",
 };
 
 export const Sizes = {

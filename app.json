@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "RN NFT Marketplace",
-    "slug": "rn-NFTMarketplace",
+    "name": "PetYogi",
+    "slug": "PetYogi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.render.rnnftmarketplace",
       "buildNumber": "3.0.0",

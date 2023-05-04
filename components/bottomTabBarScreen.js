@@ -1,5 +1,12 @@
 import React, { useCallback, useState } from "react";
-import { View, Image, StyleSheet, Text, BackHandler } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  Text,
+  BackHandler,
+  Dimensions,
+} from "react-native";
 import { Colors, Sizes, Fonts } from "../constants/styles";
 import ProfileScreen from "../screens/profile/profileScreen";
 import HomeScreen from "../screens/home/homeScreen";
@@ -10,6 +17,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";
 
 const Tab = createBottomTabNavigator();
+const { width } = Dimensions.get("window");
 
 const TabNavigator = () => {
   const backAction = () => {
@@ -100,8 +108,8 @@ const TabNavigator = () => {
         <Image
           source={icon}
           style={{
-            width: 24.0,
-            height: 24.0,
+            width: (24.0 * width) / 414,
+            height: (24.0 * width) / 414,
             resizeMode: "contain",
             tintColor: color,
           }}
@@ -125,9 +133,9 @@ export default TabNavigator;
 
 const styles = StyleSheet.create({
   bottomTabBarItemWrapStyle: {
-    width: 40.0,
-    height: 40.0,
-    borderRadius: Sizes.fixPadding,
+    width: (40.0 * width) / 414,
+    height: (40.0 * width) / 414,
+    borderRadius: (Sizes.fixPadding * width) / 414,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -143,11 +151,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tabBarStyle: {
-    height: 85.0,
-    borderTopWidth: 2.0,
+    height:
+      (85.0 * width) / 414 > 85 ? (65.0 * width) / 414 : (85.0 * width) / 414,
+    borderTopWidth: (2 * width) / 414,
     paddingTop: 10,
     borderTopColor: "#2c383d",
-    elevation: 3.0,
+    elevation: (3.0 * width) / 414,
     shadowColor: Colors.primaryColor,
     backgroundColor: "#132025",
   },
