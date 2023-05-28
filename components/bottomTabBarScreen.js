@@ -10,8 +10,6 @@ import {
 import { Colors, Sizes, Fonts } from "../constants/styles";
 import ProfileScreen from "../screens/profile/profileScreen";
 import HomeScreen from "../screens/home/homeScreen";
-import SearchScreen from "../screens/search/searchScreen";
-import AddScreen from "../screens/add/addScreen";
 import NotificationScreen from "../screens/notification/notificationScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";

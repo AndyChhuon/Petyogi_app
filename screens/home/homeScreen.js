@@ -10,13 +10,8 @@ import {
   StyleSheet,
   Text,
   FlatList,
-  TextInput,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
-import { MaterialIcons, AntDesign } from "@expo/vector-icons";
-import Carousel from "react-native-snap-carousel-v4";
-import { BottomSheet } from "@rneui/themed";
-import Dialog from "react-native-dialog";
 import AwesomeButton from "react-native-really-awesome-button";
 
 const { width } = Dimensions.get("window");
@@ -29,19 +24,25 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#212f36" }}>
-      <StatusBar translucent={false} backgroundColor={Colors.primaryColor} />
-      <View style={{ flex: 1 }}>
-        {userInfo()}
-        <ImageBackground
-          source={
-            dayMode
-              ? require("../../assets/Day_Background.png")
-              : require("../../assets/Night_Background.png")
-          }
-          style={styles.BackgroundImage}
-          backgroundColor="none"
-        >
+    <SafeAreaView
+      style={
+        dayMode
+          ? { flex: 1, backgroundColor: "#f9c96c" }
+          : { flex: 1, backgroundColor: "#535cb3" }
+      }
+    >
+      <ImageBackground
+        source={
+          dayMode
+            ? require("../../assets/Day_Background.png")
+            : require("../../assets/Night_Background.png")
+        }
+        style={styles.BackgroundImage}
+        backgroundColor="none"
+      >
+        <StatusBar translucent={false} backgroundColor={Colors.primaryColor} />
+        <View style={{ flex: 1 }}>
+          {userInfo()}
           <FlatList
             //   style={{ backgroundColor: "#64ABE3" }}
             showsVerticalScrollIndicator={false}
@@ -49,16 +50,17 @@ const HomeScreen = ({ navigation }) => {
               <View
                 style={{
                   marginTop: (10 * width) / 414,
-                  marginLeft: (5 * width) / 414,
-                  marginRight: (5 * width) / 414,
+                  marginLeft: (80 * width) / 414,
+                  marginRight: (80 * width) / 414,
                 }}
               >
-                {Button()}
+                {Button(1)}
+                {Button(2)}
               </View>
             }
           />
-        </ImageBackground>
-      </View>
+        </View>
+      </ImageBackground>
     </SafeAreaView>
   );
 
@@ -66,10 +68,6 @@ const HomeScreen = ({ navigation }) => {
     return (
       <View style={styles.userInfoWrapStyle}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Image
-            source={require("../../assets/images/users/user1.png")}
-            style={styles.userImageStyle}
-          />
           <View
             style={{
               marginLeft: ((Sizes.fixPadding + 5.0) * width) / 414,
@@ -190,33 +188,36 @@ const HomeScreen = ({ navigation }) => {
   }
 };
 
-function Button() {
+function Button(number) {
   return (
-    <AwesomeButton
-      backgroundColor={Colors.goldColor}
-      borderRadius={100}
-      raiseLevel={(8 * width) / 414}
-      width={width / 6}
-      height={width / 6}
-    >
-      <Text
-        style={{
-          ...Fonts.blackMicroma,
-          fontSize: (25 * width) / 414,
-        }}
+    <View width={width / 6}>
+      <AwesomeButton
+        backgroundColor={Colors.goldColor}
+        borderRadius={100}
+        raiseLevel={(8 * width) / 414}
+        width={width / 6}
+        height={width / 6}
       >
-        1
-      </Text>
-    </AwesomeButton>
+        <Text
+          style={{
+            ...Fonts.blackMicroma,
+            fontSize: (25 * width) / 414,
+          }}
+        >
+          {number}
+        </Text>
+      </AwesomeButton>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  topBarStyle: {},
   notificationIconWrapStyle: {
     borderRadius: (Sizes.fixPadding * width) / 414,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
     width: (40.0 * width) / 414,
     height: (40.0 * width) / 414,
   },
@@ -231,8 +232,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    margin: (Sizes.fixPadding * 1.5 * width) / 414,
-    paddingBottom: (5 * width) / 414,
+    padding: (Sizes.fixPadding * 1.5 * width) / 414,
+    paddingTop: 3,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
   },
   BackgroundImage: {
     flex: 1,
