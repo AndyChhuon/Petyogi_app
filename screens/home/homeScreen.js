@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -10,60 +10,81 @@ import {
   StyleSheet,
   Text,
   FlatList,
+  TouchableWithoutFeedback,
+  Pressable,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
-import AwesomeButton from "react-native-really-awesome-button";
 import * as Haptics from "expo-haptics";
+import ButtonTooltip from "../../components/buttonTooltip";
 
 const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
   const [dayMode, setDayMode] = useState(false);
+  const [buttonIsPressed, setButtonIsPressed] = useState(false);
 
   const onModeChange = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setDayMode(!dayMode);
   };
 
+  const tooltipOverlayPress = () => {
+    if (buttonIsPressed) {
+      setButtonIsPressed(false);
+    }
+  };
+
   return (
-    <SafeAreaView
-      style={
-        dayMode
-          ? { flex: 1, backgroundColor: "#f9c96c" }
-          : { flex: 1, backgroundColor: "#535cb3" }
-      }
-    >
-      <ImageBackground
-        source={
+    <TouchableWithoutFeedback onPressIn={tooltipOverlayPress}>
+      <SafeAreaView
+        style={
           dayMode
-            ? require("../../assets/Day_Background.png")
-            : require("../../assets/Night_Background.png")
+            ? { flex: 1, backgroundColor: "#f9c96c" }
+            : { flex: 1, backgroundColor: "#535cb3" }
         }
-        style={styles.BackgroundImage}
-        backgroundColor="none"
       >
-        <StatusBar translucent={false} backgroundColor={Colors.primaryColor} />
-        <View style={{ flex: 1 }}>
-          {userInfo()}
-          <FlatList
-            //   style={{ backgroundColor: "#64ABE3" }}
-            showsVerticalScrollIndicator={false}
-            ListHeaderComponent={
-              <View
-                style={{
-                  marginTop: (10 * width) / 414,
-                  marginLeft: (80 * width) / 414,
-                  marginRight: (80 * width) / 414,
-                }}
-              >
-                {Button(1)}
-                {Button(2)}
-              </View>
-            }
+        <ImageBackground
+          source={
+            dayMode
+              ? require("../../assets/Day_Background.png")
+              : require("../../assets/Night_Background.png")
+          }
+          style={styles.BackgroundImage}
+          backgroundColor="none"
+        >
+          <StatusBar
+            translucent={false}
+            backgroundColor={Colors.primaryColor}
           />
-        </View>
-      </ImageBackground>
-    </SafeAreaView>
+          <View style={{ flex: 1 }}>
+            {userInfo()}
+
+            <FlatList
+              //   style={{ backgroundColor: "#64ABE3" }}
+              showsVerticalScrollIndicator={false}
+              ListHeaderComponent={
+                <View
+                  style={{
+                    marginTop: (10 * width) / 414,
+                  }}
+                >
+                  <ButtonTooltip
+                    buttonIsPressed={buttonIsPressed}
+                    setButtonIsPressed={setButtonIsPressed}
+                    number={1}
+                  />
+                  <ButtonTooltip
+                    buttonIsPressed={buttonIsPressed}
+                    setButtonIsPressed={setButtonIsPressed}
+                    number={2}
+                  />
+                </View>
+              }
+            />
+          </View>
+        </ImageBackground>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 
   function userInfo() {
@@ -190,31 +211,7 @@ const HomeScreen = ({ navigation }) => {
   }
 };
 
-function Button(number) {
-  return (
-    <View width={width / 6}>
-      <AwesomeButton
-        backgroundColor={Colors.goldColor}
-        borderRadius={100}
-        raiseLevel={(8 * width) / 414}
-        width={width / 6}
-        height={width / 6}
-      >
-        <Text
-          style={{
-            ...Fonts.blackMicroma,
-            fontSize: (25 * width) / 414,
-          }}
-        >
-          {number}
-        </Text>
-      </AwesomeButton>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  topBarStyle: {},
   notificationIconWrapStyle: {
     borderRadius: (Sizes.fixPadding * width) / 414,
     alignItems: "center",
