@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import AwesomeButton from "react-native-really-awesome-button";
+import * as Haptics from "expo-haptics";
 
 const { width } = Dimensions.get("window");
 
@@ -20,6 +21,7 @@ const HomeScreen = ({ navigation }) => {
   const [dayMode, setDayMode] = useState(false);
 
   const onModeChange = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setDayMode(!dayMode);
   };
 

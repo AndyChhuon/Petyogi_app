@@ -45,8 +45,8 @@ const TabNavigator = () => {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: Colors.whiteColor,
-          tabBarInactiveTintColor: Colors.primaryColor,
+          tabBarActiveTintColor: Colors.goldColor,
+          tabBarInactiveTintColor: "#f9ac46",
           tabBarStyle: { ...styles.tabBarStyle },
           tabBarShowLabel: false,
         }}
@@ -63,7 +63,7 @@ const TabNavigator = () => {
               }),
           }}
         />
-
+        {/* 
         <Tab.Screen
           name={"Notification"}
           component={NotificationScreen}
@@ -75,7 +75,7 @@ const TabNavigator = () => {
                 color: color,
               }),
           }}
-        />
+        /> */}
         <Tab.Screen
           name={"Profile"}
           component={ProfileScreen}
@@ -97,9 +97,9 @@ const TabNavigator = () => {
     return (
       <View
         style={{
-          backgroundColor: focused
-            ? Colors.primaryColor
-            : "rgba(140, 49, 255,0.2)",
+          backgroundColor: focused ? "#f7983a" : "#535cb3",
+          borderColor: Colors.goldColor,
+          borderWidth: focused ? 1 : 0,
           ...styles.bottomTabBarItemWrapStyle,
         }}
       >
