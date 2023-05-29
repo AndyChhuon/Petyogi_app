@@ -2,6 +2,42 @@ import AwesomeButton from "react-native-really-awesome-button";
 import React, { useState, useEffect } from "react";
 import { View, Dimensions, StyleSheet, Text } from "react-native";
 import { Colors, Fonts } from "../constants/styles";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
+
+const ScaleInOut = ({ visible, delayIn = 0, children, style }) => {
+  const scale = useSharedValue(0);
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+  useEffect(() => {
+    scale.value = visible
+      ? withDelay(
+          delayIn,
+          withTiming(1, {
+            duration: 250,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          })
+        )
+      : withDelay(
+          0,
+          withTiming(0, {
+            duration: 180,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          })
+        );
+  }, [visible]);
+  return (
+    <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>
+  );
+};
 
 const { width } = Dimensions.get("window");
 
@@ -10,16 +46,19 @@ function Button(props) {
   const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
+    // Overlay was pressed
     if (!buttonIsPressed) {
       setShowTooltip(false);
     }
   }, [buttonIsPressed]);
 
   const onPress = () => {
+    // No other button pressed and this button is pressed
     if (!buttonIsPressed) {
       setButtonIsPressed(true);
       setShowTooltip(true);
     } else {
+      // Other button is pressed and this one too (close other one)
       setButtonIsPressed(false);
       setButtonIsPressed(true);
       setShowTooltip(true);
@@ -47,13 +86,16 @@ function Button(props) {
               {number}
             </Text>
           </AwesomeButton>
-          <View
-            style={showTooltip ? styles.tooltipTip : { display: "none" }}
-          ></View>
+          <ScaleInOut
+            delayIn={150}
+            visible={showTooltip}
+            style={styles.tooltipTip}
+          ></ScaleInOut>
         </View>
       </View>
-      <View
-        style={showTooltip ? styles.tooltipDisplay : { display: "none" }}
+      <ScaleInOut
+        visible={showTooltip}
+        style={styles.tooltipDisplay}
         onPress={onPress}
       >
         <Text
@@ -62,7 +104,7 @@ function Button(props) {
             e.preventDefault();
           }}
         ></Text>
-      </View>
+      </ScaleInOut>
     </View>
   );
 }
@@ -80,7 +122,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tooltipTip: {
-    marginTop: 3,
     borderLeftWidth: 10,
     borderRightWidth: 10,
     borderBottomWidth: 10,

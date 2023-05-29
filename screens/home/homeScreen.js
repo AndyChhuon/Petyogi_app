@@ -11,7 +11,6 @@ import {
   Text,
   FlatList,
   TouchableWithoutFeedback,
-  Pressable,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import * as Haptics from "expo-haptics";
