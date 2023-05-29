@@ -10,7 +10,13 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 
-const ScaleInOut = ({ visible, delayIn = 0, children, style }) => {
+const ScaleInOut = ({
+  visible,
+  delayIn = 0,
+  delayOut = 50,
+  children,
+  style,
+}) => {
   const scale = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -27,9 +33,9 @@ const ScaleInOut = ({ visible, delayIn = 0, children, style }) => {
           })
         )
       : withDelay(
-          0,
+          delayOut,
           withTiming(0, {
-            duration: 180,
+            duration: 200,
             easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           })
         );
@@ -76,6 +82,7 @@ function Button(props) {
             width={width / 6}
             height={width / 6}
             onPressOut={onPress}
+            style={styles.buttonStyle}
           >
             <Text
               style={{
@@ -117,6 +124,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
     top: 0,
   },
+  buttonStyle: {
+    marginBottom: 2,
+  },
   buttonContainerStyle: {
     display: "flex",
     alignItems: "center",
@@ -130,13 +140,15 @@ const styles = StyleSheet.create({
     borderBottomColor: "blue",
   },
   tooltipDisplay: {
-    width: "100%",
-    height: 100,
+    marginLeft: (40 * width) / 414,
+    marginRight: (40 * width) / 414,
+    width: width - (2 * (40 * width)) / 414,
+    height: 120,
     position: "absolute",
     zIndex: 2,
-    overflow: "hidden",
     backgroundColor: "red",
-    top: width / 6 + 10,
+    top: width / 6 + 12,
+    borderRadius: 10,
   },
   tooltipText: {
     width: "100%",

@@ -11,6 +11,7 @@ import {
   Text,
   FlatList,
   TouchableWithoutFeedback,
+  ScrollView,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import * as Haptics from "expo-haptics";
@@ -55,32 +56,40 @@ const HomeScreen = ({ navigation }) => {
             translucent={false}
             backgroundColor={Colors.primaryColor}
           />
-          <View style={{ flex: 1 }}>
-            {userInfo()}
-
-            <FlatList
-              //   style={{ backgroundColor: "#64ABE3" }}
-              showsVerticalScrollIndicator={false}
-              ListHeaderComponent={
-                <View
-                  style={{
-                    marginTop: (10 * width) / 414,
-                  }}
-                >
-                  <ButtonTooltip
-                    buttonIsPressed={buttonIsPressed}
-                    setButtonIsPressed={setButtonIsPressed}
-                    number={1}
-                  />
-                  <ButtonTooltip
-                    buttonIsPressed={buttonIsPressed}
-                    setButtonIsPressed={setButtonIsPressed}
-                    number={2}
-                  />
-                </View>
-              }
-            />
-          </View>
+          {userInfo()}
+          <ScrollView>
+            <View
+              style={{ flex: 1 }}
+              onStartShouldSetResponder={() => {
+                // Allow scroll unless buttonIsPressed
+                if (!buttonIsPressed) return true;
+              }}
+            >
+              <FlatList
+                //   style={{ backgroundColor: "#64ABE3" }}
+                showsVerticalScrollIndicator={false}
+                ListHeaderComponent={
+                  <View
+                    style={{
+                      marginTop: (10 * width) / 414,
+                      marginBottom: 150,
+                    }}
+                  >
+                    <ButtonTooltip
+                      buttonIsPressed={buttonIsPressed}
+                      setButtonIsPressed={setButtonIsPressed}
+                      number={1}
+                    />
+                    <ButtonTooltip
+                      buttonIsPressed={buttonIsPressed}
+                      setButtonIsPressed={setButtonIsPressed}
+                      number={2}
+                    />
+                  </View>
+                }
+              />
+            </View>
+          </ScrollView>
         </ImageBackground>
       </SafeAreaView>
     </TouchableWithoutFeedback>
