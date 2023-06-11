@@ -102,7 +102,11 @@ function Button(props) {
       </View>
       <ScaleInOut
         visible={showTooltip}
-        style={styles.tooltipDisplay}
+        style={
+          showTooltip
+            ? styles.tooltipDisplay
+            : { ...styles.tooltipDisplay, display: "none" }
+        }
         onPress={onPress}
       >
         <Text

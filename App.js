@@ -39,11 +39,11 @@ const App = () => {
         }}
       >
         <Stack.Screen name="Loading" component={LoadingScreen} />
-        <Stack.Screen
+        {/* <Stack.Screen
           name="Splash"
           component={SplashScreen}
           options={{ ...TransitionPresets.DefaultTransition }}
-        />
+        /> */}
         <Stack.Screen
           name="Login"
           component={LoginScreen}

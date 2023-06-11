@@ -48,7 +48,7 @@ export const Fonts = {
   },
 
   primaryColor14Medium: {
-    color: "#8C31FF",
+    color: "#080376",
     fontSize: 14,
     fontFamily: "SF_Compact_Display_Medium",
   },
@@ -193,16 +193,15 @@ export const Fonts = {
     color: "#B99B92",
     fontSize: 25,
     fontFamily: "Sigmar_Regular",
-    fontweight: 400,
   },
 };
 
 export const Colors = {
   lightBodyBackColor: "#e5c99f",
-  bodyBackColor: "#161622",
+  bodyBackColor: "#535cb3",
   blackColor: "#000000",
   whiteColor: "#FFFFFF",
-  primaryColor: "#D5957D",
+  primaryColor: "#fbe699",
   grayColor: "#949494",
   greenColor: "#15D21E",
   goldColor: "#FCE79A",

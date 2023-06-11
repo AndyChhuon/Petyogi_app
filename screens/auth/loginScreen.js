@@ -10,10 +10,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import AwesomeButton from "react-native-really-awesome-button";
 
 const LoginScreen = ({ navigation }) => {
   const [state, setState] = useState({
@@ -27,39 +29,28 @@ const LoginScreen = ({ navigation }) => {
 
   const { password, phoneNumber, securePassword, backClickCount } = state;
 
-  const backAction = () => {
-    backClickCount == 1 ? BackHandler.exitApp() : _spring();
-    return true;
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      BackHandler.addEventListener("hardwareBackPress", backAction);
-      return () =>
-        BackHandler.removeEventListener("hardwareBackPress", backAction);
-    }, [backAction])
-  );
-
-  function _spring() {
-    updateState({ backClickCount: 1 });
-    setTimeout(() => {
-      updateState({ backClickCount: 0 });
-    }, 1000);
-  }
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
       <StatusBar translucent={false} backgroundColor={Colors.primaryColor} />
       <View style={{ flex: 1 }}>
+        {backArrow()}
+
         {loginTitle()}
-        <ScrollView>
-          {phoneNumberTextField()}
-          {passwordTextField()}
-          {forgetPasswordText()}
-          {loginButton()}
-          {orText()}
-          {socialMediaOptions()}
-        </ScrollView>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: "space-between",
+              flexDirection: "column",
+            }}
+          >
+            <View style={{ flex: 1, justifyContent: "flex-end" }}>
+              {phoneNumberTextField()}
+              {passwordTextField()}
+              {loginButton()}
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
       {dontAccountInfo()}
       {backClickCount == 1 ? (
@@ -75,82 +66,55 @@ const LoginScreen = ({ navigation }) => {
   function dontAccountInfo() {
     return (
       <Text style={{ textAlign: "center", margin: Sizes.fixPadding * 2.0 }}>
-        <Text style={{ ...Fonts.whiteColor14Medium }}>
-          Don’t have an account? {}
-        </Text>
         <Text
           onPress={() => navigation.push("Register")}
-          style={{ ...Fonts.primaryColor14Medium }}
+          style={{
+            ...Fonts.primaryColor14Medium,
+            textDecorationLine: "underline",
+          }}
         >
-          Sign Up
+          Forgot your password?
         </Text>
-      </Text>
-    );
-  }
-
-  function socialMediaOptions() {
-    return (
-      <View
-        style={{
-          margin: Sizes.fixPadding * 2.0,
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
-        <View style={styles.googleAndFacebookButtonWrapStyle}>
-          <Image
-            source={require("../../assets/images/icons/google.png")}
-            style={{ width: 24.0, height: 24.0, resizeMode: "contain" }}
-          />
-          <Text
-            style={{
-              ...Fonts.whiteColor14Medium,
-              marginLeft: Sizes.fixPadding + 5.0,
-            }}
-          >
-            Google
-          </Text>
-        </View>
-        <View style={styles.googleAndFacebookButtonWrapStyle}>
-          <Image
-            source={require("../../assets/images/icons/facebookWithColor.png")}
-            style={{ width: 24.0, height: 24.0, resizeMode: "contain" }}
-          />
-          <Text
-            style={{
-              ...Fonts.whiteColor14Medium,
-              marginLeft: Sizes.fixPadding + 5.0,
-            }}
-          >
-            Facebook
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
-  function orText() {
-    return (
-      <Text style={{ textAlign: "center", ...Fonts.whiteColor14Medium }}>
-        OR
       </Text>
     );
   }
 
   function loginButton() {
     return (
-      <TouchableOpacity
+      <AwesomeButton
         activeOpacity={0.9}
-        onPress={() => navigation.push("Register")}
+        onPress={() => navigation.push("Verification")}
         style={styles.loginButtonStyle}
+        width="auto"
+        backgroundColor={Colors.goldColor}
+        raiseLevel={5}
+        borderRadius={20}
+        backgroundShadow={Colors.grayColor}
       >
-        <Text style={{ ...Fonts.whiteColor20SemiBold }}>Login</Text>
-      </TouchableOpacity>
+        <Text
+          style={{
+            ...Fonts.whiteColor20SemiBold,
+            width: "100%",
+            textAlign: "center",
+          }}
+        >
+          Login
+        </Text>
+      </AwesomeButton>
     );
   }
 
-  function forgetPasswordText() {
-    return <Text style={styles.forgetPasswordTextStyle}>Forget password?</Text>;
+  function backArrow() {
+    return (
+      <View style={{ ...styles.backArrowWrapStyle }}>
+        <MaterialIcons
+          name="chevron-left"
+          color={Colors.whiteColor}
+          size={26}
+          onPress={() => navigation.pop()}
+        />
+      </View>
+    );
   }
 
   function passwordTextField() {
@@ -161,7 +125,13 @@ const LoginScreen = ({ navigation }) => {
           justifyContent: "space-between",
         }}
       >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
           <MaterialIcons name="lock-open" size={20} color={Colors.whiteColor} />
           <TextInput
             value={password}
@@ -172,16 +142,17 @@ const LoginScreen = ({ navigation }) => {
             style={{
               ...Fonts.whiteColor14Medium,
               marginLeft: Sizes.fixPadding + 2.0,
+              flex: 1,
             }}
             selectionColor={Colors.primaryColor}
           />
+          <MaterialCommunityIcons
+            name={securePassword ? "eye" : "eye-off"}
+            size={20}
+            color={Colors.whiteColor}
+            onPress={() => updateState({ securePassword: !securePassword })}
+          />
         </View>
-        <MaterialCommunityIcons
-          name={securePassword ? "eye" : "eye-off"}
-          size={20}
-          color={Colors.whiteColor}
-          onPress={() => updateState({ securePassword: !securePassword })}
-        />
       </View>
     );
   }
@@ -208,7 +179,7 @@ const LoginScreen = ({ navigation }) => {
           ref={input}
           value={phoneNumber}
           onChangeText={(value) => updateState({ phoneNumber: value })}
-          placeholder="Enter PhoneNumber"
+          placeholder="Enter Phone Number"
           placeholderTextColor={Colors.grayColor}
           style={{
             ...Fonts.whiteColor14Medium,
@@ -225,7 +196,13 @@ const LoginScreen = ({ navigation }) => {
   function loginTitle() {
     return (
       <View
-        style={{ marginVertical: Sizes.fixPadding * 4.0, alignItems: "center" }}
+        style={{
+          marginVertical: Sizes.fixPadding * 4.0,
+          alignItems: "center",
+          zIndex: 1,
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
       >
         <Text style={{ ...Fonts.whiteColor26SemiBold }}>
           Let’s sign you in.
@@ -239,13 +216,10 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  backArrowWrapStyle: {
-    width: 40.0,
-    height: 40.0,
-    borderRadius: 20.0,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    alignItems: "center",
+  loginContainer: {
     justifyContent: "center",
+    backgroundColor: "red",
+    height: "100%",
   },
   textFieldWrapStyle: {
     flexDirection: "row",
@@ -260,16 +234,16 @@ const styles = StyleSheet.create({
     marginTop: Sizes.fixPadding - 5.0,
     marginHorizontal: Sizes.fixPadding * 2.0,
     textAlign: "right",
+    textDecorationLine: "underline",
     ...Fonts.primaryColor14Medium,
   },
   loginButtonStyle: {
-    backgroundColor: Colors.primaryColor,
-    paddingVertical: Sizes.fixPadding + 5.0,
     alignItems: "center",
     justifyContent: "center",
     marginVertical: Sizes.fixPadding * 4.0,
     marginHorizontal: Sizes.fixPadding * 2.0,
     borderRadius: Sizes.fixPadding - 5.0,
+    marginTop: 50,
   },
   googleAndFacebookButtonWrapStyle: {
     flex: 1,
@@ -291,6 +265,19 @@ const styles = StyleSheet.create({
     paddingVertical: Sizes.fixPadding,
     justifyContent: "center",
     alignItems: "center",
+  },
+  backArrowWrapStyle: {
+    position: "absolute",
+    width: 40.0,
+    height: 40.0,
+    borderRadius: 20.0,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: Sizes.fixPadding * 3.0,
+    marginBottom: Sizes.fixPadding * 2.0,
+    marginHorizontal: Sizes.fixPadding * 2.0,
+    zIndex: 2,
   },
 });
 

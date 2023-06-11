@@ -25,7 +25,7 @@ const SplashScreen = ({ navigation }) => {
   );
 
   setTimeout(() => {
-    navigation.push("Login");
+    navigation.push("Register");
   }, 2000);
 
   return (
