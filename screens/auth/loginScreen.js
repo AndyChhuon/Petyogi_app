@@ -86,7 +86,7 @@ const LoginScreen = ({ navigation }) => {
         onPress={() => navigation.push("Verification")}
         style={styles.loginButtonStyle}
         width="auto"
-        backgroundColor={Colors.goldColor}
+        backgroundColor={Colors.secondaryGoldColor}
         raiseLevel={5}
         borderRadius={20}
         backgroundShadow={Colors.grayColor}

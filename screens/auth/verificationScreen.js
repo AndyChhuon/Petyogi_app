@@ -24,7 +24,10 @@ const VerificationScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
-      <StatusBar translucent={false} backgroundColor={Colors.primaryColor} />
+      <StatusBar
+        translucent={false}
+        backgroundColor={Colors.secondaryGoldColor}
+      />
       <View style={{ flex: 1 }}>
         {backArrow()}
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -64,7 +67,7 @@ const VerificationScreen = ({ navigation }) => {
             alignItems: "center",
           }}
         >
-          <CircleFade size={56} color={Colors.primaryColor} />
+          <CircleFade size={56} color={Colors.secondaryGoldColor} />
           <Text
             style={{
               ...Fonts.whiteColor14Medium,
@@ -123,7 +126,7 @@ const VerificationScreen = ({ navigation }) => {
         }}
         inputCount={4}
         keyboardType="numeric"
-        tintColor={Colors.primaryColor}
+        tintColor={Colors.secondaryGoldColor}
         offTintColor={"transparent"}
         textInputStyle={{ ...styles.textFieldStyle }}
       />
@@ -169,7 +172,7 @@ const styles = StyleSheet.create({
     ...Fonts.whiteColor14Medium,
   },
   verifyButtonStyle: {
-    backgroundColor: Colors.primaryColor,
+    backgroundColor: Colors.secondaryGoldColor,
     paddingVertical: Sizes.fixPadding + 5.0,
     alignItems: "center",
     justifyContent: "center",

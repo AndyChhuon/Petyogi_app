@@ -10,13 +10,16 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Alert,
   KeyboardAvoidingView,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import AwesomeButton from "react-native-really-awesome-button";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
+const auth = getAuth();
 const RegisterScreen = ({ navigation }) => {
   const [state, setState] = useState({
     password: null,
@@ -100,14 +103,32 @@ const RegisterScreen = ({ navigation }) => {
     );
   }
 
+  function registerOnClick() {
+    email = phoneNumber + "@gmail.com";
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log("signed in");
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+  }
+
   function registerButton() {
     return (
       <AwesomeButton
         activeOpacity={0.9}
-        onPress={() => navigation.push("Verification")}
+        // onPress={() => navigation.push("Verification")}
+        onPress={() => registerOnClick()}
         style={styles.registerButtonStyle}
         width="auto"
-        backgroundColor={Colors.goldColor}
+        backgroundColor={Colors.secondaryGoldColor}
         raiseLevel={5}
         borderRadius={20}
         backgroundShadow={Colors.grayColor}
@@ -172,8 +193,12 @@ const RegisterScreen = ({ navigation }) => {
           activeOpacity={0.9}
           onPress={() => updateState({ isAgree: !isAgree })}
           style={{
-            backgroundColor: isAgree ? Colors.primaryColor : "transparent",
-            borderColor: isAgree ? Colors.primaryColor : Colors.whiteColor,
+            backgroundColor: isAgree
+              ? Colors.secondaryGoldColor
+              : "transparent",
+            borderColor: isAgree
+              ? Colors.secondaryGoldColor
+              : Colors.whiteColor,
             ...styles.checkBoxStyle,
           }}
         >
