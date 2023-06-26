@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "813978453201",
+    "project_id": "petyogi-9ebc5",
+    "storage_bucket": "petyogi-9ebc5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:813978453201:android:aad9dcb1f0bfb92418b1f0",
+        "android_client_info": {
+          "package_name": "com.petyogi.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "813978453201-g45j6vib2b62b9lg6ti2u60f1bdrscvd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCj6VQR3UxxmieOFqy8ehZE2STza5k4ONo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "813978453201-g45j6vib2b62b9lg6ti2u60f1bdrscvd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "813978453201-5nchitt6q580v3hf3c744dhibjd5ehju.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.petyogi.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

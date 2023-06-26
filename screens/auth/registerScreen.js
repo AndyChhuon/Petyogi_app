@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import {
   BackHandler,
   SafeAreaView,
@@ -10,28 +10,53 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import AwesomeButton from "react-native-really-awesome-button";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import useAuth from "../../hooks/useAuth";
+import { useHeaderHeight } from "@react-navigation/elements";
 
-const auth = getAuth();
 const RegisterScreen = ({ navigation }) => {
+  const { emailSignup } = useAuth();
+
+  const [error, setError] = useState(null);
+
+  const [emailError, setEmailError] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
+  const [agreeError, setAgreeError] = useState(null);
+
   const [state, setState] = useState({
     password: null,
-    phoneNumber: null,
+    userEmail: null,
     securePassword: true,
     backClickCount: 0,
     isAgree: true,
   });
 
+  useEffect(() => {
+    if (error) {
+      switch (error) {
+        case "auth/email-already-in-use":
+          setEmailError("This email address is already in use!");
+          break;
+        case "auth/invalid-email":
+          setEmailError("This email address is invalid!");
+          break;
+        case "auth/weak-password":
+          setPasswordError("This password is too weak!");
+          break;
+        default:
+          setEmailError("The following error has occured: " + error);
+      }
+    }
+  }, [error]);
+
   const updateState = (data) => setState((state) => ({ ...state, ...data }));
 
-  const { password, phoneNumber, securePassword, backClickCount, isAgree } =
+  const { password, userEmail, securePassword, backClickCount, isAgree } =
     state;
 
   const backAction = () => {
@@ -59,24 +84,29 @@ const RegisterScreen = ({ navigation }) => {
       <StatusBar translucent={false} backgroundColor={Colors.primaryColor} />
       <View style={{ flex: 1 }}>
         {loginTitle()}
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-          <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              justifyContent: "space-between",
-              flexDirection: "column",
-            }}
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "space-between",
+            flexDirection: "column",
+          }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior="padding"
+            keyboardVerticalOffset={useHeaderHeight() + 47}
           >
             <View style={{ flex: 1, justifyContent: "flex-end" }}>
-              {phoneNumberTextField()}
+              {userEmailTextField()}
               {passwordTextField()}
               {agreeOrNotInfo()}
               {registerButton()}
+              {dontAccountInfo()}
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </ScrollView>
       </View>
-      {dontAccountInfo()}
       {backClickCount == 1 ? (
         <View style={[styles.animatedView]}>
           <Text style={{ ...Fonts.whiteColor14Medium }}>
@@ -89,7 +119,13 @@ const RegisterScreen = ({ navigation }) => {
 
   function dontAccountInfo() {
     return (
-      <Text style={{ textAlign: "center", margin: Sizes.fixPadding * 2.0 }}>
+      <Text
+        style={{
+          textAlign: "center",
+          margin: Sizes.fixPadding * 2.0,
+          marginTop: Sizes.fixPadding * 4.0,
+        }}
+      >
         <Text
           onPress={() => navigation.push("Login")}
           style={{
@@ -104,34 +140,48 @@ const RegisterScreen = ({ navigation }) => {
   }
 
   function registerOnClick() {
-    email = phoneNumber + "@gmail.com";
+    setEmailError(null);
+    setPasswordError(null);
+    setAgreeError(null);
+    setError(null);
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        console.log("signed in");
-        // ...
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-      });
+    if (!userEmail) {
+      setEmailError("Please enter a valid email address");
+      return;
+    } else if (
+      !userEmail.match(/^[a-zA-Z0-9]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/)
+    ) {
+      setEmailError("Please enter a valid email address");
+      return;
+    } else if (!password) {
+      setPasswordError("Please enter a valid password");
+      return;
+    } else if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      return;
+    } else if (!isAgree) {
+      setAgreeError("Please agree to the terms and conditions.");
+      return;
+    }
+
+    emailSignup(setError, userEmail, password);
   }
 
   function registerButton() {
     return (
       <AwesomeButton
         activeOpacity={0.9}
-        // onPress={() => navigation.push("Verification")}
-        onPress={() => registerOnClick()}
+        onPress={async (next) => {
+          registerOnClick();
+          next();
+        }}
         style={styles.registerButtonStyle}
         width="auto"
         backgroundColor={Colors.secondaryGoldColor}
         raiseLevel={5}
         borderRadius={20}
         backgroundShadow={Colors.grayColor}
+        progress
       >
         <Text
           style={{
@@ -148,39 +198,71 @@ const RegisterScreen = ({ navigation }) => {
 
   function passwordTextField() {
     return (
-      <View
-        style={{
-          ...styles.textFieldWrapStyle,
-          justifyContent: "space-between",
-        }}
-      >
+      <View>
         <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            width: "100%",
-          }}
+          style={
+            passwordError
+              ? {
+                  ...styles.textFieldWrapStyle,
+                  justifyContent: "space-between",
+                  borderColor: Colors.errorColor,
+                  borderWidth: 1,
+                }
+              : {
+                  ...styles.textFieldWrapStyle,
+                  justifyContent: "space-between",
+                }
+          }
         >
-          <MaterialIcons name="lock-open" size={20} color={Colors.whiteColor} />
-          <TextInput
-            value={password}
-            onChangeText={(value) => updateState({ password: value })}
-            placeholder="Enter Password"
-            secureTextEntry={securePassword}
-            placeholderTextColor={Colors.grayColor}
+          <View
             style={{
-              ...Fonts.whiteColor14Medium,
-              marginLeft: Sizes.fixPadding + 2.0,
-              flex: 1,
+              flexDirection: "row",
+              alignItems: "center",
+              width: "100%",
             }}
-            selectionColor={Colors.primaryColor}
-          />
-          <MaterialCommunityIcons
-            name={securePassword ? "eye" : "eye-off"}
-            size={20}
-            color={Colors.whiteColor}
-            onPress={() => updateState({ securePassword: !securePassword })}
-          />
+          >
+            <MaterialIcons
+              name="lock-open"
+              size={20}
+              color={Colors.whiteColor}
+            />
+            <TextInput
+              value={password}
+              onChangeText={(value) => updateState({ password: value })}
+              placeholder="Enter Password"
+              secureTextEntry={securePassword}
+              placeholderTextColor={Colors.grayColor}
+              style={{
+                ...Fonts.whiteColor14Medium,
+                marginLeft: Sizes.fixPadding + 2.0,
+                flex: 1,
+                paddingVertical: Sizes.fixPadding + 7.0,
+              }}
+              selectionColor={Colors.primaryColor}
+            />
+            <MaterialCommunityIcons
+              name={securePassword ? "eye" : "eye-off"}
+              size={20}
+              color={Colors.whiteColor}
+              onPress={() => updateState({ securePassword: !securePassword })}
+            />
+          </View>
+        </View>
+        <View
+          style={
+            passwordError
+              ? {
+                  marginHorizontal: Sizes.fixPadding * 2.0,
+                  marginBottom: 7,
+                }
+              : { display: "none" }
+          }
+        >
+          <Text
+            style={{ ...Fonts.parentColor14Medium, color: Colors.errorColor }}
+          >
+            {passwordError}
+          </Text>
         </View>
       </View>
     );
@@ -188,73 +270,114 @@ const RegisterScreen = ({ navigation }) => {
 
   function agreeOrNotInfo() {
     return (
-      <View style={styles.agreeOrNotInfoWrapStyle}>
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => updateState({ isAgree: !isAgree })}
-          style={{
-            backgroundColor: isAgree
-              ? Colors.secondaryGoldColor
-              : "transparent",
-            borderColor: isAgree
-              ? Colors.secondaryGoldColor
-              : Colors.whiteColor,
-            ...styles.checkBoxStyle,
-          }}
-        >
-          {isAgree ? (
-            <MaterialIcons name="check" color={Colors.whiteColor} size={14} />
-          ) : null}
-        </TouchableOpacity>
-        <Text style={{ marginLeft: Sizes.fixPadding + 2.0 }}>
-          <Text style={{ ...Fonts.whiteColor14Medium }}>
-            By creating an account, you agree to our {}
-          </Text>
-          <Text
+      <View style={{ marginBottom: Sizes.fixPadding * 4.0 }}>
+        <View style={styles.agreeOrNotInfoWrapStyle}>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => updateState({ isAgree: !isAgree })}
             style={{
-              ...Fonts.primaryColor14Medium,
-              textDecorationLine: "underline",
+              backgroundColor: isAgree
+                ? Colors.secondaryGoldColor
+                : "transparent",
+              borderColor: isAgree
+                ? Colors.secondaryGoldColor
+                : Colors.whiteColor,
+              ...styles.checkBoxStyle,
             }}
           >
-            Terms and Condition
+            {isAgree ? (
+              <MaterialIcons name="check" color={Colors.whiteColor} size={14} />
+            ) : null}
+          </TouchableOpacity>
+          <View>
+            <Text>
+              <Text style={{ ...Fonts.whiteColor14Medium }}>
+                By creating an account, you agree to our {}
+              </Text>
+              <Text
+                style={{
+                  ...Fonts.primaryColor14Medium,
+                  textDecorationLine: "underline",
+                }}
+              >
+                Terms and Condition
+              </Text>
+            </Text>
+          </View>
+        </View>
+        <View
+          style={
+            agreeError
+              ? {
+                  marginHorizontal: Sizes.fixPadding * 2.0,
+                }
+              : { display: "none" }
+          }
+        >
+          <Text
+            style={{
+              ...Fonts.parentColor14Medium,
+              color: Colors.errorColor,
+            }}
+          >
+            {agreeError}
           </Text>
-        </Text>
+        </View>
       </View>
     );
   }
 
-  function phoneNumberTextField() {
+  function userEmailTextField() {
     const input = useRef();
     return (
-      <View
-        style={{
-          ...styles.textFieldWrapStyle,
-          marginBottom: Sizes.fixPadding * 2.0,
-        }}
-      >
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => input.current.focus()}
+      <View>
+        <View
+          style={
+            emailError
+              ? {
+                  ...styles.textFieldWrapStyle,
+                  borderColor: Colors.errorColor,
+                  borderWidth: 1,
+                }
+              : styles.textFieldWrapStyle
+          }
         >
-          <Image
-            source={require("../../assets/images/icons/phone.png")}
-            style={{ width: 20.0, height: 20.0, resizeMode: "contain" }}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => input.current.focus()}
+          >
+            <Image
+              source={require("../../assets/images/icons/mail.png")}
+              style={{ width: 20.0, height: 20.0, resizeMode: "contain" }}
+            />
+          </TouchableOpacity>
+          <TextInput
+            ref={input}
+            value={userEmail}
+            onChangeText={(value) => updateState({ userEmail: value })}
+            placeholder="Enter Email Address"
+            placeholderTextColor={Colors.grayColor}
+            style={{
+              ...Fonts.whiteColor14Medium,
+              flex: 1,
+              marginLeft: Sizes.fixPadding + 2.0,
+              paddingVertical: Sizes.fixPadding + 7.0,
+            }}
+            selectionColor={Colors.primaryColor}
           />
-        </TouchableOpacity>
-        <TextInput
-          ref={input}
-          value={phoneNumber}
-          onChangeText={(value) => updateState({ phoneNumber: value })}
-          placeholder="Enter Phone Number"
-          placeholderTextColor={Colors.grayColor}
+        </View>
+        <View
           style={{
-            ...Fonts.whiteColor14Medium,
-            flex: 1,
-            marginLeft: Sizes.fixPadding + 2.0,
+            marginHorizontal: Sizes.fixPadding * 2.0,
+            marginBottom: 7,
           }}
-          selectionColor={Colors.primaryColor}
-          keyboardType="phone-pad"
-        />
+        >
+          <Text
+            style={{ ...Fonts.parentColor14Medium, color: Colors.errorColor }}
+          >
+            {emailError ? emailError : ""}
+          </Text>
+        </View>
       </View>
     );
   }
@@ -295,7 +418,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.05)",
     borderRadius: Sizes.fixPadding - 5.0,
     paddingHorizontal: Sizes.fixPadding + 2.0,
-    paddingVertical: Sizes.fixPadding + 5.0,
     marginHorizontal: Sizes.fixPadding * 2.0,
   },
   forgetPasswordTextStyle: {
@@ -306,10 +428,8 @@ const styles = StyleSheet.create({
     ...Fonts.primaryColor14Medium,
   },
   registerButtonStyle: {
-    paddingVertical: Sizes.fixPadding + 5.0,
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: Sizes.fixPadding * 4.0,
     marginHorizontal: Sizes.fixPadding * 2.0,
     borderRadius: Sizes.fixPadding - 5.0,
   },
@@ -347,6 +467,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.0,
     alignItems: "center",
     justifyContent: "center",
+    marginRight: Sizes.fixPadding + 2.0,
   },
 });
 

@@ -1,6 +1,5 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
-  BackHandler,
   SafeAreaView,
   View,
   StatusBar,
@@ -14,20 +13,46 @@ import {
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
 import AwesomeButton from "react-native-really-awesome-button";
+import useAuth from "../../hooks/useAuth";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 const LoginScreen = ({ navigation }) => {
   const [state, setState] = useState({
     password: null,
-    phoneNumber: null,
+    userEmail: null,
     securePassword: true,
     backClickCount: 0,
   });
 
+  const { emailLogin, user } = useAuth();
+
+  const [error, setError] = useState(null);
+
+  const [emailError, setEmailError] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
+
+  useEffect(() => {
+    if (error) {
+      switch (error) {
+        case "auth/user-not-found":
+          setEmailError("This email address is not registered!");
+          break;
+        case "auth/too-many-requests":
+          setEmailError("Too many login attempts, please try again later");
+          break;
+        case "auth/wrong-password":
+          setPasswordError("Wrong Password, please try again");
+          break;
+        default:
+          setEmailError("The following error has occured: " + error);
+      }
+    }
+  }, [error]);
+
   const updateState = (data) => setState((state) => ({ ...state, ...data }));
 
-  const { password, phoneNumber, securePassword, backClickCount } = state;
+  const { password, userEmail, securePassword, backClickCount } = state;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
@@ -36,23 +61,28 @@ const LoginScreen = ({ navigation }) => {
         {backArrow()}
 
         {loginTitle()}
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-          <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              justifyContent: "space-between",
-              flexDirection: "column",
-            }}
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "space-between",
+            flexDirection: "column",
+          }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior="padding"
+            keyboardVerticalOffset={useHeaderHeight() + 47}
           >
             <View style={{ flex: 1, justifyContent: "flex-end" }}>
-              {phoneNumberTextField()}
+              {userEmailTextField()}
               {passwordTextField()}
               {loginButton()}
+              {dontAccountInfo()}
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </ScrollView>
       </View>
-      {dontAccountInfo()}
       {backClickCount == 1 ? (
         <View style={[styles.animatedView]}>
           <Text style={{ ...Fonts.whiteColor14Medium }}>
@@ -65,9 +95,15 @@ const LoginScreen = ({ navigation }) => {
 
   function dontAccountInfo() {
     return (
-      <Text style={{ textAlign: "center", margin: Sizes.fixPadding * 2.0 }}>
+      <Text
+        style={{
+          textAlign: "center",
+          margin: Sizes.fixPadding * 2.0,
+          marginTop: Sizes.fixPadding * 4.0,
+        }}
+      >
         <Text
-          onPress={() => navigation.push("Register")}
+          onPress={() => navigation.push("ResetPassword")}
           style={{
             ...Fonts.primaryColor14Medium,
             textDecorationLine: "underline",
@@ -79,17 +115,45 @@ const LoginScreen = ({ navigation }) => {
     );
   }
 
+  function loginOnClick() {
+    setEmailError(null);
+    setPasswordError(null);
+    setError(null);
+
+    if (!userEmail) {
+      setEmailError("Please enter a valid email address");
+      return;
+    } else if (
+      !userEmail.match(/^[a-zA-Z0-9]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/)
+    ) {
+      setEmailError("Please enter a valid email address");
+      return;
+    } else if (!password) {
+      setPasswordError("Please enter a valid password");
+      return;
+    } else if (password.length < 6) {
+      setPasswordError("Wrong Password, must be at least 6 characters");
+      return;
+    }
+
+    emailLogin(setError, userEmail, password);
+  }
+
   function loginButton() {
     return (
       <AwesomeButton
         activeOpacity={0.9}
-        onPress={() => navigation.push("Verification")}
+        onPress={async (next) => {
+          loginOnClick();
+          next();
+        }}
         style={styles.loginButtonStyle}
         width="auto"
         backgroundColor={Colors.secondaryGoldColor}
         raiseLevel={5}
         borderRadius={20}
         backgroundShadow={Colors.grayColor}
+        progress
       >
         <Text
           style={{
@@ -119,76 +183,126 @@ const LoginScreen = ({ navigation }) => {
 
   function passwordTextField() {
     return (
-      <View
-        style={{
-          ...styles.textFieldWrapStyle,
-          justifyContent: "space-between",
-        }}
-      >
+      <View style={{ marginBottom: Sizes.fixPadding * 4.0 }}>
         <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            width: "100%",
-          }}
+          style={
+            passwordError
+              ? {
+                  ...styles.textFieldWrapStyle,
+                  justifyContent: "space-between",
+                  borderColor: Colors.errorColor,
+                  borderWidth: 1,
+                }
+              : {
+                  ...styles.textFieldWrapStyle,
+                  justifyContent: "space-between",
+                }
+          }
         >
-          <MaterialIcons name="lock-open" size={20} color={Colors.whiteColor} />
-          <TextInput
-            value={password}
-            onChangeText={(value) => updateState({ password: value })}
-            placeholder="Enter Password"
-            secureTextEntry={securePassword}
-            placeholderTextColor={Colors.grayColor}
+          <View
             style={{
-              ...Fonts.whiteColor14Medium,
-              marginLeft: Sizes.fixPadding + 2.0,
-              flex: 1,
+              flexDirection: "row",
+              alignItems: "center",
+              width: "100%",
             }}
-            selectionColor={Colors.primaryColor}
-          />
-          <MaterialCommunityIcons
-            name={securePassword ? "eye" : "eye-off"}
-            size={20}
-            color={Colors.whiteColor}
-            onPress={() => updateState({ securePassword: !securePassword })}
-          />
+          >
+            <MaterialIcons
+              name="lock-open"
+              size={20}
+              color={Colors.whiteColor}
+            />
+            <TextInput
+              value={password}
+              onChangeText={(value) => updateState({ password: value })}
+              placeholder="Enter Password"
+              secureTextEntry={securePassword}
+              placeholderTextColor={Colors.grayColor}
+              style={{
+                ...Fonts.whiteColor14Medium,
+                marginLeft: Sizes.fixPadding + 2.0,
+                flex: 1,
+                paddingVertical: Sizes.fixPadding + 7.0,
+              }}
+              selectionColor={Colors.primaryColor}
+            />
+            <MaterialCommunityIcons
+              name={securePassword ? "eye" : "eye-off"}
+              size={20}
+              color={Colors.whiteColor}
+              onPress={() => updateState({ securePassword: !securePassword })}
+            />
+          </View>
+        </View>
+        <View
+          style={
+            passwordError
+              ? {
+                  marginHorizontal: Sizes.fixPadding * 2.0,
+                }
+              : { display: "none" }
+          }
+        >
+          <Text
+            style={{ ...Fonts.parentColor14Medium, color: Colors.errorColor }}
+          >
+            {passwordError}
+          </Text>
         </View>
       </View>
     );
   }
 
-  function phoneNumberTextField() {
+  function userEmailTextField() {
     const input = useRef();
     return (
-      <View
-        style={{
-          ...styles.textFieldWrapStyle,
-          marginBottom: Sizes.fixPadding * 2.0,
-        }}
-      >
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => input.current.focus()}
+      <View>
+        <View
+          style={
+            emailError
+              ? {
+                  ...styles.textFieldWrapStyle,
+                  borderColor: Colors.errorColor,
+                  borderWidth: 1,
+                }
+              : styles.textFieldWrapStyle
+          }
         >
-          <Image
-            source={require("../../assets/images/icons/phone.png")}
-            style={{ width: 20.0, height: 20.0, resizeMode: "contain" }}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => input.current.focus()}
+          >
+            <Image
+              source={require("../../assets/images/icons/mail.png")}
+              style={{ width: 20.0, height: 20.0, resizeMode: "contain" }}
+            />
+          </TouchableOpacity>
+          <TextInput
+            ref={input}
+            value={userEmail}
+            onChangeText={(value) => updateState({ userEmail: value })}
+            placeholder="Enter Email Address"
+            placeholderTextColor={Colors.grayColor}
+            style={{
+              ...Fonts.whiteColor14Medium,
+              flex: 1,
+              marginLeft: Sizes.fixPadding + 2.0,
+              paddingVertical: Sizes.fixPadding + 7.0,
+            }}
+            selectionColor={Colors.primaryColor}
           />
-        </TouchableOpacity>
-        <TextInput
-          ref={input}
-          value={phoneNumber}
-          onChangeText={(value) => updateState({ phoneNumber: value })}
-          placeholder="Enter Phone Number"
-          placeholderTextColor={Colors.grayColor}
+        </View>
+        <View
           style={{
-            ...Fonts.whiteColor14Medium,
-            flex: 1,
-            marginLeft: Sizes.fixPadding + 2.0,
+            marginHorizontal: Sizes.fixPadding * 2.0,
+            marginBottom: 7,
           }}
-          selectionColor={Colors.primaryColor}
-          keyboardType="phone-pad"
-        />
+        >
+          <Text
+            style={{ ...Fonts.parentColor14Medium, color: Colors.errorColor }}
+          >
+            {emailError ? emailError : ""}
+          </Text>
+        </View>
       </View>
     );
   }
@@ -227,7 +341,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.05)",
     borderRadius: Sizes.fixPadding - 5.0,
     paddingHorizontal: Sizes.fixPadding + 2.0,
-    paddingVertical: Sizes.fixPadding + 5.0,
     marginHorizontal: Sizes.fixPadding * 2.0,
   },
   forgetPasswordTextStyle: {
@@ -240,10 +353,8 @@ const styles = StyleSheet.create({
   loginButtonStyle: {
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: Sizes.fixPadding * 4.0,
     marginHorizontal: Sizes.fixPadding * 2.0,
     borderRadius: Sizes.fixPadding - 5.0,
-    marginTop: 50,
   },
   googleAndFacebookButtonWrapStyle: {
     flex: 1,

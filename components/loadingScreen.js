@@ -2,8 +2,11 @@ import React, { useEffect } from "react";
 import { View } from "react-native";
 import * as Font from "expo-font";
 import { Colors } from "../constants/styles";
+import useAuth from "../hooks/useAuth";
 
 const LoadingScreen = ({ navigation }) => {
+  const { setAppInitialized } = useAuth();
+
   useEffect(() => {
     async function loadFont() {
       await Font.loadAsync({
@@ -17,7 +20,7 @@ const LoadingScreen = ({ navigation }) => {
         Sigmar_Regular: require("../assets/fonts/Sigmar-Regular.ttf"),
       });
       // navigation.navigate("Splash");
-      navigation.navigate("Register");
+      setAppInitialized(true);
     }
     loadFont();
   });

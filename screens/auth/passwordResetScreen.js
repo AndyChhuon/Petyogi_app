@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   SafeAreaView,
   Dimensions,
@@ -6,6 +6,8 @@ import {
   StatusBar,
   ScrollView,
   StyleSheet,
+  Image,
+  TextInput,
   Text,
   TouchableOpacity,
 } from "react-native";
@@ -13,33 +15,33 @@ import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons } from "@expo/vector-icons";
 import useAuth from "../../hooks/useAuth";
 import * as Haptics from "expo-haptics";
+import { set } from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
 
-const VerificationScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
+const PasswordResetScreen = ({ navigation }) => {
   const [error, setError] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+  const [sent, setSent] = useState(false);
+  const [userEmail, setUserEmail] = useState(null);
+  const [emailError, setEmailError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const { emailVerification, user } = useAuth();
+  const { passwordReset } = useAuth();
 
   useEffect(() => {
     if (error) {
       switch (error) {
         case "auth/invalid-email":
-          setErrorMsg(
-            "The email address you entered is invalid. Please sign up with a valid email address."
-          );
+          setEmailError("The email address you entered is invalid.");
           break;
         case "auth/user-not-found":
-          setErrorMsg(
-            "The user with the given email address was not found. Please sign up first."
-          );
+          setEmailError("The user with the given email address was not found.");
           break;
         case "auth/too-many-requests":
           setErrorMsg(
-            "Too many verification requests. Please try again in 60 seconds."
+            "Too many password reset requests. Please try again later."
           );
           break;
         default:
@@ -47,20 +49,6 @@ const VerificationScreen = ({ navigation }) => {
       }
     }
   }, [error]);
-
-  useEffect(() => {
-    if (!user) {
-      navigation.navigate("Register");
-    } else {
-      if (!user.emailVerified) {
-        setEmail(user.email);
-
-        verifyEmail();
-      } else {
-        navigation.navigate("BottomTabBar");
-      }
-    }
-  }, [user]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
@@ -71,7 +59,8 @@ const VerificationScreen = ({ navigation }) => {
       <View style={{ flex: 1 }}>
         {backArrow()}
         <ScrollView showsVerticalScrollIndicator={false}>
-          {verificationInfo()}
+          {passwordResetInfo()}
+          {userEmailTextField()}
           {resendInfo()}
           {verifyButton()}
           {errorMsg ? errorDialog() : ""}
@@ -88,33 +77,38 @@ const VerificationScreen = ({ navigation }) => {
           name="chevron-left"
           color={Colors.whiteColor}
           size={26}
-          onPress={() => navigation.navigate("Register")}
+          onPress={() => navigation.pop()}
         />
       </View>
     );
   }
 
-  async function verifyOnClick() {
+  function verifyEmail(setLoadingOrSent) {
     setError(null);
     setErrorMsg(null);
     setSuccessMsg(null);
-    await user.reload();
-    if (!user.emailVerified) {
-      setErrorMsg(
-        "Email not verified. Please check your inbox and click the verification link."
-      );
-    } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      setSuccessMsg("Verification successful! Teleporting to PetYogi...");
-      navigation.navigate("BottomTabBar");
-    }
-  }
+    setEmailError(null);
 
-  function verifyEmail() {
-    setError(null);
-    setErrorMsg(null);
-    setSuccessMsg(null);
-    emailVerification(setError, setSuccessMsg);
+    if (!userEmail) {
+      setEmailError("Please enter a valid email address");
+      return;
+    } else if (
+      !userEmail.match(/^[a-zA-Z0-9]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/)
+    ) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+    setLoadingOrSent(true);
+
+    setSuccessMsg("Sending verification email...");
+
+    passwordReset(
+      setError,
+      setLoadingOrSent,
+      setSuccessMsg,
+      setLoading,
+      userEmail
+    );
   }
 
   function verifyButton() {
@@ -122,11 +116,21 @@ const VerificationScreen = ({ navigation }) => {
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => {
-          verifyOnClick();
+          if (sent) {
+            navigation.push("Login");
+          } else {
+            verifyEmail(setSent);
+          }
         }}
-        style={styles.verifyButtonStyle}
+        style={
+          sent
+            ? { ...styles.verifyButtonStyle, backgroundColor: Colors.grayColor }
+            : styles.verifyButtonStyle
+        }
       >
-        <Text style={{ ...Fonts.whiteColor20SemiBold }}>Continue</Text>
+        <Text style={{ ...Fonts.whiteColor20SemiBold }}>
+          {sent ? "Login" : "Send"}
+        </Text>
       </TouchableOpacity>
     );
   }
@@ -142,7 +146,12 @@ const VerificationScreen = ({ navigation }) => {
             ...Fonts.primaryColor14Medium,
             textDecorationLine: "underline",
           }}
-          onPress={() => verifyEmail()}
+          onPress={() => {
+            if (loading) {
+            } else {
+              verifyEmail(setLoading);
+            }
+          }}
         >
           Resend New Code
         </Text>
@@ -150,7 +159,7 @@ const VerificationScreen = ({ navigation }) => {
     );
   }
 
-  function verificationInfo() {
+  function passwordResetInfo() {
     return (
       <View
         style={{
@@ -159,7 +168,7 @@ const VerificationScreen = ({ navigation }) => {
           alignItems: "center",
         }}
       >
-        <Text style={{ ...Fonts.whiteColor26SemiBold }}>Verification</Text>
+        <Text style={{ ...Fonts.whiteColor26SemiBold }}>Reset Password</Text>
         <Text
           style={{
             textAlign: "center",
@@ -168,8 +177,63 @@ const VerificationScreen = ({ navigation }) => {
             marginTop: Sizes.fixPadding * 3,
           }}
         >
-          {`PetYogi has sent a verification link to: \n${email}.`}
+          Enter email address to receive a password reset link:
         </Text>
+      </View>
+    );
+  }
+
+  function userEmailTextField() {
+    const input = useRef();
+    return (
+      <View>
+        <View
+          style={
+            emailError
+              ? {
+                  ...styles.textFieldWrapStyle,
+                  borderColor: Colors.errorColor,
+                  borderWidth: 1,
+                }
+              : styles.textFieldWrapStyle
+          }
+        >
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => input.current.focus()}
+          >
+            <Image
+              source={require("../../assets/images/icons/mail.png")}
+              style={{ width: 20.0, height: 20.0, resizeMode: "contain" }}
+            />
+          </TouchableOpacity>
+          <TextInput
+            ref={input}
+            value={userEmail}
+            onChangeText={(value) => setUserEmail(value)}
+            placeholder="Enter Email Address"
+            placeholderTextColor={Colors.grayColor}
+            style={{
+              ...Fonts.whiteColor14Medium,
+              flex: 1,
+              marginLeft: Sizes.fixPadding + 2.0,
+              paddingVertical: Sizes.fixPadding + 7.0,
+            }}
+            selectionColor={Colors.primaryColor}
+          />
+        </View>
+        <View
+          style={{
+            marginHorizontal: Sizes.fixPadding * 2.0,
+            marginBottom: 7,
+          }}
+        >
+          <Text
+            style={{ ...Fonts.parentColor14Medium, color: Colors.errorColor }}
+          >
+            {emailError ? emailError : ""}
+          </Text>
+        </View>
       </View>
     );
   }
@@ -250,6 +314,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bodyBackColor,
     padding: 0.0,
   },
+  textFieldWrapStyle: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: Sizes.fixPadding - 5.0,
+    paddingHorizontal: Sizes.fixPadding + 2.0,
+    marginHorizontal: Sizes.fixPadding * 2.0,
+  },
 });
 
-export default VerificationScreen;
+export default PasswordResetScreen;

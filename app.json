@@ -13,12 +13,12 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "bundleIdentifier": "com.render.rnnftmarketplace",
+      "bundleIdentifier": "com.petyogi.app",
       "buildNumber": "3.0.0",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.render.rnnftmarketplace",
+      "package": "com.petyogi.app",
       "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
