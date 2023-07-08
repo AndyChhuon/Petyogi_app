@@ -21,7 +21,7 @@ import useAuth from "../../hooks/useAuth";
 const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
-  const [dayMode, setDayMode] = useState(false);
+  const [dayMode, setDayMode] = useState(true);
   const [buttonIsPressed, setButtonIsPressed] = useState(false);
 
   const { userValues } = useAuth();
@@ -42,8 +42,8 @@ const HomeScreen = ({ navigation }) => {
       <SafeAreaView
         style={
           dayMode
-            ? { flex: 1, backgroundColor: "#f9c96c" }
-            : { flex: 1, backgroundColor: "#535cb3" }
+            ? { flex: 1, backgroundColor: "#f9cb70" }
+            : { flex: 1, backgroundColor: "#5760b5" }
         }
       >
         <ImageBackground
@@ -57,7 +57,7 @@ const HomeScreen = ({ navigation }) => {
         >
           <StatusBar
             translucent={false}
-            backgroundColor={dayMode ? "#f9c96c" : "#535cb3"}
+            backgroundColor={dayMode ? "#f9cb70" : "#5760b5"}
           />
           {userInfo()}
           <ScrollView>
@@ -92,12 +92,14 @@ const HomeScreen = ({ navigation }) => {
   function meditationButtons() {
     const buttonTooltips = [];
 
-    for (let i = 0; i < userValues.numMeditations; i++) {
+    for (let i = 0; i <= userValues.numMeditations; i++) {
       buttonTooltips.push(
         <ButtonTooltip
+          dayMode={dayMode}
           buttonIsPressed={buttonIsPressed}
           setButtonIsPressed={setButtonIsPressed}
           number={i}
+          currentMeditation={userValues.numMeditations}
         />
       );
     }
@@ -130,9 +132,9 @@ const HomeScreen = ({ navigation }) => {
                 }}
               >
                 <Image
-                  source={require("../../assets/images/icons/eth.png")}
+                  source={require("../../assets/images/icons/streak.png")}
                   style={{
-                    width: (14.0 * width) / 414,
+                    width: (20.0 * width) / 414,
                     height: (20.0 * width) / 414,
                     resizeMode: "contain",
                   }}
@@ -144,7 +146,7 @@ const HomeScreen = ({ navigation }) => {
                     fontSize: (20.0 * width) / 414,
                   }}
                 >
-                  5
+                  {userValues.streak}
                 </Text>
               </View>
 
@@ -157,21 +159,21 @@ const HomeScreen = ({ navigation }) => {
                 }}
               >
                 <Image
-                  source={require("../../assets/images/icons/eth.png")}
+                  source={require("../../assets/images/icons/gem.png")}
                   style={{
-                    width: (14.0 * width) / 414,
+                    width: (20.0 * width) / 414,
                     height: (20.0 * width) / 414,
                     resizeMode: "contain",
                   }}
                 />
                 <Text
                   style={{
-                    marginLeft: ((Sizes.fixPadding - 5.0) * width) / 414,
+                    marginLeft: ((Sizes.fixPadding - 2.0) * width) / 414,
                     ...Fonts.whiteColor20Bold,
                     fontSize: (20.0 * width) / 414,
                   }}
                 >
-                  5
+                  {userValues.coins}
                 </Text>
               </View>
 
@@ -184,10 +186,10 @@ const HomeScreen = ({ navigation }) => {
                 }}
               >
                 <Image
-                  source={require("../../assets/images/icons/eth.png")}
+                  source={require("../../assets/images/icons/meditation.png")}
                   style={{
-                    width: (14.0 * width) / 414,
-                    height: (20.0 * width) / 414,
+                    width: (28.0 * width) / 414,
+                    height: (28.0 * width) / 414,
                     resizeMode: "contain",
                   }}
                 />
@@ -198,7 +200,7 @@ const HomeScreen = ({ navigation }) => {
                     fontSize: (20.0 * width) / 414,
                   }}
                 >
-                  5
+                  {userValues.remainingCredits}
                 </Text>
               </View>
 
@@ -250,7 +252,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: (Sizes.fixPadding * 1.5 * width) / 414,
     paddingTop: 3,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   BackgroundImage: {
     flex: 1,

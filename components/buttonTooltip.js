@@ -1,6 +1,6 @@
 import AwesomeButton from "react-native-really-awesome-button";
 import React, { useState, useEffect } from "react";
-import { View, Dimensions, StyleSheet, Text } from "react-native";
+import { View, Dimensions, StyleSheet, Text, Image } from "react-native";
 import { Colors, Fonts } from "../constants/styles";
 import Animated, {
   useAnimatedStyle,
@@ -8,6 +8,7 @@ import Animated, {
   withDelay,
   withTiming,
   Easing,
+  ColorSpace,
 } from "react-native-reanimated";
 
 const ScaleInOut = ({
@@ -48,8 +49,16 @@ const ScaleInOut = ({
 const { width } = Dimensions.get("window");
 
 function Button(props) {
-  const { number, buttonIsPressed, setButtonIsPressed } = props;
+  const {
+    number,
+    buttonIsPressed,
+    setButtonIsPressed,
+    dayMode,
+    currentMeditation,
+  } = props;
   const [showTooltip, setShowTooltip] = useState(false);
+  const leftMargin =
+    number % 6 < 4 ? (number % 6) * 18 : (6 - (number % 6)) * 18;
 
   useEffect(() => {
     // Overlay was pressed
@@ -72,26 +81,60 @@ function Button(props) {
   };
 
   return (
-    <View style={{ position: "relative", zIndex: 90 - number }}>
+    <View
+      style={{
+        position: "relative",
+        zIndex: 90 - number,
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
       <View style={styles.buttonMarginStyle}>
-        <View width={width / 6} style={styles.buttonContainerStyle}>
+        <View
+          width={width / 6}
+          style={{
+            ...styles.buttonContainerStyle,
+            marginLeft: `${leftMargin}%`,
+          }}
+        >
           <AwesomeButton
-            backgroundColor={Colors.goldColor}
+            backgroundColor={
+              currentMeditation > number
+                ? dayMode
+                  ? "#ffd27d"
+                  : Colors.bodyBackColor
+                : dayMode
+                ? Colors.bodyBackColor
+                : "#ffd27d"
+            }
             borderRadius={100}
             raiseLevel={(8 * width) / 414}
             width={width / 6}
             height={width / 6}
             onPressOut={onPress}
-            style={styles.buttonStyle}
+            style={{ marginBottom: 10 }}
           >
-            <Text
-              style={{
-                ...Fonts.blackMicroma,
-                fontSize: (25 * width) / 414,
-              }}
-            >
-              {number}
-            </Text>
+            {currentMeditation > number ? (
+              <Image
+                source={require("../assets/images/icons/checkmark.png")}
+                style={{
+                  width: width / 10,
+                  height: width / 10,
+                  resizeMode: "contain",
+                  tintColor: dayMode ? Colors.bodyBackColor : "#fffefe",
+                }}
+              />
+            ) : (
+              <Text
+                style={{
+                  ...Fonts.blackMicroma,
+                  color: dayMode ? "#fffefe" : "#B99B92",
+                  fontSize: (25 * width) / 414,
+                }}
+              >
+                {number}
+              </Text>
+            )}
           </AwesomeButton>
           <ScaleInOut
             delayIn={150}
@@ -122,14 +165,10 @@ function Button(props) {
 
 const styles = StyleSheet.create({
   buttonMarginStyle: {
-    marginLeft: (80 * width) / 414,
-    marginRight: (80 * width) / 414,
+    width: (45 * width) / 100,
     position: "relative",
     zIndex: 1,
     top: 0,
-  },
-  buttonStyle: {
-    marginBottom: 2,
   },
   buttonContainerStyle: {
     display: "flex",
@@ -144,6 +183,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "blue",
   },
   tooltipDisplay: {
+    marginTop: 8,
     marginLeft: (40 * width) / 414,
     marginRight: (40 * width) / 414,
     width: width - (2 * (40 * width)) / 414,
