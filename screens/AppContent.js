@@ -25,6 +25,7 @@ import RegisterScreen from "./auth/registerScreen";
 import VerificationScreen from "./auth/verificationScreen";
 import PasswordResetScreen from "./auth/passwordResetScreen";
 import useAuth from "../hooks/useAuth";
+import FlashMessage from "react-native-flash-message";
 
 const Stack = createStackNavigator();
 
@@ -32,76 +33,88 @@ const AppContent = () => {
   const { user } = useAuth();
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        ...TransitionPresets.SlideFromRightIOS,
-      }}
-    >
-      <Stack.Screen name="Loading" component={LoadingScreen} />
-      {/* <Stack.Screen
+    <>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      >
+        <Stack.Screen name="Loading" component={LoadingScreen} />
+        {/* <Stack.Screen
                 name="Splash"
                 component={SplashScreen}
                 options={{ ...TransitionPresets.DefaultTransition }}
               /> */}
-      {user ? (
-        <>
-          <Stack.Screen name="Verification" component={VerificationScreen} />
-          <Stack.Screen
-            name="BottomTabBar"
-            component={BottomTabBarScreen}
-            options={{ ...TransitionPresets.DefaultTransition }}
-          />
-          <Stack.Screen
-            name="LiveAuctionsDetail"
-            component={LiveAuctionsDetailScreen}
-          />
-          <Stack.Screen name="ConnectWallet" component={ConnectWalletScreen} />
-          <Stack.Screen
-            name="PlaceBidSuccess"
-            component={PlaceBidSuccessScreen}
-          />
-          <Stack.Screen
-            name="CreatorProfile"
-            component={CreatorProfileScreen}
-          />
-          <Stack.Screen name="SetNFTPrice" component={SetNFTPriceScreen} />
-          <Stack.Screen
-            name="NFTUploadSuccess"
-            component={NFTUploadSuccessScreen}
-          />
-          <Stack.Screen name="Collections" component={CollectionsScreen} />
-          <Stack.Screen name="Setting" component={SettingScreen} />
-          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-          <Stack.Screen name="Wallet" component={WalletScreen} />
-          <Stack.Screen name="Faqs" component={FaqsScreen} />
-          <Stack.Screen name="ContactUs" component={ContactUsScreen} />
-          <Stack.Screen
-            name="TermsAndConditions"
-            component={TermsAndConditionsScreen}
-          />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ ...TransitionPresets.DefaultTransition }}
-          />
-          <Stack.Screen name="ResetPassword" component={PasswordResetScreen} />
-        </>
-      ) : (
-        <>
-          <Stack.Screen name="Verification" component={VerificationScreen} />
+        {user ? (
+          <>
+            <Stack.Screen name="Verification" component={VerificationScreen} />
+            <Stack.Screen
+              name="BottomTabBar"
+              component={BottomTabBarScreen}
+              options={{ ...TransitionPresets.DefaultTransition }}
+            />
+            <Stack.Screen
+              name="LiveAuctionsDetail"
+              component={LiveAuctionsDetailScreen}
+            />
+            <Stack.Screen
+              name="ConnectWallet"
+              component={ConnectWalletScreen}
+            />
+            <Stack.Screen
+              name="PlaceBidSuccess"
+              component={PlaceBidSuccessScreen}
+            />
+            <Stack.Screen
+              name="CreatorProfile"
+              component={CreatorProfileScreen}
+            />
+            <Stack.Screen name="SetNFTPrice" component={SetNFTPriceScreen} />
+            <Stack.Screen
+              name="NFTUploadSuccess"
+              component={NFTUploadSuccessScreen}
+            />
+            <Stack.Screen name="Collections" component={CollectionsScreen} />
+            <Stack.Screen name="Setting" component={SettingScreen} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen name="Wallet" component={WalletScreen} />
+            <Stack.Screen name="Faqs" component={FaqsScreen} />
+            <Stack.Screen name="ContactUs" component={ContactUsScreen} />
+            <Stack.Screen
+              name="TermsAndConditions"
+              component={TermsAndConditionsScreen}
+            />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ ...TransitionPresets.DefaultTransition }}
+            />
+            <Stack.Screen
+              name="ResetPassword"
+              component={PasswordResetScreen}
+            />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="Verification" component={VerificationScreen} />
 
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ ...TransitionPresets.DefaultTransition }}
-          />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="ResetPassword" component={PasswordResetScreen} />
-        </>
-      )}
-    </Stack.Navigator>
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ ...TransitionPresets.DefaultTransition }}
+            />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen
+              name="ResetPassword"
+              component={PasswordResetScreen}
+            />
+          </>
+        )}
+      </Stack.Navigator>
+      <FlashMessage position="top" />
+    </>
   );
 };
 

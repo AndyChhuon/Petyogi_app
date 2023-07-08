@@ -16,12 +16,15 @@ import {
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import * as Haptics from "expo-haptics";
 import ButtonTooltip from "../../components/buttonTooltip";
+import useAuth from "../../hooks/useAuth";
 
 const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
   const [dayMode, setDayMode] = useState(false);
   const [buttonIsPressed, setButtonIsPressed] = useState(false);
+
+  const { userValues } = useAuth();
 
   const onModeChange = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -75,16 +78,7 @@ const HomeScreen = ({ navigation }) => {
                       marginBottom: 150,
                     }}
                   >
-                    <ButtonTooltip
-                      buttonIsPressed={buttonIsPressed}
-                      setButtonIsPressed={setButtonIsPressed}
-                      number={1}
-                    />
-                    <ButtonTooltip
-                      buttonIsPressed={buttonIsPressed}
-                      setButtonIsPressed={setButtonIsPressed}
-                      number={2}
-                    />
+                    {meditationButtons()}
                   </View>
                 }
               />
@@ -94,6 +88,21 @@ const HomeScreen = ({ navigation }) => {
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
+
+  function meditationButtons() {
+    const buttonTooltips = [];
+
+    for (let i = 0; i < userValues.numMeditations; i++) {
+      buttonTooltips.push(
+        <ButtonTooltip
+          buttonIsPressed={buttonIsPressed}
+          setButtonIsPressed={setButtonIsPressed}
+          number={i}
+        />
+      );
+    }
+    return buttonTooltips;
+  }
 
   function userInfo() {
     return (

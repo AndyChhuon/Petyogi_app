@@ -10,8 +10,6 @@ LogBox.ignoreAllLogs();
 const Stack = createStackNavigator();
 
 const App = () => {
-  const { user } = useAuth();
-
   return (
     <NavigationContainer>
       <AuthProvider>

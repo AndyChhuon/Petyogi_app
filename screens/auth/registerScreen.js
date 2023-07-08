@@ -270,7 +270,12 @@ const RegisterScreen = ({ navigation }) => {
 
   function agreeOrNotInfo() {
     return (
-      <View style={{ marginBottom: Sizes.fixPadding * 4.0 }}>
+      <View
+        style={{
+          marginBottom: Sizes.fixPadding * 4.0,
+          marginRight: Sizes.fixPadding * 2.0,
+        }}
+      >
         <View style={styles.agreeOrNotInfoWrapStyle}>
           <TouchableOpacity
             activeOpacity={0.9}

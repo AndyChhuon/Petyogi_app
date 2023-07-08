@@ -26,6 +26,7 @@
     "react-native-collapsible-toolbar": "^0.1.2",
     "react-native-dashed-line": "^1.1.0",
     "react-native-dialog": "^9.3.0",
+    "react-native-flash-message": "^0.4.1",
     "react-native-gesture-handler": "~2.9.0",
     "react-native-masonry-list": "^2.16.1",
     "react-native-otp-textinput": "^1.0.0",

@@ -13,8 +13,10 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  getIdToken,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
+import { showMessage, hideMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
 
 const AuthContext = createContext({});
@@ -22,6 +24,7 @@ const AuthContext = createContext({});
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [appInitialized, setAppInitialized] = useState(false);
+  const [userValues, setUserValues] = useState({});
 
   const navigation = useNavigation();
 
@@ -32,10 +35,34 @@ export const AuthProvider = ({ children }) => {
           setUser(user);
 
           if (user.emailVerified) {
-            navigation.navigate("BottomTabBar");
+            //
+            getIdToken(user).then((idToken) => {
+              //post request
+              fetch(
+                "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    idToken: idToken,
+                  }),
+                }
+              )
+                .then((res) => res.json())
+                .then((data) => {
+                  setUserValues(data);
+                  navigation.navigate("BottomTabBar");
+                })
+                .catch((err) => {
+                  showMessage({
+                    message: "There was an error fetching your data.",
+                    type: "danger",
+                  });
+                });
+            });
           }
-
-          console.log("User:", user);
         } else {
           navigation.navigate("Register");
         }
@@ -125,8 +152,16 @@ export const AuthProvider = ({ children }) => {
       emailLogin,
       setAppInitialized,
       passwordReset,
+      userValues,
     }),
-    [user, emailSignup, emailVerification, emailLogin, setAppInitialized]
+    [
+      user,
+      emailSignup,
+      emailVerification,
+      emailLogin,
+      setAppInitialized,
+      userValues,
+    ]
   );
 
   return (
