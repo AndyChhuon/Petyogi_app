@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from "react";
 import {
   SafeAreaView,
   View,
-  StatusBar,
   Image,
   ScrollView,
   StyleSheet,
@@ -56,7 +55,6 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
-      <StatusBar translucent={false} backgroundColor={Colors.primaryColor} />
       <View style={{ flex: 1 }}>
         {backArrow()}
 

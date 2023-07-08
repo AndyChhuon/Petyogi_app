@@ -3,7 +3,6 @@ import {
   BackHandler,
   SafeAreaView,
   View,
-  StatusBar,
   Image,
   ScrollView,
   StyleSheet,
@@ -81,7 +80,6 @@ const RegisterScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
-      <StatusBar translucent={false} backgroundColor={Colors.primaryColor} />
       <View style={{ flex: 1 }}>
         {loginTitle()}
         <ScrollView

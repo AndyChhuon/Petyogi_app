@@ -55,10 +55,7 @@ const HomeScreen = ({ navigation }) => {
           style={styles.BackgroundImage}
           backgroundColor="none"
         >
-          <StatusBar
-            translucent={false}
-            backgroundColor={Colors.primaryColor}
-          />
+          <StatusBar translucent={false} backgroundColor="#535cb3" />
           {userInfo()}
           <ScrollView>
             <View

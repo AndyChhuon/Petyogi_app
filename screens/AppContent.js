@@ -19,13 +19,13 @@ import WalletScreen from "./wallet/walletScreen";
 import FaqsScreen from "./faqs/faqsScreen";
 import ContactUsScreen from "./contactUs/contactUsScreen";
 import TermsAndConditionsScreen from "./termsAndConditions/termsAndConditionsScreen";
-import SplashScreen from "./splashScreen";
 import LoginScreen from "./auth/loginScreen";
 import RegisterScreen from "./auth/registerScreen";
 import VerificationScreen from "./auth/verificationScreen";
 import PasswordResetScreen from "./auth/passwordResetScreen";
 import useAuth from "../hooks/useAuth";
 import FlashMessage from "react-native-flash-message";
+import { StatusBar } from "expo-status-bar";
 
 const Stack = createStackNavigator();
 
@@ -114,6 +114,7 @@ const AppContent = () => {
         )}
       </Stack.Navigator>
       <FlashMessage position="top" />
+      <StatusBar style="dark" />
     </>
   );
 };

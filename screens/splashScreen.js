@@ -1,12 +1,5 @@
 import React, { useCallback } from "react";
-import {
-  SafeAreaView,
-  View,
-  StatusBar,
-  Image,
-  Text,
-  BackHandler,
-} from "react-native";
+import { SafeAreaView, View, Image, Text, BackHandler } from "react-native";
 import { Colors, Fonts, Sizes } from "../constants/styles";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -30,7 +23,6 @@ const SplashScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
-      <StatusBar translucent={false} backgroundColor={Colors.primaryColor} />
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         {logo()}
         <Text

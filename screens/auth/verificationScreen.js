@@ -3,7 +3,6 @@ import {
   SafeAreaView,
   Dimensions,
   View,
-  StatusBar,
   ScrollView,
   StyleSheet,
   Text,
@@ -64,10 +63,6 @@ const VerificationScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
-      <StatusBar
-        translucent={false}
-        backgroundColor={Colors.secondaryGoldColor}
-      />
       <View style={{ flex: 1 }}>
         {backArrow()}
         <ScrollView showsVerticalScrollIndicator={false}>
