@@ -118,8 +118,8 @@ function Button(props) {
               <Image
                 source={require("../assets/images/icons/checkmark.png")}
                 style={{
-                  width: width / 10,
-                  height: width / 10,
+                  width: width / 12,
+                  height: width / 12,
                   resizeMode: "contain",
                   tintColor: dayMode ? Colors.bodyBackColor : "#fffefe",
                 }}
