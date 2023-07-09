@@ -91,7 +91,7 @@ function Button(props) {
         (fxButton, fyButton, widthButton, heightButton, pxButton, pyButton) => {
           scrollViewRef.current.scrollTo({
             x: 0,
-            y: pyButton - py - 146,
+            y: pyButton - py - (180 * width) / 414,
             animated: true,
           });
         }
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     marginLeft: (40 * width) / 414,
     marginRight: (40 * width) / 414,
     width: width - (2 * (40 * width)) / 414,
-    height: 150,
+    height: 150 * (width / 414),
     position: "absolute",
     zIndex: 2,
     top: width / 6 + 12,

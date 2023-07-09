@@ -21,7 +21,7 @@ import useAuth from "../../hooks/useAuth";
 const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
-  const [dayMode, setDayMode] = useState(true);
+  const [dayMode, setDayMode] = useState(false);
 
   const [pressedButton, setPressedButton] = useState(null);
 
