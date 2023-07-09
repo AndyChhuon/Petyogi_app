@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -22,9 +22,15 @@ const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
   const [dayMode, setDayMode] = useState(true);
-  const [buttonIsPressed, setButtonIsPressed] = useState(false);
+
+  const [pressedButton, setPressedButton] = useState(null);
 
   const { userValues } = useAuth();
+
+  const currentMeditation = userValues.numMeditations;
+
+  const scrollViewRef = useRef();
+  const buttonsViewRef = useRef();
 
   const onModeChange = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -32,10 +38,75 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const tooltipOverlayPress = () => {
-    if (buttonIsPressed) {
-      setButtonIsPressed(false);
+    if (pressedButton !== null) {
+      removeClickedButton();
     }
   };
+
+  const onButtonpress = (number) => {
+    // Not same button was pressed
+    setButtonTooltips(
+      Array.from({ length: currentMeditation + 1 }, (_, i) => i).map((i) => (
+        <ButtonTooltip
+          dayMode={dayMode}
+          number={i}
+          key={i}
+          currentMeditation={currentMeditation}
+          scrollViewRef={scrollViewRef}
+          buttonsViewRef={buttonsViewRef}
+          onButtonpress={onButtonpress}
+          showTooltip={number === i}
+        />
+      ))
+    );
+
+    setPressedButton(number);
+  };
+
+  const removeClickedButton = () => {
+    setButtonTooltips((buttonTooltips) => {
+      const newArray = [...buttonTooltips];
+      newArray[pressedButton] = (
+        <ButtonTooltip
+          dayMode={dayMode}
+          number={pressedButton}
+          key={pressedButton}
+          currentMeditation={currentMeditation}
+          scrollViewRef={scrollViewRef}
+          buttonsViewRef={buttonsViewRef}
+          onButtonpress={onButtonpress}
+          showTooltip={false}
+        />
+      );
+      return newArray;
+    });
+    setPressedButton(null);
+  };
+
+  const initTooltip = useMemo(
+    () =>
+      Array.from({ length: userValues.numMeditations + 1 }, (_, i) => i).map(
+        (i) => (
+          <ButtonTooltip
+            dayMode={dayMode}
+            number={i}
+            key={i}
+            currentMeditation={userValues.numMeditations}
+            scrollViewRef={scrollViewRef}
+            buttonsViewRef={buttonsViewRef}
+            onButtonpress={onButtonpress}
+            showTooltip={pressedButton === i}
+          />
+        )
+      ),
+    [dayMode, userValues.numMeditations]
+  );
+
+  const [buttonTooltips, setButtonTooltips] = useState(initTooltip);
+
+  useEffect(() => {
+    setButtonTooltips(initTooltip);
+  }, [initTooltip]);
 
   return (
     <TouchableWithoutFeedback onPressIn={tooltipOverlayPress}>
@@ -60,12 +131,12 @@ const HomeScreen = ({ navigation }) => {
             backgroundColor={dayMode ? "#f9cb70" : "#5760b5"}
           />
           {userInfo()}
-          <ScrollView>
+          <ScrollView ref={scrollViewRef}>
             <View
               style={{ flex: 1 }}
               onStartShouldSetResponder={() => {
-                // Allow scroll unless buttonIsPressed
-                if (!buttonIsPressed) return true;
+                // Allow scroll unless button is pressed
+                return pressedButton === null;
               }}
             >
               <FlatList
@@ -75,10 +146,11 @@ const HomeScreen = ({ navigation }) => {
                   <View
                     style={{
                       marginTop: (10 * width) / 414,
-                      marginBottom: 150,
+                      marginBottom: 180,
                     }}
+                    ref={buttonsViewRef}
                   >
-                    {meditationButtons()}
+                    {buttonTooltips}
                   </View>
                 }
               />
@@ -88,23 +160,6 @@ const HomeScreen = ({ navigation }) => {
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
-
-  function meditationButtons() {
-    const buttonTooltips = [];
-
-    for (let i = 0; i <= userValues.numMeditations; i++) {
-      buttonTooltips.push(
-        <ButtonTooltip
-          dayMode={dayMode}
-          buttonIsPressed={buttonIsPressed}
-          setButtonIsPressed={setButtonIsPressed}
-          number={i}
-          currentMeditation={userValues.numMeditations}
-        />
-      );
-    }
-    return buttonTooltips;
-  }
 
   function userInfo() {
     return (
