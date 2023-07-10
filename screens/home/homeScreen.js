@@ -26,6 +26,8 @@ const HomeScreen = ({ navigation }) => {
 
   const [showButton, setShowButton] = useState(false);
 
+  const [contentHeight, setContentHeight] = useState(0);
+
   const [pressedButton, setPressedButton] = useState(null);
 
   const { userValues } = useAuth();
@@ -34,17 +36,6 @@ const HomeScreen = ({ navigation }) => {
 
   const scrollViewRef = useRef();
   const buttonsViewRef = useRef();
-
-  const onViewableItemsChanged = ({ viewableItems, changed }) => {
-    // Check if the last item is not visible
-    const lastItem = viewableItems[viewableItems.length - 1];
-    const isLastItemVisible = lastItem.isViewable;
-
-    if (!isLastItemVisible) {
-      // Last item is not visible
-      console.log("Last item is not visible");
-    }
-  };
 
   const onModeChange = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -112,6 +103,14 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const handleLayout = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.measure((x, y, width, height) => {
+        setContentHeight(height);
+      });
+    }
+  };
+
   const initTooltip = useMemo(
     () =>
       Array.from({ length: userValues.numMeditations }, (_, i) => i + 1).map(
@@ -141,7 +140,7 @@ const HomeScreen = ({ navigation }) => {
     if (scrollViewRef.current) {
       bringToBottom();
     }
-  }, []);
+  }, [contentHeight]);
 
   const bringToBottom = () => {
     scrollViewRef.current.scrollToEnd({ animated: true });
@@ -177,6 +176,7 @@ const HomeScreen = ({ navigation }) => {
           >
             <View
               style={{ flex: 1 }}
+              onLayout={handleLayout}
               onStartShouldSetResponder={() => {
                 // Allow scroll unless button is pressed
                 return pressedButton === null;
@@ -194,11 +194,15 @@ const HomeScreen = ({ navigation }) => {
             </View>
           </ScrollView>
           <View
-            style={{
-              position: "absolute",
-              bottom: (25 * width) / 414,
-              right: (15 * width) / 414,
-            }}
+            style={
+              showButton
+                ? {
+                    position: "absolute",
+                    bottom: (25 * width) / 414,
+                    right: (15 * width) / 414,
+                  }
+                : { display: "none" }
+            }
           >
             <AwesomeButton
               backgroundColor={Colors.bodyBackColor}
@@ -211,7 +215,6 @@ const HomeScreen = ({ navigation }) => {
               onPress={bringToBottom}
               width={(60 * width) / 414}
               height={(60 * width) / 414}
-              style={showButton ? {} : { display: "none" }}
             >
               <Image
                 source={require("../../assets/images/icons/downArrow.png")}

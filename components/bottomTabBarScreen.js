@@ -149,10 +149,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tabBarStyle: {
-    height:
-      (85.0 * width) / 414 > 85 ? (65.0 * width) / 414 : (85.0 * width) / 414,
     borderTopWidth: (2 * width) / 414,
-    paddingTop: 10,
+    paddingTop: 15,
+    paddingBottom: 20,
     borderTopColor: "#2c383d",
     elevation: (3.0 * width) / 414,
     shadowColor: Colors.primaryColor,
