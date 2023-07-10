@@ -46,7 +46,7 @@ const HomeScreen = ({ navigation }) => {
   const onButtonpress = (number) => {
     // Not same button was pressed
     setButtonTooltips(
-      Array.from({ length: currentMeditation + 1 }, (_, i) => i).map((i) => (
+      Array.from({ length: currentMeditation }, (_, i) => i + 1).map((i) => (
         <ButtonTooltip
           dayMode={dayMode}
           number={i}
@@ -66,7 +66,7 @@ const HomeScreen = ({ navigation }) => {
   const removeClickedButton = () => {
     setButtonTooltips((buttonTooltips) => {
       const newArray = [...buttonTooltips];
-      newArray[pressedButton] = (
+      newArray[pressedButton - 1] = (
         <ButtonTooltip
           dayMode={dayMode}
           number={pressedButton}
@@ -85,7 +85,7 @@ const HomeScreen = ({ navigation }) => {
 
   const initTooltip = useMemo(
     () =>
-      Array.from({ length: userValues.numMeditations + 1 }, (_, i) => i).map(
+      Array.from({ length: userValues.numMeditations }, (_, i) => i + 1).map(
         (i) => (
           <ButtonTooltip
             dayMode={dayMode}

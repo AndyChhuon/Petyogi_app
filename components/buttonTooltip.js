@@ -63,7 +63,9 @@ function Button(props) {
   const buttonRef = useRef();
 
   const leftMargin =
-    number % 6 < 4 ? (number % 6) * 18 : (6 - (number % 6)) * 18;
+    (number - 1) % 6 < 4
+      ? ((number - 1) % 6) * 18
+      : (6 - ((number - 1) % 6)) * 18;
 
   const buttonBackgroundColor =
     currentMeditation > number
@@ -85,6 +87,8 @@ function Button(props) {
 
   const onPress = () => {
     onButtonpress(number);
+
+    console.log(number);
 
     buttonsViewRef.current.measure((fx, fy, width, height, px, py) => {
       buttonRef.current.measure(
