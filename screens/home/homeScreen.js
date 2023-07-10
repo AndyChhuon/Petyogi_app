@@ -17,11 +17,14 @@ import { Colors, Fonts, Sizes } from "../../constants/styles";
 import * as Haptics from "expo-haptics";
 import ButtonTooltip from "../../components/buttonTooltip";
 import useAuth from "../../hooks/useAuth";
+import AwesomeButton from "react-native-really-awesome-button";
 
 const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
   const [dayMode, setDayMode] = useState(false);
+
+  const [showButton, setShowButton] = useState(false);
 
   const [pressedButton, setPressedButton] = useState(null);
 
@@ -32,15 +35,24 @@ const HomeScreen = ({ navigation }) => {
   const scrollViewRef = useRef();
   const buttonsViewRef = useRef();
 
+  const onViewableItemsChanged = ({ viewableItems, changed }) => {
+    // Check if the last item is not visible
+    const lastItem = viewableItems[viewableItems.length - 1];
+    const isLastItemVisible = lastItem.isViewable;
+
+    if (!isLastItemVisible) {
+      // Last item is not visible
+      console.log("Last item is not visible");
+    }
+  };
+
   const onModeChange = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setDayMode(!dayMode);
   };
 
   const tooltipOverlayPress = () => {
-    if (pressedButton !== null) {
-      removeClickedButton();
-    }
+    removeClickedButton();
   };
 
   const onButtonpress = (number) => {
@@ -83,6 +95,23 @@ const HomeScreen = ({ navigation }) => {
     setPressedButton(null);
   };
 
+  const handleScroll = (event) => {
+    const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+    const scrollPosition = contentOffset.y;
+    const contentHeight = contentSize.height;
+    const screenHeight = layoutMeasurement.height;
+
+    if (scrollPosition + screenHeight <= contentHeight - 220 && !showButton) {
+      // Perform your desired action here
+      setShowButton(true);
+    } else if (
+      scrollPosition + screenHeight > contentHeight - 220 &&
+      showButton
+    ) {
+      setShowButton(false);
+    }
+  };
+
   const initTooltip = useMemo(
     () =>
       Array.from({ length: userValues.numMeditations }, (_, i) => i + 1).map(
@@ -108,6 +137,16 @@ const HomeScreen = ({ navigation }) => {
     setButtonTooltips(initTooltip);
   }, [initTooltip]);
 
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      bringToBottom();
+    }
+  }, []);
+
+  const bringToBottom = () => {
+    scrollViewRef.current.scrollToEnd({ animated: true });
+  };
+
   return (
     <TouchableWithoutFeedback onPressIn={tooltipOverlayPress}>
       <SafeAreaView
@@ -131,7 +170,11 @@ const HomeScreen = ({ navigation }) => {
             backgroundColor={dayMode ? "#f9cb70" : "#5760b5"}
           />
           {userInfo()}
-          <ScrollView ref={scrollViewRef}>
+          <ScrollView
+            ref={scrollViewRef}
+            onScroll={handleScroll}
+            scrollEventThrottle={1}
+          >
             <View
               style={{ flex: 1 }}
               onStartShouldSetResponder={() => {
@@ -139,23 +182,48 @@ const HomeScreen = ({ navigation }) => {
                 return pressedButton === null;
               }}
             >
-              <FlatList
-                //   style={{ backgroundColor: "#64ABE3" }}
-                showsVerticalScrollIndicator={false}
-                ListHeaderComponent={
-                  <View
-                    style={{
-                      marginTop: (10 * width) / 414,
-                      marginBottom: 180,
-                    }}
-                    ref={buttonsViewRef}
-                  >
-                    {buttonTooltips}
-                  </View>
-                }
-              />
+              <View
+                style={{
+                  marginTop: (10 * width) / 414,
+                  marginBottom: 180,
+                }}
+                ref={buttonsViewRef}
+              >
+                {buttonTooltips}
+              </View>
             </View>
           </ScrollView>
+          <View
+            style={{
+              position: "absolute",
+              bottom: (25 * width) / 414,
+              right: (15 * width) / 414,
+            }}
+          >
+            <AwesomeButton
+              backgroundColor={Colors.bodyBackColor}
+              borderColor="#3b464e"
+              backgroundDarker="#3b464e"
+              borderWidth={2}
+              paddingHorizontal={0}
+              borderRadius={15}
+              raiseLevel={2}
+              onPress={bringToBottom}
+              width={(60 * width) / 414}
+              height={(60 * width) / 414}
+              style={showButton ? {} : { display: "none" }}
+            >
+              <Image
+                source={require("../../assets/images/icons/downArrow.png")}
+                style={{
+                  width: (30.0 * width) / 414,
+                  height: (30.0 * width) / 414,
+                  resizeMode: "contain",
+                  tintColor: dayMode ? "#7f76d7" : "#fbb855",
+                }}
+              />
+            </AwesomeButton>
+          </View>
         </ImageBackground>
       </SafeAreaView>
     </TouchableWithoutFeedback>

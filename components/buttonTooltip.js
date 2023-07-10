@@ -1,6 +1,13 @@
 import AwesomeButton from "react-native-really-awesome-button";
-import React, { useState, useEffect, useRef } from "react";
-import { View, Dimensions, StyleSheet, Text, Image } from "react-native";
+import React, { useEffect, useRef } from "react";
+import {
+  View,
+  Dimensions,
+  StyleSheet,
+  Text,
+  Image,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { Colors, Fonts } from "../constants/styles";
 import Animated, {
   useAnimatedStyle,
@@ -8,9 +15,7 @@ import Animated, {
   withDelay,
   withTiming,
   Easing,
-  ColorSpace,
 } from "react-native-reanimated";
-import { set } from "firebase/database";
 
 const ScaleInOut = ({
   visible,
@@ -87,8 +92,6 @@ function Button(props) {
 
   const onPress = () => {
     onButtonpress(number);
-
-    console.log(number);
 
     buttonsViewRef.current.measure((fx, fy, width, height, px, py) => {
       buttonRef.current.measure(
@@ -172,16 +175,17 @@ function Button(props) {
               }
             : { ...styles.tooltipDisplay, display: "none" }
         }
-        onPress={onPress}
       >
-        <View
-          style={styles.tooltipText}
+        <TouchableWithoutFeedback
+          style={styles.touchableStyling}
           onPress={(e) => {
             e.preventDefault();
           }}
         >
-          <Text ref={buttonRef}>test</Text>
-        </View>
+          <View style={styles.tooltipText}>
+            <Text ref={buttonRef}>test</Text>
+          </View>
+        </TouchableWithoutFeedback>
       </ScaleInOut>
     </View>
   );
@@ -215,6 +219,10 @@ const styles = StyleSheet.create({
     zIndex: 2,
     top: width / 6 + 12,
     borderRadius: 10,
+  },
+  touchableStyling: {
+    width: "100%",
+    height: "100%",
   },
   tooltipText: {
     width: "100%",
