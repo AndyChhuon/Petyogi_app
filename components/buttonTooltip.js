@@ -8,7 +8,7 @@ import {
   Image,
   TouchableWithoutFeedback,
 } from "react-native";
-import { Colors, Fonts } from "../constants/styles";
+import { Colors, Fonts, Sizes } from "../constants/styles";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -20,7 +20,7 @@ import Animated, {
 const ScaleInOut = ({
   visible,
   delayIn = 0,
-  delayOut = 30,
+  delayOut = 0,
   children,
   style,
 }) => {
@@ -42,7 +42,7 @@ const ScaleInOut = ({
       : withDelay(
           delayOut,
           withTiming(0, {
-            duration: 200,
+            duration: 100,
             easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           })
         );
@@ -88,7 +88,7 @@ function Button(props) {
         : Colors.bodyBackColor
       : dayMode
       ? Colors.bodyBackColor
-      : "#ffd27d";
+      : "#ffc800";
 
   const onPress = () => {
     onButtonpress(number);
@@ -183,7 +183,68 @@ function Button(props) {
           }}
         >
           <View style={styles.tooltipText}>
-            <Text ref={buttonRef}>test</Text>
+            <Text
+              ref={buttonRef}
+              style={{
+                ...Fonts.blackTooltipText,
+                color: dayMode
+                  ? currentMeditation > number
+                    ? "#ffc800"
+                    : "#fffefe"
+                  : currentMeditation > number
+                  ? "#fffefe"
+                  : "#cd7900",
+              }}
+            >
+              Meditation #{number}
+            </Text>
+            <AwesomeButton
+              style={styles.startButtonStyle}
+              width="auto"
+              backgroundColor={
+                dayMode
+                  ? currentMeditation > number
+                    ? "#ffffff"
+                    : Colors.secondaryGoldColor
+                  : currentMeditation > number
+                  ? Colors.secondaryGoldColor
+                  : "#ffffff"
+              }
+              raiseLevel={3}
+              borderRadius={20}
+              backgroundShadow={Colors.grayColor}
+            >
+              <Text
+                style={{
+                  ...Fonts.blackTooltipTextSmall,
+                  width: "100%",
+                  textAlign: "center",
+                  color: dayMode
+                    ? currentMeditation > number
+                      ? Colors.secondaryGoldColor
+                      : Colors.bodyBackColor
+                    : currentMeditation > number
+                    ? "#fffefe"
+                    : "#ffcf1f",
+                }}
+              >
+                {currentMeditation > number ? "Revisit" : "Start +100 "}
+                {currentMeditation > number ? null : (
+                  <View>
+                    <Image
+                      source={require("../assets/images/icons/gem.png")}
+                      style={{
+                        position: "relative",
+                        top: 2,
+                        width: (20.0 * width) / 414,
+                        height: (20.0 * width) / 414,
+                        resizeMode: "contain",
+                      }}
+                    />
+                  </View>
+                )}
+              </Text>
+            </AwesomeButton>
           </View>
         </TouchableWithoutFeedback>
       </ScaleInOut>
@@ -214,11 +275,10 @@ const styles = StyleSheet.create({
     marginLeft: (40 * width) / 414,
     marginRight: (40 * width) / 414,
     width: width - (2 * (40 * width)) / 414,
-    height: 150 * (width / 414),
     position: "absolute",
     zIndex: 2,
     top: width / 6 + 12,
-    borderRadius: 10,
+    borderRadius: 15,
   },
   touchableStyling: {
     width: "100%",
@@ -227,7 +287,14 @@ const styles = StyleSheet.create({
   tooltipText: {
     width: "100%",
     height: "100%",
-    padding: 10,
+    padding: 16,
+  },
+  startButtonStyle: {
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    marginTop: 16,
+    marginBottom: 5,
   },
 });
 

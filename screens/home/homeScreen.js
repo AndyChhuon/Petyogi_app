@@ -30,6 +30,8 @@ const HomeScreen = ({ navigation }) => {
 
   const [pressedButton, setPressedButton] = useState(null);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const { userValues } = useAuth();
 
   const currentMeditation = userValues.numMeditations;
@@ -46,25 +48,24 @@ const HomeScreen = ({ navigation }) => {
     removeClickedButton();
   };
 
-  const onButtonpress = (number) => {
-    // Not same button was pressed
-    setButtonTooltips(
-      Array.from({ length: currentMeditation }, (_, i) => i + 1).map((i) => (
-        <ButtonTooltip
-          dayMode={dayMode}
-          number={i}
-          key={i}
-          currentMeditation={currentMeditation}
-          scrollViewRef={scrollViewRef}
-          buttonsViewRef={buttonsViewRef}
-          onButtonpress={onButtonpress}
-          showTooltip={number === i}
-        />
-      ))
-    );
-
-    setPressedButton(number);
-  };
+  useEffect(() => {
+    if (pressedButton) {
+      setButtonTooltips(
+        Array.from({ length: currentMeditation }, (_, i) => i + 1).map((i) => (
+          <ButtonTooltip
+            dayMode={dayMode}
+            number={i}
+            key={i}
+            currentMeditation={currentMeditation}
+            scrollViewRef={scrollViewRef}
+            buttonsViewRef={buttonsViewRef}
+            onButtonpress={setPressedButton}
+            showTooltip={pressedButton === i}
+          />
+        ))
+      );
+    }
+  }, [pressedButton]);
 
   const removeClickedButton = () => {
     setButtonTooltips((buttonTooltips) => {
@@ -77,7 +78,7 @@ const HomeScreen = ({ navigation }) => {
           currentMeditation={currentMeditation}
           scrollViewRef={scrollViewRef}
           buttonsViewRef={buttonsViewRef}
-          onButtonpress={onButtonpress}
+          onButtonpress={setPressedButton}
           showTooltip={false}
         />
       );
@@ -122,7 +123,7 @@ const HomeScreen = ({ navigation }) => {
             currentMeditation={userValues.numMeditations}
             scrollViewRef={scrollViewRef}
             buttonsViewRef={buttonsViewRef}
-            onButtonpress={onButtonpress}
+            onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
           />
         )

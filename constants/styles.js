@@ -199,6 +199,14 @@ export const Fonts = {
     fontSize: 25,
     fontFamily: "Sigmar_Regular",
   },
+  blackTooltipText: {
+    fontSize: 21,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
+  blackTooltipTextSmall: {
+    fontSize: 18,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
 };
 
 export const Colors = {
