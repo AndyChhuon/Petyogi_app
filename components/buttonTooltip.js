@@ -129,8 +129,7 @@ function Button(props) {
             raiseLevel={(8 * width) / 414}
             width={width / 6}
             height={width / 6}
-            onPress={onPress}
-            progressLoadingTime={100}
+            onPressIn={onPress}
             style={{ marginBottom: 10 }}
           >
             {currentMeditation > number ? (
