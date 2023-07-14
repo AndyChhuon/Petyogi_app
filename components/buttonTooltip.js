@@ -15,6 +15,7 @@ import Animated, {
   withDelay,
   withTiming,
   Easing,
+  withRepeat,
 } from "react-native-reanimated";
 
 const ScaleInOut = ({
@@ -137,7 +138,7 @@ function Button(props) {
                           ? "#fe6435"
                           : Colors.bodyBackColor,
                         marginLeft: (45 * width) / 414,
-                        borderColor: dayMode ? "#7f76d7" : "#fbb855",
+                        borderColor: dayMode ? "#fbb855" : "#fbb855",
                       }
                     : { ...styles.topTooltipDisplay, display: "none" }
                 }
@@ -184,7 +185,8 @@ function Button(props) {
                 visible={showTopTooltip}
                 style={{
                   ...styles.topTooltipTip,
-                  borderColor: dayMode ? "#7f76d7" : "#7f76d7",
+                  borderTopColor: dayMode ? "#fbb855" : "black",
+                  borderBottomColor: dayMode ? "#fbb855" : "black",
                 }}
               ></ScaleInOut>
             ) : null}
@@ -234,17 +236,11 @@ function Button(props) {
           visible={showTooltip}
           style={
             showTooltip
-              ? currentMeditation == number
-                ? {
-                    ...styles.tooltipDisplay,
-                    backgroundColor: tooltipBackgroundColor,
-                    top: width / 6 + 21,
-                  }
-                : {
-                    ...styles.tooltipDisplay,
-                    backgroundColor: tooltipBackgroundColor,
-                    top: width / 6 + 12,
-                  }
+              ? {
+                  ...styles.tooltipDisplay,
+                  backgroundColor: tooltipBackgroundColor,
+                  top: width / 6 + 12,
+                }
               : { ...styles.tooltipDisplay, display: "none" }
           }
         >
