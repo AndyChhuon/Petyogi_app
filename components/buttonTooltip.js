@@ -53,6 +53,31 @@ const ScaleInOut = ({
   );
 };
 
+const FloatingAnimation = ({ children, style }) => {
+  const translateY = useSharedValue(0);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+    };
+  });
+
+  React.useEffect(() => {
+    translateY.value = withRepeat(
+      withTiming(10, {
+        duration: 1500,
+        easing: Easing.inOut(Easing.ease),
+      }),
+      -1,
+      true
+    );
+  }, []);
+
+  return (
+    <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>
+  );
+};
+
 const { width } = Dimensions.get("window");
 
 function Button(props) {
@@ -111,7 +136,7 @@ function Button(props) {
   return (
     <>
       {showTopTooltip ? (
-        <View
+        <FloatingAnimation
           style={{
             zIndex: 9999,
             position: "relative",
@@ -161,7 +186,7 @@ function Button(props) {
               </ScaleInOut>
             </View>
           </View>
-        </View>
+        </FloatingAnimation>
       ) : null}
       <View
         style={{
@@ -180,15 +205,17 @@ function Button(props) {
             }}
           >
             {showTopTooltip ? (
-              <ScaleInOut
-                delayIn={150}
-                visible={showTopTooltip}
-                style={{
-                  ...styles.topTooltipTip,
-                  borderTopColor: dayMode ? "#fbb855" : "black",
-                  borderBottomColor: dayMode ? "#fbb855" : "black",
-                }}
-              ></ScaleInOut>
+              <FloatingAnimation style={{ zIndex: 2, position: "relative" }}>
+                <ScaleInOut
+                  delayIn={150}
+                  visible={showTopTooltip}
+                  style={{
+                    ...styles.topTooltipTip,
+                    borderTopColor: dayMode ? "#fbb855" : "black",
+                    borderBottomColor: dayMode ? "#fbb855" : "black",
+                  }}
+                ></ScaleInOut>
+              </FloatingAnimation>
             ) : null}
 
             <AwesomeButton
@@ -347,7 +374,6 @@ const styles = StyleSheet.create({
   topTooltipTip: {
     position: "relative",
     bottom: -8,
-    zIndex: 2,
     borderLeftWidth: 10,
     borderRightWidth: 10,
     borderTopWidth: 10,
@@ -389,6 +415,16 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 16,
     marginBottom: 5,
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  floater: {
+    width: 50,
+    height: 50,
+    backgroundColor: "red",
   },
 });
 
