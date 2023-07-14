@@ -41,6 +41,11 @@ const AppContent = () => {
         }}
       >
         <Stack.Screen name="Loading" component={LoadingScreen} />
+        <Stack.Screen
+          name="BottomTabBar"
+          component={BottomTabBarScreen}
+          options={{ ...TransitionPresets.DefaultTransition }}
+        />
         {/* <Stack.Screen
                 name="Splash"
                 component={SplashScreen}

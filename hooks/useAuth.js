@@ -28,49 +28,49 @@ export const AuthProvider = ({ children }) => {
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    if (appInitialized) {
-      var unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setUser(user);
+  // useEffect(() => {
+  //   if (appInitialized) {
+  //     var unsubscribe = onAuthStateChanged(auth, (user) => {
+  //       if (user) {
+  //         setUser(user);
 
-          if (user.emailVerified) {
-            //
-            getIdToken(user).then((idToken) => {
-              //post request
-              fetch(
-                "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    idToken: idToken,
-                  }),
-                }
-              )
-                .then((res) => res.json())
-                .then((data) => {
-                  setUserValues(data);
-                  navigation.navigate("BottomTabBar");
-                })
-                .catch((err) => {
-                  showMessage({
-                    message: "There was an error fetching your data.",
-                    type: "danger",
-                  });
-                });
-            });
-          }
-        } else {
-          navigation.navigate("Register");
-        }
-      });
+  //         if (user.emailVerified) {
+  //           //
+  //           getIdToken(user).then((idToken) => {
+  //             //post request
+  //             fetch(
+  //               "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
+  //               {
+  //                 method: "POST",
+  //                 headers: {
+  //                   "Content-Type": "application/json",
+  //                 },
+  //                 body: JSON.stringify({
+  //                   idToken: idToken,
+  //                 }),
+  //               }
+  //             )
+  //               .then((res) => res.json())
+  //               .then((data) => {
+  //                 setUserValues(data);
+  //                 navigation.navigate("BottomTabBar");
+  //               })
+  //               .catch((err) => {
+  //                 showMessage({
+  //                   message: "There was an error fetching your data.",
+  //                   type: "danger",
+  //                 });
+  //               });
+  //           });
+  //         }
+  //       } else {
+  //         navigation.navigate("Register");
+  //       }
+  //     });
 
-      return unsubscribe;
-    }
-  }, [appInitialized]);
+  //     return unsubscribe;
+  //   }
+  // }, [appInitialized]);
 
   const emailSignup = (setError, email, password) => {
     createUserWithEmailAndPassword(auth, email, password)

@@ -32,7 +32,15 @@ const HomeScreen = ({ navigation }) => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const { userValues } = useAuth();
+  // const { userValues } = useAuth();
+
+  const [userValues, setUserValues] = useState({
+    numMeditations: 11,
+    remainingCredits: 5,
+    streak: 5,
+    coins: 100,
+    remainingCredits: 5,
+  });
 
   const currentMeditation = userValues.numMeditations;
 
@@ -49,9 +57,21 @@ const HomeScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    if (pressedButton) {
-      setButtonTooltips(
-        Array.from({ length: currentMeditation }, (_, i) => i + 1).map((i) => (
+    setButtonTooltips(
+      Array.from({ length: currentMeditation }, (_, i) => i + 1).map((i) =>
+        currentMeditation === i ? (
+          <ButtonTooltip
+            dayMode={dayMode}
+            number={i}
+            key={i}
+            currentMeditation={currentMeditation}
+            scrollViewRef={scrollViewRef}
+            buttonsViewRef={buttonsViewRef}
+            onButtonpress={setPressedButton}
+            showTooltip={pressedButton === i}
+            showTopTooltip={pressedButton === null}
+          />
+        ) : (
           <ButtonTooltip
             dayMode={dayMode}
             number={i}
@@ -62,9 +82,9 @@ const HomeScreen = ({ navigation }) => {
             onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
           />
-        ))
-      );
-    }
+        )
+      )
+    );
   }, [pressedButton]);
 
   const removeClickedButton = () => {
@@ -114,13 +134,25 @@ const HomeScreen = ({ navigation }) => {
 
   const initTooltip = useMemo(
     () =>
-      Array.from({ length: userValues.numMeditations }, (_, i) => i + 1).map(
-        (i) => (
+      Array.from({ length: currentMeditation }, (_, i) => i + 1).map((i) =>
+        currentMeditation === i ? (
           <ButtonTooltip
             dayMode={dayMode}
             number={i}
             key={i}
-            currentMeditation={userValues.numMeditations}
+            currentMeditation={currentMeditation}
+            scrollViewRef={scrollViewRef}
+            buttonsViewRef={buttonsViewRef}
+            onButtonpress={setPressedButton}
+            showTooltip={pressedButton === i}
+            showTopTooltip={pressedButton === null}
+          />
+        ) : (
+          <ButtonTooltip
+            dayMode={dayMode}
+            number={i}
+            key={i}
+            currentMeditation={currentMeditation}
             scrollViewRef={scrollViewRef}
             buttonsViewRef={buttonsViewRef}
             onButtonpress={setPressedButton}

@@ -207,6 +207,10 @@ export const Fonts = {
     fontSize: 18,
     fontFamily: "SF_Compact_Display_Bold",
   },
+  blackTooltipTextVerySmall: {
+    fontSize: 16,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
 };
 
 export const Colors = {
