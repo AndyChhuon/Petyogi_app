@@ -10,6 +10,9 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   StatusBar,
+  Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -28,6 +31,13 @@ const StartMeditation = ({ navigation }) => {
     setIsTextBoxFocused(false);
   };
 
+  const handlePressOutsideTextBox = () => {
+    console.log("handlePressOutsideTextBox");
+    Keyboard.dismiss();
+  };
+
+  const { width } = Dimensions.get("window");
+
   return (
     <SafeAreaView
       style={{
@@ -40,12 +50,14 @@ const StartMeditation = ({ navigation }) => {
         {isTextBoxFocused ? null : backArrow()}
         {isTextBoxFocused ? null : loginTitle()}
       </View>
+      <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
+        <View>
+          <Text>Hello</Text>
+        </View>
+      </TouchableWithoutFeedback>
 
-      <View>
-        <Text>Hello</Text>
-      </View>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={{ flex: 1, marginBottom: Platform.OS === "ios" ? 0 : 5 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         {textBox()}
@@ -63,6 +75,11 @@ const StartMeditation = ({ navigation }) => {
           backgroundColor: "white",
           marginBottom: Sizes.fixPadding,
           textAlignVertical: "top",
+          Horizontal: Sizes.fixPadding,
+          borderRadius: 20,
+          padding: 15,
+          paddingTop: 20,
+          marginHorizontal: 10,
         }}
         multiline={true}
         underlineColorAndroid="transparent"
@@ -82,14 +99,15 @@ const StartMeditation = ({ navigation }) => {
         style={styles.loginButtonStyle}
         width="auto"
         backgroundColor={Colors.secondaryGoldColor}
-        raiseLevel={5}
+        raiseLevel={3}
         borderRadius={20}
+        height={(width * 50) / 414}
         backgroundShadow={Colors.grayColor}
         progress
       >
         <Text
           style={{
-            ...Fonts.whiteColor20SemiBold,
+            ...Fonts.whiteColor18SemiBold,
             width: "100%",
             textAlign: "center",
           }}
