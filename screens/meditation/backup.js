@@ -16,11 +16,12 @@ import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
 import { useHeaderHeight } from "@react-navigation/elements";
 
-const LoginScreen = ({ navigation }) => {
+const StartMeditation = ({ navigation }) => {
   const [state, setState] = useState({
     password: null,
     userEmail: null,
     securePassword: true,
+    backClickCount: 0,
   });
 
   const { emailLogin, user } = useAuth();
@@ -50,54 +51,49 @@ const LoginScreen = ({ navigation }) => {
 
   const updateState = (data) => setState((state) => ({ ...state, ...data }));
 
-  const { password, userEmail, securePassword } = state;
+  const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
+
+  const handleTextBoxFocus = () => {
+    setIsTextBoxFocused(true);
+  };
+
+  const handleTextBoxBlur = () => {
+    setIsTextBoxFocused(false);
+  };
+
+  const { password, userEmail, securePassword, backClickCount } = state;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
-      <View style={{ flex: 1 }}>
-        {backArrow()}
+      {isTextBoxFocused ? null : backArrow()}
 
-        {loginTitle()}
-        <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "space-between",
-            flexDirection: "column",
-          }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-            <View style={{ flex: 1, justifyContent: "flex-end" }}>
-              {userEmailTextField()}
-              {passwordTextField()}
-              {loginButton()}
-              {dontAccountInfo()}
-            </View>
-          </KeyboardAvoidingView>
-        </ScrollView>
-      </View>
+      {isTextBoxFocused ? null : loginTitle()}
+      <Text>Hello</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        {textBox()}
+        {loginButton()}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 
-  function dontAccountInfo() {
+  function textBox() {
     return (
-      <Text
+      <TextInput
         style={{
-          textAlign: "center",
-          margin: Sizes.fixPadding * 2.0,
-          marginTop: Sizes.fixPadding * 4.0,
+          flexGrow: 1,
+          flexDirection: "column",
+          backgroundColor: "white",
+          marginBottom: Sizes.fixPadding,
         }}
-      >
-        <Text
-          onPress={() => navigation.push("ResetPassword")}
-          style={{
-            ...Fonts.primaryColor14Medium,
-            textDecorationLine: "underline",
-          }}
-        >
-          Forgot your password?
-        </Text>
-      </Text>
+        numberOfLines={5}
+        multiline={true}
+        underlineColorAndroid="transparent"
+        onFocus={handleTextBoxFocus}
+        onBlur={handleTextBoxBlur}
+      ></TextInput>
     );
   }
 
@@ -378,4 +374,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default StartMeditation;

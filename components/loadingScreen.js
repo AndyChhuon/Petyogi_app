@@ -19,7 +19,7 @@ const LoadingScreen = ({ navigation }) => {
         SF_Compact_Display_Black: require("../assets/fonts/SF-Compact-Display-Black.ttf"),
         Sigmar_Regular: require("../assets/fonts/Sigmar-Regular.ttf"),
       });
-      navigation.navigate("BottomTabBar");
+      navigation.navigate("Meditation");
       // setAppInitialized(true);
     }
     loadFont();

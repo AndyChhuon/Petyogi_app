@@ -62,7 +62,7 @@ const FloatingAnimation = ({ children, style }) => {
     };
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     translateY.value = withRepeat(
       withTiming(10, {
         duration: 1500,
@@ -91,6 +91,8 @@ function Button(props) {
     showTooltip,
     showTopTooltip,
   } = props;
+
+  console.log("button rendered");
 
   const buttonRef = useRef();
 
@@ -145,34 +147,29 @@ function Button(props) {
             top: 9,
           }}
         >
-          <View style={{ width: (45 * width) / 100 }}>
-            <View
-              width={width / 15}
-              style={{
-                ...styles.buttonContainerStyle,
-                marginLeft: `${leftMargin}%`,
-              }}
-            >
-              <ScaleInOut
-                visible={showTopTooltip}
-                style={
-                  showTopTooltip
-                    ? {
-                        ...styles.topTooltipDisplay,
-                        backgroundColor: dayMode
-                          ? "#fe6435"
-                          : Colors.bodyBackColor,
-                        marginLeft: (45 * width) / 414,
-                        borderColor: dayMode ? "#fbb855" : "#fbb855",
-                      }
-                    : { ...styles.topTooltipDisplay, display: "none" }
-                }
+          <TouchableWithoutFeedback onPress={onPress}>
+            <View style={{ width: (45 * width) / 100 }}>
+              <View
+                width={width / 15}
+                style={{
+                  ...styles.buttonContainerStyle,
+                  marginLeft: `${leftMargin}%`,
+                }}
               >
-                <TouchableWithoutFeedback
-                  style={styles.touchableStyling}
-                  onPress={(e) => {
-                    e.preventDefault();
-                  }}
+                <ScaleInOut
+                  visible={showTopTooltip}
+                  style={
+                    showTopTooltip
+                      ? {
+                          ...styles.topTooltipDisplay,
+                          backgroundColor: dayMode
+                            ? "#fe6435"
+                            : Colors.bodyBackColor,
+                          marginLeft: (45 * width) / 414,
+                          borderColor: dayMode ? "#fbb855" : "#fbb855",
+                        }
+                      : { ...styles.topTooltipDisplay, display: "none" }
+                  }
                 >
                   <Text
                     style={{
@@ -182,10 +179,10 @@ function Button(props) {
                   >
                     START
                   </Text>
-                </TouchableWithoutFeedback>
-              </ScaleInOut>
+                </ScaleInOut>
+              </View>
             </View>
-          </View>
+          </TouchableWithoutFeedback>
         </FloatingAnimation>
       ) : null}
       <View
@@ -224,7 +221,7 @@ function Button(props) {
               raiseLevel={(8 * width) / 414}
               width={width / 6}
               height={width / 6}
-              onPressIn={onPress}
+              onPressedIn={onPress}
               style={{ marginBottom: 10 }}
             >
               {currentMeditation > number ? (
