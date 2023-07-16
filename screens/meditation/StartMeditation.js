@@ -21,15 +21,12 @@ import { Bar as ProgressBar } from "react-native-progress";
 
 const StartMeditation = ({ navigation }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
-  const textInputRef = useRef(null);
-  const [maxHeightTextInput, setMaxHeightTextInput] = useState(0);
 
   const handleTextBoxFocus = () => {
     setIsTextBoxFocused(true);
   };
 
   const handleTextBoxBlur = () => {
-    console.log(maxHeightTextInput);
     setIsTextBoxFocused(false);
   };
 
@@ -48,6 +45,8 @@ const StartMeditation = ({ navigation }) => {
   const charCount = text.length;
   const maxChars = 600;
   const tooManyChars = charCount > maxChars;
+
+  const readOnly = true;
 
   return (
     <SafeAreaView
@@ -95,12 +94,23 @@ const StartMeditation = ({ navigation }) => {
     return (
       <View style={[styles.textBoxContainer]}>
         <TextInput
-          style={styles.textBoxStyle}
+          style={[
+            styles.textBoxStyle,
+            readOnly
+              ? {
+                  backgroundColor: Colors.goldColor,
+                  color: "black",
+                  fontWeight: "bold",
+                }
+              : {},
+          ]}
           multiline={true}
           underlineColorAndroid="transparent"
           onFocus={handleTextBoxFocus}
           onBlur={handleTextBoxBlur}
           onChangeText={handleTextChange}
+          editable={readOnly ? false : true}
+          value={text}
         ></TextInput>
         <View style={styles.counterContainer}>
           <Text
@@ -129,9 +139,7 @@ const StartMeditation = ({ navigation }) => {
       >
         <AwesomeButton
           activeOpacity={0.9}
-          onPress={async (next) => {
-            next();
-          }}
+          onPress={() => console.log("pressed")}
           style={styles.loginButtonStyle}
           backgroundColor="#ffc802"
           raiseLevel={3}
@@ -140,7 +148,6 @@ const StartMeditation = ({ navigation }) => {
           height={(width * 45) / 414}
           backgroundDarker="#e7a60b"
           backgroundShadow="#e7a60b"
-          progress
         >
           <FontAwesome
             name="chevron-left"
@@ -151,9 +158,7 @@ const StartMeditation = ({ navigation }) => {
         </AwesomeButton>
         <AwesomeButton
           activeOpacity={0.9}
-          onPress={async (next) => {
-            next();
-          }}
+          onPress={() => console.log("pressed")}
           style={styles.loginButtonStyle}
           backgroundColor={tooManyChars ? "#bababa" : "#ffc802"}
           raiseLevel={3}
@@ -162,7 +167,6 @@ const StartMeditation = ({ navigation }) => {
           height={(width * 45) / 414}
           backgroundDarker={tooManyChars ? "#dbdee8" : "#e7a60b"}
           backgroundShadow={tooManyChars ? "#dcdfe7" : "#e7a60b"}
-          progress
           disabled={tooManyChars}
         >
           <FontAwesome
