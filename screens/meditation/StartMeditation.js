@@ -46,13 +46,27 @@ const StartMeditation = ({ navigation }) => {
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
       }}
     >
-      <View>
-        {isTextBoxFocused ? null : backArrow()}
-        {isTextBoxFocused ? null : loginTitle()}
-      </View>
+      <View>{isTextBoxFocused ? null : loginTitle()}</View>
       <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
-        <View>
-          <Text>Hello</Text>
+        <View
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {isTextBoxFocused ? (
+            <Text
+              style={{
+                ...Fonts.whiteColor20SemiBold,
+              }}
+            >
+              How are you feeling?
+            </Text>
+          ) : (
+            <Text style={{ ...Fonts.whiteColor22SemiBold, marginBottom: 6 }}>
+              How are you feeling?
+            </Text>
+          )}
         </View>
       </TouchableWithoutFeedback>
 
@@ -69,18 +83,7 @@ const StartMeditation = ({ navigation }) => {
   function textBox() {
     return (
       <TextInput
-        style={{
-          flexGrow: 1,
-          flexDirection: "column",
-          backgroundColor: "white",
-          marginBottom: Sizes.fixPadding,
-          textAlignVertical: "top",
-          Horizontal: Sizes.fixPadding,
-          borderRadius: 20,
-          padding: 15,
-          paddingTop: 20,
-          marginHorizontal: 10,
-        }}
+        style={styles.textBoxStyle}
         multiline={true}
         underlineColorAndroid="transparent"
         onFocus={handleTextBoxFocus}
@@ -135,84 +138,59 @@ const StartMeditation = ({ navigation }) => {
     return (
       <View
         style={{
-          marginVertical: Sizes.fixPadding * 4.0,
-          alignItems: "center",
-          zIndex: 1,
-          marginLeft: "auto",
-          marginRight: "auto",
+          display: "flex",
+          flexDirection: "row",
+          marginBottom: 6,
         }}
       >
-        <Text style={{ ...Fonts.whiteColor26SemiBold }}>
-          Let’s sign you in.
-        </Text>
-        <Text style={{ ...Fonts.whiteColor14Medium }}>
-          Welcome Back. You’ve been missed!
-        </Text>
+        <View style={{ ...styles.backArrowWrapStyle }}>
+          <MaterialIcons
+            name="close"
+            color={Colors.goldColor}
+            size={26}
+            onPress={() => navigation.pop()}
+          />
+        </View>
+        <View style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+          <Text style={{ ...Fonts.whiteColor26SemiBold }}>
+            Let’s sign you in.
+          </Text>
+        </View>
       </View>
     );
   }
 };
 
 const styles = StyleSheet.create({
-  loginContainer: {
-    justifyContent: "center",
-    backgroundColor: "red",
-    height: "100%",
-  },
-  textFieldWrapStyle: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderRadius: Sizes.fixPadding - 5.0,
-    paddingHorizontal: Sizes.fixPadding + 2.0,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-  },
-  forgetPasswordTextStyle: {
-    marginTop: Sizes.fixPadding - 5.0,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-    textAlign: "right",
-    textDecorationLine: "underline",
-    ...Fonts.primaryColor14Medium,
-  },
   loginButtonStyle: {
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: Sizes.fixPadding * 2.0,
     borderRadius: Sizes.fixPadding - 5.0,
   },
-  googleAndFacebookButtonWrapStyle: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    paddingVertical: Sizes.fixPadding + 5.0,
-    marginHorizontal: Sizes.fixPadding,
-    borderRadius: Sizes.fixPadding - 5.0,
+
+  textBoxStyle: {
+    flexGrow: 1,
+    flexDirection: "column",
+    backgroundColor: "white",
+    marginBottom: Sizes.fixPadding,
+    textAlignVertical: "top",
+    Horizontal: Sizes.fixPadding,
+    borderRadius: 20,
+    padding: 15,
+    paddingTop: 15,
+    marginHorizontal: 10,
   },
-  animatedView: {
-    backgroundColor: "#333333",
-    position: "absolute",
-    bottom: 20,
-    alignSelf: "center",
-    borderRadius: Sizes.fixPadding * 2.0,
-    paddingHorizontal: Sizes.fixPadding + 5.0,
-    paddingVertical: Sizes.fixPadding,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+
   backArrowWrapStyle: {
-    position: "absolute",
     width: 40.0,
     height: 40.0,
     borderRadius: 20.0,
     backgroundColor: "rgba(255,255,255,0.05)",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Sizes.fixPadding * 3.0,
-    marginBottom: Sizes.fixPadding * 2.0,
     marginHorizontal: Sizes.fixPadding * 2.0,
-    zIndex: 2,
+    zIndex: 5,
   },
 });
 

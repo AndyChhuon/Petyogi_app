@@ -66,6 +66,11 @@ const StartMeditation = ({ navigation }) => {
         }}
         multiline={true}
         underlineColorAndroid="transparent"
+        autoCompleteType="off"
+        keyboardType="visible-password"
+        textContentType="password"
+        autoCorrect={false}
+        spellCheck={false}
         onFocus={handleTextBoxFocus}
         onBlur={handleTextBoxBlur}
       ></TextInput>
