@@ -21,12 +21,15 @@ import { Bar as ProgressBar } from "react-native-progress";
 
 const StartMeditation = ({ navigation }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
+  const textInputRef = useRef(null);
+  const [maxHeightTextInput, setMaxHeightTextInput] = useState(0);
 
   const handleTextBoxFocus = () => {
     setIsTextBoxFocused(true);
   };
 
   const handleTextBoxBlur = () => {
+    console.log(maxHeightTextInput);
     setIsTextBoxFocused(false);
   };
 
@@ -35,6 +38,15 @@ const StartMeditation = ({ navigation }) => {
   };
 
   const { width } = Dimensions.get("window");
+
+  const [text, setText] = useState("");
+
+  const handleTextChange = (inputText) => {
+    setText(inputText);
+  };
+
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+  const maxWords = 200;
 
   return (
     <SafeAreaView
@@ -80,13 +92,21 @@ const StartMeditation = ({ navigation }) => {
 
   function textBox() {
     return (
-      <TextInput
-        style={styles.textBoxStyle}
-        multiline={true}
-        underlineColorAndroid="transparent"
-        onFocus={handleTextBoxFocus}
-        onBlur={handleTextBoxBlur}
-      ></TextInput>
+      <View style={[styles.textBoxContainer]}>
+        <TextInput
+          style={styles.textBoxStyle}
+          multiline={true}
+          underlineColorAndroid="transparent"
+          onFocus={handleTextBoxFocus}
+          onBlur={handleTextBoxBlur}
+          onChangeText={handleTextChange}
+        ></TextInput>
+        <View style={styles.counterContainer}>
+          <Text style={styles.counterText}>
+            {wordCount}/{maxWords}
+          </Text>
+        </View>
+      </View>
     );
   }
 
@@ -94,6 +114,7 @@ const StartMeditation = ({ navigation }) => {
     return (
       <View
         style={{
+          height: 50,
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
@@ -183,16 +204,17 @@ const StartMeditation = ({ navigation }) => {
             flex: 1,
             display: "flex",
             justifyContent: "center",
-            marginRight: Sizes.fixPadding * 2.0,
+            marginRight: Sizes.fixPadding * 1.8,
           }}
         >
           <ProgressBar
             progress={0.3}
-            color="#93d335"
-            unfilledColor="rgba(255,255,255,0.05)"
+            color="#98eab7"
+            borderColor="#3a4754"
+            unfilledColor="#30404c"
             width={null}
             height={18}
-            borderWidth={0}
+            borderWidth={3}
             borderRadius={8}
           ></ProgressBar>
         </View>
@@ -209,9 +231,12 @@ const styles = StyleSheet.create({
     borderRadius: Sizes.fixPadding - 5.0,
   },
 
-  textBoxStyle: {
+  textBoxContainer: {
     flexGrow: 1,
     flexDirection: "column",
+  },
+  textBoxStyle: {
+    flex: 1,
     backgroundColor: "white",
     marginBottom: Sizes.fixPadding,
     textAlignVertical: "top",
@@ -232,6 +257,17 @@ const styles = StyleSheet.create({
     marginLeft: Sizes.fixPadding * 2.0,
     marginRight: Sizes.fixPadding,
     zIndex: 5,
+  },
+  counterContainer: {
+    position: "absolute",
+    bottom: 10,
+    right: 15,
+    padding: 5,
+    borderRadius: 5,
+  },
+  counterText: {
+    fontSize: 12,
+    color: "black",
   },
 });
 

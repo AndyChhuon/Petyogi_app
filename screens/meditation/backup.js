@@ -9,151 +9,182 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
+  StatusBar,
+  Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import AwesomeButton from "react-native-really-awesome-button";
-import useAuth from "../../hooks/useAuth";
-import { useHeaderHeight } from "@react-navigation/elements";
+import { Bar as ProgressBar } from "react-native-progress";
 
 const StartMeditation = ({ navigation }) => {
-  const [state, setState] = useState({
-    password: null,
-    userEmail: null,
-    securePassword: true,
-    backClickCount: 0,
-  });
-
-  const { emailLogin, user } = useAuth();
-
-  const [error, setError] = useState(null);
-
-  const [emailError, setEmailError] = useState(null);
-  const [passwordError, setPasswordError] = useState(null);
-
-  useEffect(() => {
-    if (error) {
-      switch (error) {
-        case "auth/user-not-found":
-          setEmailError("This email address is not registered!");
-          break;
-        case "auth/too-many-requests":
-          setEmailError("Too many login attempts, please try again later");
-          break;
-        case "auth/wrong-password":
-          setPasswordError("Wrong Password, please try again");
-          break;
-        default:
-          setEmailError("The following error has occured: " + error);
-      }
-    }
-  }, [error]);
-
-  const updateState = (data) => setState((state) => ({ ...state, ...data }));
-
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
+  const textInputRef = useRef(null);
+  const [maxHeightTextInput, setMaxHeightTextInput] = useState(0);
 
   const handleTextBoxFocus = () => {
     setIsTextBoxFocused(true);
   };
 
   const handleTextBoxBlur = () => {
+    console.log(maxHeightTextInput);
     setIsTextBoxFocused(false);
   };
 
-  const { password, userEmail, securePassword, backClickCount } = state;
+  const handlePressOutsideTextBox = () => {
+    Keyboard.dismiss();
+  };
+
+  const { width } = Dimensions.get("window");
+
+  const [text, setText] = useState("");
+
+  const handleTextChange = (inputText) => {
+    setText(inputText);
+  };
+
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+  const maxWords = 200;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
-      {isTextBoxFocused ? null : backArrow()}
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: Colors.bodyBackColor,
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+      }}
+    >
+      {isTextBoxFocused ? null : topBar()}
+      <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
+        <View
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {isTextBoxFocused ? (
+            <Text
+              style={{
+                ...Fonts.whiteColor20SemiBold,
+              }}
+            >
+              How are you feeling?
+            </Text>
+          ) : (
+            <Text style={{ ...Fonts.whiteColor22SemiBold, marginBottom: 6 }}>
+              How are you feeling?
+            </Text>
+          )}
+        </View>
+      </TouchableWithoutFeedback>
 
-      {isTextBoxFocused ? null : loginTitle()}
-      <Text>Hello</Text>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
+        onLayout={() => {
+          textInputRef.current.measure((x, y, height) => {
+            setMaxHeightTextInput(height);
+          });
+        }}
       >
         {textBox()}
-        {loginButton()}
+        {nextPrevButtons()}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 
   function textBox() {
     return (
-      <TextInput
-        style={{
-          flexGrow: 1,
-          flexDirection: "column",
-          backgroundColor: "white",
-          marginBottom: Sizes.fixPadding,
-        }}
-        numberOfLines={5}
-        multiline={true}
-        underlineColorAndroid="transparent"
-        onFocus={handleTextBoxFocus}
-        onBlur={handleTextBoxBlur}
-      ></TextInput>
+      <View
+        style={[
+          styles.textBoxContainer,
+          isTextBoxFocused
+            ? { height: maxHeightTextInput, maxHeight: maxHeightTextInput }
+            : {},
+        ]}
+        ref={textInputRef}
+      >
+        <TextInput
+          style={styles.textBoxStyle}
+          multiline={true}
+          underlineColorAndroid="transparent"
+          onFocus={handleTextBoxFocus}
+          onBlur={handleTextBoxBlur}
+          onChangeText={handleTextChange}
+        ></TextInput>
+        <View style={styles.counterContainer}>
+          <Text style={styles.counterText}>
+            {wordCount}/{maxWords}
+          </Text>
+        </View>
+      </View>
     );
   }
 
-  function loginOnClick() {
-    setEmailError(null);
-    setPasswordError(null);
-    setError(null);
-
-    if (!userEmail) {
-      setEmailError("Please enter a valid email address");
-      return;
-    } else if (
-      !userEmail.match(/^[a-zA-Z0-9]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/)
-    ) {
-      setEmailError("Please enter a valid email address");
-      return;
-    } else if (!password) {
-      setPasswordError("Please enter a valid password");
-      return;
-    } else if (password.length < 6) {
-      setPasswordError("Wrong Password, must be at least 6 characters");
-      return;
-    }
-
-    emailLogin(setError, userEmail, password);
-  }
-
-  function loginButton() {
+  function nextPrevButtons() {
     return (
-      <AwesomeButton
-        activeOpacity={0.9}
-        onPress={async (next) => {
-          loginOnClick();
-          next();
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          marginBottom: 5,
         }}
-        style={styles.loginButtonStyle}
-        width="auto"
-        backgroundColor={Colors.secondaryGoldColor}
-        raiseLevel={5}
-        borderRadius={20}
-        backgroundShadow={Colors.grayColor}
-        progress
       >
-        <Text
-          style={{
-            ...Fonts.whiteColor20SemiBold,
-            width: "100%",
-            textAlign: "center",
+        <AwesomeButton
+          activeOpacity={0.9}
+          onPress={async (next) => {
+            next();
           }}
+          style={styles.loginButtonStyle}
+          backgroundColor="#ffc802"
+          raiseLevel={3}
+          width={width * 0.4}
+          borderRadius={20}
+          height={(width * 45) / 414}
+          backgroundDarker="#e7a60b"
+          backgroundShadow="#e7a60b"
+          progress
         >
-          Login
-        </Text>
-      </AwesomeButton>
+          <FontAwesome
+            name="chevron-left"
+            color={Colors.whiteColor}
+            size={20}
+            onPress={() => navigation.pop()}
+          />
+        </AwesomeButton>
+        <AwesomeButton
+          activeOpacity={0.9}
+          onPress={async (next) => {
+            next();
+          }}
+          style={styles.loginButtonStyle}
+          backgroundColor="#ffc802"
+          raiseLevel={3}
+          width={width * 0.4}
+          borderRadius={20}
+          height={(width * 45) / 414}
+          backgroundDarker="#e7a60b"
+          backgroundShadow="#e7a60b"
+          progress
+        >
+          <FontAwesome
+            name="chevron-right"
+            color={Colors.whiteColor}
+            size={20}
+            onPress={() => navigation.pop()}
+          />
+        </AwesomeButton>
+      </View>
     );
   }
 
   function backArrow() {
     return (
       <View style={{ ...styles.backArrowWrapStyle }}>
-        <MaterialIcons
+        <FontAwesome
           name="chevron-left"
           color={Colors.whiteColor}
           size={26}
@@ -163,214 +194,93 @@ const StartMeditation = ({ navigation }) => {
     );
   }
 
-  function passwordTextField() {
+  function topBar() {
     return (
-      <View style={{ marginBottom: Sizes.fixPadding * 4.0 }}>
-        <View
-          style={
-            passwordError
-              ? {
-                  ...styles.textFieldWrapStyle,
-                  justifyContent: "space-between",
-                  borderColor: Colors.errorColor,
-                  borderWidth: 1,
-                }
-              : {
-                  ...styles.textFieldWrapStyle,
-                  justifyContent: "space-between",
-                }
-          }
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <MaterialIcons
-              name="lock-open"
-              size={20}
-              color={Colors.whiteColor}
-            />
-            <TextInput
-              value={password}
-              onChangeText={(value) => updateState({ password: value })}
-              placeholder="Enter Password"
-              secureTextEntry={securePassword}
-              placeholderTextColor={Colors.grayColor}
-              style={{
-                ...Fonts.whiteColor14Medium,
-                marginLeft: Sizes.fixPadding + 2.0,
-                flex: 1,
-                paddingVertical: Sizes.fixPadding + 7.0,
-              }}
-              selectionColor={Colors.primaryColor}
-            />
-            <MaterialCommunityIcons
-              name={securePassword ? "eye" : "eye-off"}
-              size={20}
-              color={Colors.whiteColor}
-              onPress={() => updateState({ securePassword: !securePassword })}
-            />
-          </View>
-        </View>
-        <View
-          style={
-            passwordError
-              ? {
-                  marginHorizontal: Sizes.fixPadding * 2.0,
-                }
-              : { display: "none" }
-          }
-        >
-          <Text
-            style={{ ...Fonts.parentColor14Medium, color: Colors.errorColor }}
-          >
-            {passwordError}
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
-  function userEmailTextField() {
-    const input = useRef();
-    return (
-      <View>
-        <View
-          style={
-            emailError
-              ? {
-                  ...styles.textFieldWrapStyle,
-                  borderColor: Colors.errorColor,
-                  borderWidth: 1,
-                }
-              : styles.textFieldWrapStyle
-          }
-        >
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => input.current.focus()}
-          >
-            <Image
-              source={require("../../assets/images/icons/mail.png")}
-              style={{ width: 20.0, height: 20.0, resizeMode: "contain" }}
-            />
-          </TouchableOpacity>
-          <TextInput
-            ref={input}
-            value={userEmail}
-            onChangeText={(value) => updateState({ userEmail: value })}
-            placeholder="Enter Email Address"
-            placeholderTextColor={Colors.grayColor}
-            style={{
-              ...Fonts.whiteColor14Medium,
-              flex: 1,
-              marginLeft: Sizes.fixPadding + 2.0,
-              paddingVertical: Sizes.fixPadding + 7.0,
-            }}
-            selectionColor={Colors.primaryColor}
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          marginBottom: 6,
+        }}
+      >
+        <View style={{ ...styles.backArrowWrapStyle }}>
+          <MaterialIcons
+            name="close"
+            color={Colors.goldColor}
+            size={26}
+            onPress={() => navigation.pop()}
           />
         </View>
         <View
           style={{
-            marginHorizontal: Sizes.fixPadding * 2.0,
-            marginBottom: 7,
+            flex: 1,
+            display: "flex",
+            justifyContent: "center",
+            marginRight: Sizes.fixPadding * 1.8,
           }}
         >
-          <Text
-            style={{ ...Fonts.parentColor14Medium, color: Colors.errorColor }}
-          >
-            {emailError ? emailError : ""}
-          </Text>
+          <ProgressBar
+            progress={0.3}
+            color="#98eab7"
+            borderColor="#3a4754"
+            unfilledColor="#30404c"
+            width={null}
+            height={18}
+            borderWidth={3}
+            borderRadius={8}
+          ></ProgressBar>
         </View>
-      </View>
-    );
-  }
-
-  function loginTitle() {
-    return (
-      <View
-        style={{
-          marginVertical: Sizes.fixPadding * 4.0,
-          alignItems: "center",
-          zIndex: 1,
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
-      >
-        <Text style={{ ...Fonts.whiteColor26SemiBold }}>
-          Let’s sign you in.
-        </Text>
-        <Text style={{ ...Fonts.whiteColor14Medium }}>
-          Welcome Back. You’ve been missed!
-        </Text>
       </View>
     );
   }
 };
 
 const styles = StyleSheet.create({
-  loginContainer: {
-    justifyContent: "center",
-    backgroundColor: "red",
-    height: "100%",
-  },
-  textFieldWrapStyle: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderRadius: Sizes.fixPadding - 5.0,
-    paddingHorizontal: Sizes.fixPadding + 2.0,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-  },
-  forgetPasswordTextStyle: {
-    marginTop: Sizes.fixPadding - 5.0,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-    textAlign: "right",
-    textDecorationLine: "underline",
-    ...Fonts.primaryColor14Medium,
-  },
   loginButtonStyle: {
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: Sizes.fixPadding * 2.0,
+    marginRight: Sizes.fixPadding,
     borderRadius: Sizes.fixPadding - 5.0,
   },
-  googleAndFacebookButtonWrapStyle: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    paddingVertical: Sizes.fixPadding + 5.0,
-    marginHorizontal: Sizes.fixPadding,
-    borderRadius: Sizes.fixPadding - 5.0,
+
+  textBoxContainer: {
+    flexGrow: 1,
+    flexDirection: "column",
   },
-  animatedView: {
-    backgroundColor: "#333333",
-    position: "absolute",
-    bottom: 20,
-    alignSelf: "center",
-    borderRadius: Sizes.fixPadding * 2.0,
-    paddingHorizontal: Sizes.fixPadding + 5.0,
-    paddingVertical: Sizes.fixPadding,
-    justifyContent: "center",
-    alignItems: "center",
+  textBoxStyle: {
+    flexGrow: 1,
+    flexDirection: "column",
+    backgroundColor: "white",
+    marginBottom: Sizes.fixPadding,
+    textAlignVertical: "top",
+    Horizontal: Sizes.fixPadding,
+    borderRadius: 20,
+    padding: 15,
+    paddingTop: 15,
+    marginHorizontal: 10,
   },
+
   backArrowWrapStyle: {
-    position: "absolute",
     width: 40.0,
     height: 40.0,
     borderRadius: 20.0,
     backgroundColor: "rgba(255,255,255,0.05)",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Sizes.fixPadding * 3.0,
-    marginBottom: Sizes.fixPadding * 2.0,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-    zIndex: 2,
+    marginLeft: Sizes.fixPadding * 2.0,
+    marginRight: Sizes.fixPadding,
+    zIndex: 5,
+  },
+  counterContainer: {
+    position: "absolute",
+    bottom: 10,
+    right: 15,
+    padding: 5,
+    borderRadius: 5,
+  },
+  counterText: {
+    fontSize: 12,
+    color: "black",
   },
 });
 
