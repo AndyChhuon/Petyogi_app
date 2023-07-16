@@ -45,8 +45,9 @@ const StartMeditation = ({ navigation }) => {
     setText(inputText);
   };
 
-  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
-  const maxWords = 200;
+  const charCount = text.length;
+  const maxChars = 600;
+  const tooManyChars = charCount > maxChars;
 
   return (
     <SafeAreaView
@@ -102,8 +103,13 @@ const StartMeditation = ({ navigation }) => {
           onChangeText={handleTextChange}
         ></TextInput>
         <View style={styles.counterContainer}>
-          <Text style={styles.counterText}>
-            {wordCount}/{maxWords}
+          <Text
+            style={[
+              styles.counterText,
+              tooManyChars ? { color: Colors.errorColor } : {},
+            ]}
+          >
+            {charCount}/{maxChars}
           </Text>
         </View>
       </View>
@@ -149,14 +155,15 @@ const StartMeditation = ({ navigation }) => {
             next();
           }}
           style={styles.loginButtonStyle}
-          backgroundColor="#ffc802"
+          backgroundColor={tooManyChars ? "#bababa" : "#ffc802"}
           raiseLevel={3}
           width={width * 0.4}
           borderRadius={20}
           height={(width * 45) / 414}
-          backgroundDarker="#e7a60b"
-          backgroundShadow="#e7a60b"
+          backgroundDarker={tooManyChars ? "#dbdee8" : "#e7a60b"}
+          backgroundShadow={tooManyChars ? "#dcdfe7" : "#e7a60b"}
           progress
+          disabled={tooManyChars}
         >
           <FontAwesome
             name="chevron-right"
