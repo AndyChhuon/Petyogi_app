@@ -15,10 +15,9 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import AwesomeButton from "react-native-really-awesome-button";
-import useAuth from "../../hooks/useAuth";
-import { useHeaderHeight } from "@react-navigation/elements";
+import { Bar as ProgressBar } from "react-native-progress";
 
 const StartMeditation = ({ navigation }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
@@ -32,7 +31,6 @@ const StartMeditation = ({ navigation }) => {
   };
 
   const handlePressOutsideTextBox = () => {
-    console.log("handlePressOutsideTextBox");
     Keyboard.dismiss();
   };
 
@@ -46,7 +44,7 @@ const StartMeditation = ({ navigation }) => {
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
       }}
     >
-      <View>{isTextBoxFocused ? null : loginTitle()}</View>
+      {isTextBoxFocused ? null : topBar()}
       <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
         <View
           style={{
@@ -71,11 +69,11 @@ const StartMeditation = ({ navigation }) => {
       </TouchableWithoutFeedback>
 
       <KeyboardAvoidingView
-        style={{ flex: 1, marginBottom: Platform.OS === "ios" ? 0 : 5 }}
+        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         {textBox()}
-        {loginButton()}
+        {nextPrevButtons()}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -92,39 +90,68 @@ const StartMeditation = ({ navigation }) => {
     );
   }
 
-  function loginButton() {
+  function nextPrevButtons() {
     return (
-      <AwesomeButton
-        activeOpacity={0.9}
-        onPress={async (next) => {
-          next();
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          marginBottom: 5,
         }}
-        style={styles.loginButtonStyle}
-        width="auto"
-        backgroundColor={Colors.secondaryGoldColor}
-        raiseLevel={3}
-        borderRadius={20}
-        height={(width * 50) / 414}
-        backgroundShadow={Colors.grayColor}
-        progress
       >
-        <Text
-          style={{
-            ...Fonts.whiteColor18SemiBold,
-            width: "100%",
-            textAlign: "center",
+        <AwesomeButton
+          activeOpacity={0.9}
+          onPress={async (next) => {
+            next();
           }}
+          style={styles.loginButtonStyle}
+          backgroundColor="#ffc802"
+          raiseLevel={3}
+          width={width * 0.4}
+          borderRadius={20}
+          height={(width * 45) / 414}
+          backgroundDarker="#e7a60b"
+          backgroundShadow="#e7a60b"
+          progress
         >
-          Login
-        </Text>
-      </AwesomeButton>
+          <FontAwesome
+            name="chevron-left"
+            color={Colors.whiteColor}
+            size={20}
+            onPress={() => navigation.pop()}
+          />
+        </AwesomeButton>
+        <AwesomeButton
+          activeOpacity={0.9}
+          onPress={async (next) => {
+            next();
+          }}
+          style={styles.loginButtonStyle}
+          backgroundColor="#ffc802"
+          raiseLevel={3}
+          width={width * 0.4}
+          borderRadius={20}
+          height={(width * 45) / 414}
+          backgroundDarker="#e7a60b"
+          backgroundShadow="#e7a60b"
+          progress
+        >
+          <FontAwesome
+            name="chevron-right"
+            color={Colors.whiteColor}
+            size={20}
+            onPress={() => navigation.pop()}
+          />
+        </AwesomeButton>
+      </View>
     );
   }
 
   function backArrow() {
     return (
       <View style={{ ...styles.backArrowWrapStyle }}>
-        <MaterialIcons
+        <FontAwesome
           name="chevron-left"
           color={Colors.whiteColor}
           size={26}
@@ -134,7 +161,7 @@ const StartMeditation = ({ navigation }) => {
     );
   }
 
-  function loginTitle() {
+  function topBar() {
     return (
       <View
         style={{
@@ -151,10 +178,23 @@ const StartMeditation = ({ navigation }) => {
             onPress={() => navigation.pop()}
           />
         </View>
-        <View style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-          <Text style={{ ...Fonts.whiteColor26SemiBold }}>
-            Let’s sign you in.
-          </Text>
+        <View
+          style={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "center",
+            marginRight: Sizes.fixPadding * 2.0,
+          }}
+        >
+          <ProgressBar
+            progress={0.3}
+            color="#93d335"
+            unfilledColor="rgba(255,255,255,0.05)"
+            width={null}
+            height={18}
+            borderWidth={0}
+            borderRadius={8}
+          ></ProgressBar>
         </View>
       </View>
     );
@@ -165,7 +205,7 @@ const styles = StyleSheet.create({
   loginButtonStyle: {
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: Sizes.fixPadding * 2.0,
+    marginRight: Sizes.fixPadding,
     borderRadius: Sizes.fixPadding - 5.0,
   },
 
@@ -189,7 +229,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.05)",
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: Sizes.fixPadding * 2.0,
+    marginLeft: Sizes.fixPadding * 2.0,
+    marginRight: Sizes.fixPadding,
     zIndex: 5,
   },
 });
