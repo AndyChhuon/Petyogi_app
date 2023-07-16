@@ -99,7 +99,7 @@ const StartMeditation = ({ navigation }) => {
             readOnly
               ? {
                   backgroundColor: Colors.goldColor,
-                  color: "black",
+                  color: Colors.bodyBackColor,
                   fontWeight: "bold",
                 }
               : {},

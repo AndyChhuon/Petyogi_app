@@ -26,6 +26,7 @@ import PasswordResetScreen from "./auth/passwordResetScreen";
 import useAuth from "../hooks/useAuth";
 import FlashMessage from "react-native-flash-message";
 import StartMeditation from "./meditation/StartMeditation";
+import MeditationScreen from "./meditation/MeditationScreen";
 import { StatusBar } from "expo-status-bar";
 
 const Stack = createStackNavigator();
@@ -43,8 +44,8 @@ const AppContent = () => {
       >
         <Stack.Screen name="Loading" component={LoadingScreen} />
         <Stack.Screen
-          name="Meditation"
-          component={StartMeditation}
+          name="MeditationScreen"
+          component={MeditationScreen}
           options={{ ...TransitionPresets.DefaultTransition }}
         />
         {/* <Stack.Screen
@@ -60,6 +61,7 @@ const AppContent = () => {
               component={BottomTabBarScreen}
               options={{ ...TransitionPresets.DefaultTransition }}
             />
+            <Stack.Screen name="Meditation" component={StartMeditation} />
             <Stack.Screen
               name="LiveAuctionsDetail"
               component={LiveAuctionsDetailScreen}
