@@ -15,9 +15,7 @@ import {
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import * as Haptics from "expo-haptics";
-import ButtonTooltip from "../../components/buttonTooltip";
-import useAuth from "../../hooks/useAuth";
-import AwesomeButton from "react-native-really-awesome-button";
+import Lottie from "lottie-react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -40,25 +38,46 @@ const MeditationScreen = ({ navigation }) => {
   };
 
   return (
-    <ImageBackground
-      source={
-        dayMode
-          ? require("../../assets/Day_Background.png")
-          : require("../../assets/Night_Background.png")
-      }
-      style={styles.BackgroundImage}
-      backgroundColor="none"
-    >
-      <StatusBar
-        translucent={false}
-        backgroundColor={dayMode ? "#f9cb70" : "#5760b5"}
-      />
-      <SafeAreaView style={{ height: "100%" }}>
-        {sideBar()}
-
-        <View style={{ flex: 1 }}></View>
+    <>
+      <Lottie
+        source={require("../../assets/background_svg/fireplace.json")}
+        style={{
+          height: "100%",
+          width: "100%",
+          minWidth: "100%",
+          position: "relative",
+          zIndex: 1,
+        }}
+        autoPlay
+        loop
+      ></Lottie>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          zIndex: 2,
+        }}
+      >
+        <View>{sideBar()}</View>
+        <Lottie
+          source={require("../../assets/Meditation/monkey_meditation.json")}
+          style={{
+            position: "relative",
+            top: 0,
+            zIndex: 1,
+            borderRadius: 160,
+          }}
+          speed={0.7}
+          autoPlay
+          loop
+        ></Lottie>
+        <View>
+          <Text>test</Text>
+        </View>
       </SafeAreaView>
-    </ImageBackground>
+    </>
   );
 
   function sideBar() {
