@@ -42,12 +42,17 @@ const AppContent = () => {
           ...TransitionPresets.SlideFromRightIOS,
         }}
       >
-        <Stack.Screen name="Loading" component={LoadingScreen} />
+        <Stack.Screen
+          name="Loading"
+          component={LoadingScreen}
+          options={{ gestureEnabled: false }}
+        />
         <Stack.Screen
           name="MeditationScreen"
           component={MeditationScreen}
-          options={{ ...TransitionPresets.DefaultTransition }}
+          options={{ gestureEnabled: false }}
         />
+
         {/* <Stack.Screen
                 name="Splash"
                 component={SplashScreen}

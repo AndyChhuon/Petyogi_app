@@ -211,6 +211,10 @@ export const Fonts = {
     fontSize: 16,
     fontFamily: "SF_Compact_Display_Bold",
   },
+  progressLabelText: {
+    fontSize: 12,
+    fontFamily: "SF_Compact_Display_Medium",
+  },
 };
 
 export const Colors = {
