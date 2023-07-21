@@ -57,7 +57,7 @@ const MeditationScreen = ({ navigation }) => {
   return (
     <>
       <Lottie
-        source={require("../../assets/background_svg/rosy_blur.json")}
+        source={require("../../assets/background_svg/starry_night.json")}
         style={{
           position: "relative",
           zIndex: 1,
@@ -86,14 +86,12 @@ const MeditationScreen = ({ navigation }) => {
             flex: 1,
           }}
         >
-          {closeButton()}
-          {sidebarMenu()}
+          {sideBar()}
           <View
             style={{
               flex: 1,
               marginTop: "10%",
               display: "flex",
-              zIndex: 1,
             }}
           >
             <View
@@ -105,12 +103,12 @@ const MeditationScreen = ({ navigation }) => {
                   position: "relative",
                   top: 0,
                 }}
-                speed={0.5}
+                speed={0.7}
                 ref={lottieRef}
                 loop
               ></Lottie>
             </View>
-            <View style={{ marginBottom: "15%" }}>
+            <View style={{ marginBottom: 10 }}>
               <View style={styles.playMeditationStyle}>
                 <Slider
                   style={{
@@ -166,28 +164,6 @@ const MeditationScreen = ({ navigation }) => {
     </>
   );
 
-  function closeButton() {
-    return (
-      <View style={styles.closeButtonStyle}>
-        <Ionicons
-          name="close"
-          color={Colors.whiteColor}
-          size={32}
-          onPress={() => navigation.pop()}
-        />
-      </View>
-    );
-  }
-
-  function sidebarMenu() {
-    return (
-      <View style={styles.sidebarMenuWrap}>
-        {sideMenu()}
-        {sideBar()}
-      </View>
-    );
-  }
-
   function sideBar() {
     return (
       <View
@@ -196,20 +172,6 @@ const MeditationScreen = ({ navigation }) => {
           backgroundColor: "rgba(37, 53, 66,0.9)",
         }}
       >
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => {}}
-          style={[styles.notificationIconWrapStyle, { marginBottom: 10 }]}
-        >
-          <Image
-            source={require("../../assets/images/icons/sun.png")}
-            style={{
-              width: (22.0 * width) / 414,
-              height: (22.0 * width) / 414,
-              resizeMode: "contain",
-            }}
-          />
-        </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={() => {}}
@@ -238,95 +200,6 @@ const MeditationScreen = ({ navigation }) => {
             }}
           />
         </TouchableOpacity>
-      </View>
-    );
-  }
-
-  function sideMenu() {
-    const data = [
-      {
-        id: "1",
-        image: require("../../assets/background_svg/farm_preview.png"),
-      },
-      {
-        id: "2",
-        image: require("../../assets/background_svg/fireplace_preview.png"),
-      },
-      {
-        id: "3",
-        image: require("../../assets/background_svg/frosty_snowman_preview.png"),
-      },
-      {
-        id: "4",
-        image: require("../../assets/background_svg/jungle_preview.png"),
-      },
-      {
-        id: "5",
-        image: require("../../assets/background_svg/mountain_preview.png"),
-      },
-      {
-        id: "6",
-        image: require("../../assets/background_svg/rosy_blur_preview.png"),
-      },
-      {
-        id: "6",
-        image: require("../../assets/background_svg/space_preview.png"),
-      },
-      {
-        id: "7",
-        image: require("../../assets/background_svg/starry_night_preview.png"),
-      },
-      {
-        id: "8",
-        image: require("../../assets/background_svg/sunny_day_preview.png"),
-      },
-      {
-        id: "9",
-        image: require("../../assets/background_svg/train_preview.png"),
-      },
-    ];
-
-    const renderItem = ({ item }) => (
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={() => {}}
-        style={{
-          width: "50%",
-          padding: 4,
-          height: (250 * width) / 414,
-          marginBottom: 5,
-        }}
-      >
-        <Image
-          source={item.image}
-          style={{
-            position: "relative",
-            width: "100%",
-            resizeMode: "cover",
-            height: (250 * width) / 414,
-          }}
-        />
-      </TouchableOpacity>
-    );
-
-    return (
-      <View
-        style={{
-          ...styles.sideMenuWrapStyle,
-          flex: 1,
-          backgroundColor: "red",
-          flexDirection: "row", // To arrange items horizontally
-        }}
-      >
-        <FlatList
-          horizontal={false}
-          style={{ backgroundColor: "blue" }}
-          data={data}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={{ flexGrow: 1 }}
-        />
       </View>
     );
   }
@@ -367,36 +240,19 @@ const styles = StyleSheet.create({
     borderColor: Colors.primaryColor,
     borderWidth: (1.5 * width) / 414,
   },
-  sidebarMenuWrap: {
-    position: "absolute",
-    zIndex: 2,
-    display: "flex",
-    flexDirection: "row",
-    right: 0,
-    paddingHorizontal: (10.0 * width) / 414,
-    height: "100%",
-    width: "100%",
-  },
   sideBarWrapStyle: {
-    alignItems: "center",
-    backgroundColor: "transparent",
-    paddingVertical: (10.0 * width) / 414,
-    paddingHorizontal: (12.0 * width) / 414,
-    borderRadius: 12,
-    height: (42.0 * width * 3) / 414 + 35,
-  },
-  sideMenuWrapStyle: {
-    flexGrow: 1,
-    alignItems: "center",
-    backgroundColor: "transparent",
-    paddingVertical: (10.0 * width) / 414,
-    paddingHorizontal: (12.0 * width) / 414,
-    borderRadius: 12,
-  },
-  closeButtonStyle: {
     position: "absolute",
-    marginLeft: (20.0 * width) / 414,
-    marginTop: (20.0 * width) / 414,
+    right: 0,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "transparent",
+    marginLeft: "auto",
+    paddingVertical: (10.0 * width) / 414,
+    paddingHorizontal: (12.0 * width) / 414,
+    borderRadius: 12,
+    marginRight: (10.0 * width) / 414,
   },
   BackgroundImage: {
     flex: 1,

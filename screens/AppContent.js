@@ -28,6 +28,7 @@ import FlashMessage from "react-native-flash-message";
 import StartMeditation from "./meditation/StartMeditation";
 import MeditationScreen from "./meditation/MeditationScreen";
 import { StatusBar } from "expo-status-bar";
+import ScaleInOut from "../Animations/ScaleInOut";
 
 const Stack = createStackNavigator();
 
