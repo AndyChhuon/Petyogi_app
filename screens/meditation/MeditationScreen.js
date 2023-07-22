@@ -57,7 +57,7 @@ const MeditationScreen = ({ navigation }) => {
   return (
     <>
       <Lottie
-        source={require("../../assets/background_svg/rosy_blur.json")}
+        source={require("../../assets/background_svg/jungle.json")}
         style={{
           position: "relative",
           zIndex: 1,
@@ -100,7 +100,7 @@ const MeditationScreen = ({ navigation }) => {
               style={{ flexGrow: 1, display: "flex", justifyContent: "center" }}
             >
               <Lottie
-                source={require("../../assets/Meditation/monkey_meditation.json")}
+                source={require("../../assets/Meditation/turtle_meditation.json")}
                 style={{
                   position: "relative",
                   top: 0,
@@ -193,51 +193,80 @@ const MeditationScreen = ({ navigation }) => {
       <View
         style={{
           ...styles.sideBarWrapStyle,
-          backgroundColor: "rgba(37, 53, 66,0.9)",
         }}
       >
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => {}}
-          style={[styles.notificationIconWrapStyle, { marginBottom: 10 }]}
+        <View
+          style={{
+            paddingTop: (10.0 * width) / 414,
+            paddingHorizontal: (12.0 * width) / 414,
+            paddingBottom: (5.0 * width) / 414,
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            backgroundColor:
+              Platform.OS === "android"
+                ? "rgba(255, 255, 255, 0.92)"
+                : "rgba(255, 255, 255, 0.86)",
+          }}
         >
-          <Image
-            source={require("../../assets/images/icons/sun.png")}
-            style={{
-              width: (22.0 * width) / 414,
-              height: (22.0 * width) / 414,
-              resizeMode: "contain",
-            }}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => {}}
-          style={[styles.notificationIconWrapStyle, { marginBottom: 10 }]}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => {}}
+            style={styles.notificationIconWrapStyle}
+          >
+            <Image
+              source={require("../../assets/background_svg/jungle_preview.png")}
+              style={{
+                width: "100%",
+                height: "100%",
+                resizeMode: "contain",
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            paddingVertical: (5.0 * width) / 414,
+            paddingHorizontal: (12.0 * width) / 414,
+            backgroundColor: "rgba(37, 53, 66,0.9)",
+          }}
         >
-          <Image
-            source={require("../../assets/images/icons/sun.png")}
-            style={{
-              width: (22.0 * width) / 414,
-              height: (22.0 * width) / 414,
-              resizeMode: "contain",
-            }}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => {}}
-          style={styles.notificationIconWrapStyle}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => {}}
+            style={[styles.notificationIconWrapStyle]}
+          >
+            <Image
+              source={require("../../assets/images/icons/meditation.png")}
+              style={{
+                width: (20.0 * width) / 414,
+                height: (20.0 * width) / 414,
+                resizeMode: "contain",
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            paddingTop: (5.0 * width) / 414,
+            paddingHorizontal: (12.0 * width) / 414,
+            paddingBottom: (10.0 * width) / 414,
+            backgroundColor: "rgba(37, 53, 66,0.9)",
+            borderBottomRightRadius: 12,
+            borderBottomLeftRadius: 12,
+          }}
         >
-          <Image
-            source={require("../../assets/images/icons/sun.png")}
-            style={{
-              width: (22.0 * width) / 414,
-              height: (22.0 * width) / 414,
-              resizeMode: "contain",
-            }}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => {}}
+            style={styles.notificationIconWrapStyle}
+          >
+            <Ionicons
+              name="musical-notes"
+              size={30 * (width / 414)}
+              color="#f16b42"
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -284,6 +313,22 @@ const MeditationScreen = ({ navigation }) => {
         id: "9",
         image: require("../../assets/background_svg/train_preview.png"),
       },
+      {
+        id: "10",
+        image: require("../../assets/background_svg/blue_lines_preview.png"),
+      },
+      {
+        id: "11",
+        image: require("../../assets/background_svg/floral_green_preview.png"),
+      },
+      {
+        id: "12",
+        image: require("../../assets/background_svg/plants_preview.png"),
+      },
+      {
+        id: "13",
+        image: require("../../assets/background_svg/magenta_blur_preview.png"),
+      },
     ];
 
     const renderItem = ({ item }) => (
@@ -314,13 +359,12 @@ const MeditationScreen = ({ navigation }) => {
         style={{
           ...styles.sideMenuWrapStyle,
           flex: 1,
-          backgroundColor: "red",
           flexDirection: "row", // To arrange items horizontally
         }}
       >
         <FlatList
           horizontal={false}
-          style={{ backgroundColor: "blue" }}
+          style={styles.flatListMenuStyle}
           data={data}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
@@ -353,6 +397,7 @@ const styles = StyleSheet.create({
         : "rgba(32, 32, 34, 0.52)",
   },
   notificationIconWrapStyle: {
+    padding: 1,
     borderRadius: (Sizes.fixPadding * width) / 414,
     alignItems: "center",
     justifyContent: "center",
@@ -369,7 +414,7 @@ const styles = StyleSheet.create({
   },
   sidebarMenuWrap: {
     position: "absolute",
-    zIndex: 2,
+    zIndex: 3,
     display: "flex",
     flexDirection: "row",
     right: 0,
@@ -379,9 +424,7 @@ const styles = StyleSheet.create({
   },
   sideBarWrapStyle: {
     alignItems: "center",
-    backgroundColor: "transparent",
-    paddingVertical: (10.0 * width) / 414,
-    paddingHorizontal: (12.0 * width) / 414,
+
     borderRadius: 12,
     height: (42.0 * width * 3) / 414 + 35,
   },
@@ -392,6 +435,16 @@ const styles = StyleSheet.create({
     paddingVertical: (10.0 * width) / 414,
     paddingHorizontal: (12.0 * width) / 414,
     borderRadius: 12,
+    backgroundColor:
+      Platform.OS === "android"
+        ? "rgba(255, 255, 255, 0.92)"
+        : "rgba(255, 255, 255, 0.86)",
+  },
+  flatListMenuStyle: {
+    backgroundColor:
+      Platform.OS === "android"
+        ? "rgba(32, 32, 34, 0.42)"
+        : "rgba(32, 32, 34, 0.52)",
   },
   closeButtonStyle: {
     position: "absolute",
