@@ -18,6 +18,7 @@ import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
+import ScaleInOut from "../../Animations/ScaleInOut";
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,6 +26,14 @@ const MeditationScreen = ({ navigation }) => {
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [initValue, setInitValue] = useState(0);
   const [playing, setPlaying] = useState(false);
+
+  const [lottieBackground, setLottieBackground] = useState({
+    id: "7",
+    image: require("../../assets/background_svg/starry_night_preview.png"),
+    lottie: require("../../assets/background_svg/starry_night.json"),
+  });
+
+  const [showMenu, setShowMenu] = useState(false);
 
   const maxNumPhrases = 20;
 
@@ -57,7 +66,7 @@ const MeditationScreen = ({ navigation }) => {
   return (
     <>
       <Lottie
-        source={require("../../assets/background_svg/jungle.json")}
+        source={lottieBackground?.lottie}
         style={{
           position: "relative",
           zIndex: 1,
@@ -146,7 +155,11 @@ const MeditationScreen = ({ navigation }) => {
                       <Ionicons
                         name={playing ? "ios-pause-circle" : "ios-play-circle"}
                         size={60 * (width / 414)}
-                        color={Colors.whiteColor}
+                        color={
+                          lottieBackground.id == "3"
+                            ? Colors.bodyBackColor
+                            : Colors.whiteColor
+                        }
                       />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => onNextButtonPress()}>
@@ -168,7 +181,9 @@ const MeditationScreen = ({ navigation }) => {
 
   function closeButton() {
     return (
-      <View style={styles.closeButtonStyle}>
+      <View
+        style={[styles.closeButtonStyle, showMenu ? { display: "none" } : {}]}
+      >
         <Ionicons
           name="close"
           color={Colors.whiteColor}
@@ -181,7 +196,12 @@ const MeditationScreen = ({ navigation }) => {
 
   function sidebarMenu() {
     return (
-      <View style={styles.sidebarMenuWrap}>
+      <View
+        style={[
+          styles.sidebarMenuWrap,
+          showMenu ? { height: "100%", width: "100%" } : {},
+        ]}
+      >
         {sideMenu()}
         {sideBar()}
       </View>
@@ -203,18 +223,23 @@ const MeditationScreen = ({ navigation }) => {
             borderTopLeftRadius: 12,
             borderTopRightRadius: 12,
             backgroundColor:
-              Platform.OS === "android"
-                ? "rgba(255, 255, 255, 0.92)"
-                : "rgba(255, 255, 255, 0.86)",
+              showMenu == "background"
+                ? "rgba(101, 101, 101, 0.92)"
+                : "rgba(37, 53, 66,0.9)",
           }}
         >
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => {}}
+            onPress={() => {
+              showMenu == "background"
+                ? setShowMenu(false)
+                : setShowMenu("background");
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
             style={styles.notificationIconWrapStyle}
           >
             <Image
-              source={require("../../assets/background_svg/jungle_preview.png")}
+              source={lottieBackground?.image}
               style={{
                 width: "100%",
                 height: "100%",
@@ -272,69 +297,82 @@ const MeditationScreen = ({ navigation }) => {
   }
 
   function sideMenu() {
-    const data = [
-      {
-        id: "1",
-        image: require("../../assets/background_svg/farm_preview.png"),
-      },
-      {
-        id: "2",
-        image: require("../../assets/background_svg/fireplace_preview.png"),
-      },
-      {
-        id: "3",
-        image: require("../../assets/background_svg/frosty_snowman_preview.png"),
-      },
-      {
-        id: "4",
-        image: require("../../assets/background_svg/jungle_preview.png"),
-      },
-      {
-        id: "5",
-        image: require("../../assets/background_svg/mountain_preview.png"),
-      },
-      {
-        id: "6",
-        image: require("../../assets/background_svg/rosy_blur_preview.png"),
-      },
-      {
-        id: "6",
-        image: require("../../assets/background_svg/space_preview.png"),
-      },
-      {
-        id: "7",
-        image: require("../../assets/background_svg/starry_night_preview.png"),
-      },
-      {
-        id: "8",
-        image: require("../../assets/background_svg/sunny_day_preview.png"),
-      },
-      {
-        id: "9",
-        image: require("../../assets/background_svg/train_preview.png"),
-      },
-      {
-        id: "10",
-        image: require("../../assets/background_svg/blue_lines_preview.png"),
-      },
-      {
-        id: "11",
-        image: require("../../assets/background_svg/floral_green_preview.png"),
-      },
-      {
-        id: "12",
-        image: require("../../assets/background_svg/plants_preview.png"),
-      },
-      {
-        id: "13",
-        image: require("../../assets/background_svg/magenta_blur_preview.png"),
-      },
-    ];
+    const data = {
+      background: [
+        {
+          id: "2",
+          image: require("../../assets/background_svg/fireplace_preview.png"),
+          lottie: require("../../assets/background_svg/fireplace.json"),
+        },
+        {
+          id: "3",
+          image: require("../../assets/background_svg/frosty_snowman_preview.png"),
+          lottie: require("../../assets/background_svg/frosty_snowman.json"),
+        },
+        {
+          id: "4",
+          image: require("../../assets/background_svg/jungle_preview.png"),
+          lottie: require("../../assets/background_svg/jungle.json"),
+        },
+        {
+          id: "5",
+          image: require("../../assets/background_svg/mountain_preview.png"),
+          lottie: require("../../assets/background_svg/mountain.json"),
+        },
+        {
+          id: "6",
+          image: require("../../assets/background_svg/rosy_blur_preview.png"),
+          lottie: require("../../assets/background_svg/rosy_blur.json"),
+        },
+        {
+          id: "6",
+          image: require("../../assets/background_svg/space_preview.png"),
+          lottie: require("../../assets/background_svg/space.json"),
+        },
+        {
+          id: "7",
+          image: require("../../assets/background_svg/starry_night_preview.png"),
+          lottie: require("../../assets/background_svg/starry_night.json"),
+        },
+
+        {
+          id: "9",
+          image: require("../../assets/background_svg/train_preview.png"),
+          lottie: require("../../assets/background_svg/train.json"),
+        },
+        {
+          id: "10",
+          image: require("../../assets/background_svg/colorful_bubbles_preview.png"),
+          lottie: require("../../assets/background_svg/colorful_bubbles.json"),
+        },
+        {
+          id: "11",
+          image: require("../../assets/background_svg/rainbow_strips_preview.png"),
+          lottie: require("../../assets/background_svg/rainbow_strips.json"),
+        },
+        {
+          id: "12",
+          image: require("../../assets/background_svg/plants_preview.png"),
+          lottie: require("../../assets/background_svg/plants.json"),
+        },
+        {
+          id: "13",
+          image: require("../../assets/background_svg/magenta_blur_preview.png"),
+          lottie: require("../../assets/background_svg/magenta_blur.json"),
+        },
+      ],
+      music: [],
+      lottie: [],
+    };
 
     const renderItem = ({ item }) => (
       <TouchableOpacity
         activeOpacity={0.9}
-        onPress={() => {}}
+        onPress={() => {
+          setLottieBackground(item);
+          setShowMenu(false);
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }}
         style={{
           width: "50%",
           padding: 4,
@@ -355,23 +393,24 @@ const MeditationScreen = ({ navigation }) => {
     );
 
     return (
-      <View
+      <ScaleInOut
+        visible={showMenu}
         style={{
           ...styles.sideMenuWrapStyle,
           flex: 1,
-          flexDirection: "row", // To arrange items horizontally
+          flexDirection: "row",
         }}
       >
         <FlatList
           horizontal={false}
-          style={styles.flatListMenuStyle}
-          data={data}
+          style={[styles.flatListMenuStyle]}
+          data={data[showMenu]}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           numColumns={2}
           contentContainerStyle={{ flexGrow: 1 }}
         />
-      </View>
+      </ScaleInOut>
     );
   }
 };
@@ -419,12 +458,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     right: 0,
     paddingHorizontal: (10.0 * width) / 414,
-    height: "100%",
-    width: "100%",
   },
   sideBarWrapStyle: {
+    marginLeft: "auto",
     alignItems: "center",
-
     borderRadius: 12,
     height: (42.0 * width * 3) / 414 + 35,
   },
@@ -432,15 +469,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: "center",
     backgroundColor: "transparent",
-    paddingVertical: (10.0 * width) / 414,
-    paddingHorizontal: (12.0 * width) / 414,
+    paddingVertical: (8.0 * width) / 414,
+    paddingHorizontal: (8.0 * width) / 414,
     borderRadius: 12,
-    backgroundColor:
-      Platform.OS === "android"
-        ? "rgba(255, 255, 255, 0.92)"
-        : "rgba(255, 255, 255, 0.86)",
+    backgroundColor: "rgba(101, 101, 101, 0.92)",
   },
   flatListMenuStyle: {
+    borderRadius: 4,
+    padding: 1,
     backgroundColor:
       Platform.OS === "android"
         ? "rgba(32, 32, 34, 0.42)"
@@ -450,6 +486,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     marginLeft: (20.0 * width) / 414,
     marginTop: (20.0 * width) / 414,
+    zIndex: 4,
   },
   BackgroundImage: {
     flex: 1,
