@@ -33,6 +33,12 @@ const MeditationScreen = ({ navigation }) => {
     lottie: require("../../assets/background_svg/starry_night.json"),
   });
 
+  const [lottieMeditation, setLottieMeditation] = useState({
+    id: "2",
+    image: require("../../assets/Meditation/sloth.png"),
+    lottie: require("../../assets/Meditation/sloth.json"),
+  });
+
   const [showMenu, setShowMenu] = useState(false);
 
   const maxNumPhrases = 20;
@@ -61,7 +67,7 @@ const MeditationScreen = ({ navigation }) => {
     } else {
       lottieRef.current?.pause();
     }
-  }, [playing]);
+  }, [playing, lottieMeditation]);
 
   return (
     <>
@@ -109,7 +115,7 @@ const MeditationScreen = ({ navigation }) => {
               style={{ flexGrow: 1, display: "flex", justifyContent: "center" }}
             >
               <Lottie
-                source={require("../../assets/Meditation/turtle_meditation.json")}
+                source={lottieMeditation?.lottie}
                 style={{
                   position: "relative",
                   top: 0,
@@ -156,7 +162,7 @@ const MeditationScreen = ({ navigation }) => {
                         name={playing ? "ios-pause-circle" : "ios-play-circle"}
                         size={60 * (width / 414)}
                         color={
-                          lottieBackground.id == "3"
+                          lottieBackground.id == "2"
                             ? Colors.bodyBackColor
                             : Colors.whiteColor
                         }
@@ -252,20 +258,28 @@ const MeditationScreen = ({ navigation }) => {
           style={{
             paddingVertical: (5.0 * width) / 414,
             paddingHorizontal: (12.0 * width) / 414,
-            backgroundColor: "rgba(37, 53, 66,0.9)",
+            backgroundColor:
+              showMenu == "meditation"
+                ? "rgba(101, 101, 101, 0.92)"
+                : "rgba(37, 53, 66,0.9)",
           }}
         >
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => {}}
+            onPress={() => {
+              showMenu == "meditation"
+                ? setShowMenu(false)
+                : setShowMenu("meditation");
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
             style={[styles.notificationIconWrapStyle]}
           >
             <Image
-              source={require("../../assets/images/icons/meditation.png")}
+              source={lottieMeditation?.image}
               style={{
-                width: (20.0 * width) / 414,
-                height: (20.0 * width) / 414,
-                resizeMode: "contain",
+                borderRadius: (Sizes.fixPadding * width) / 414,
+                width: (40.0 * width) / 414,
+                height: (40.0 * width) / 414,
               }}
             />
           </TouchableOpacity>
@@ -287,8 +301,8 @@ const MeditationScreen = ({ navigation }) => {
           >
             <Ionicons
               name="musical-notes"
-              size={30 * (width / 414)}
-              color="#f16b42"
+              size={25 * (width / 414)}
+              color="#FFFFFF"
             />
           </TouchableOpacity>
         </View>
@@ -300,27 +314,27 @@ const MeditationScreen = ({ navigation }) => {
     const data = {
       background: [
         {
-          id: "2",
+          id: "1",
           image: require("../../assets/background_svg/fireplace_preview.png"),
           lottie: require("../../assets/background_svg/fireplace.json"),
         },
         {
-          id: "3",
+          id: "2",
           image: require("../../assets/background_svg/frosty_snowman_preview.png"),
           lottie: require("../../assets/background_svg/frosty_snowman.json"),
         },
         {
-          id: "4",
+          id: "3",
           image: require("../../assets/background_svg/jungle_preview.png"),
           lottie: require("../../assets/background_svg/jungle.json"),
         },
         {
-          id: "5",
+          id: "4",
           image: require("../../assets/background_svg/mountain_preview.png"),
           lottie: require("../../assets/background_svg/mountain.json"),
         },
         {
-          id: "6",
+          id: "5",
           image: require("../../assets/background_svg/rosy_blur_preview.png"),
           lottie: require("../../assets/background_svg/rosy_blur.json"),
         },
@@ -336,61 +350,142 @@ const MeditationScreen = ({ navigation }) => {
         },
 
         {
-          id: "9",
+          id: "8",
           image: require("../../assets/background_svg/train_preview.png"),
           lottie: require("../../assets/background_svg/train.json"),
         },
         {
-          id: "10",
+          id: "9",
           image: require("../../assets/background_svg/colorful_bubbles_preview.png"),
           lottie: require("../../assets/background_svg/colorful_bubbles.json"),
         },
         {
-          id: "11",
+          id: "10",
           image: require("../../assets/background_svg/rainbow_strips_preview.png"),
           lottie: require("../../assets/background_svg/rainbow_strips.json"),
         },
         {
-          id: "12",
+          id: "11",
           image: require("../../assets/background_svg/plants_preview.png"),
           lottie: require("../../assets/background_svg/plants.json"),
         },
         {
-          id: "13",
+          id: "12",
           image: require("../../assets/background_svg/magenta_blur_preview.png"),
           lottie: require("../../assets/background_svg/magenta_blur.json"),
         },
       ],
       music: [],
-      lottie: [],
+      meditation: [
+        {
+          id: "1",
+          image: require("../../assets/Meditation/monkey.png"),
+          lottie: require("../../assets/Meditation/monkey.json"),
+        },
+        {
+          id: "2",
+          image: require("../../assets/Meditation/sloth.png"),
+          lottie: require("../../assets/Meditation/sloth.json"),
+        },
+        {
+          id: "3",
+          image: require("../../assets/Meditation/tiger.png"),
+          lottie: require("../../assets/Meditation/tiger.json"),
+        },
+        {
+          id: "4",
+          image: require("../../assets/Meditation/turtle.png"),
+          lottie: require("../../assets/Meditation/turtle.json"),
+        },
+        {
+          id: "5",
+          image: require("../../assets/Meditation/koala.png"),
+          lottie: require("../../assets/Meditation/koala.json"),
+        },
+        {
+          id: "6",
+          image: require("../../assets/Meditation/fox.png"),
+          lottie: require("../../assets/Meditation/fox.json"),
+        },
+        {
+          id: "7",
+          image: require("../../assets/Meditation/blob.png"),
+          lottie: require("../../assets/Meditation/blob.json"),
+        },
+        {
+          id: "8",
+          image: require("../../assets/Meditation/meditation_ring_1.png"),
+          lottie: require("../../assets/Meditation/meditation_ring_1.json"),
+        },
+        {
+          id: "8",
+          image: require("../../assets/Meditation/rabbit.png"),
+          lottie: require("../../assets/Meditation/rabbit.json"),
+        },
+      ],
     };
 
-    const renderItem = ({ item }) => (
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={() => {
-          setLottieBackground(item);
-          setShowMenu(false);
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }}
-        style={{
-          width: "50%",
-          padding: 4,
-          height: (250 * width) / 414,
-          marginBottom: 5,
-        }}
-      >
-        <Image
-          source={item.image}
-          style={{
-            position: "relative",
-            width: "100%",
-            resizeMode: "cover",
-            height: (250 * width) / 414,
-          }}
-        />
-      </TouchableOpacity>
-    );
+    const renderItem = ({ item }) => {
+      if (showMenu == "background") {
+        return (
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => {
+              setLottieBackground(item);
+              setShowMenu(false);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }}
+            style={{
+              width: "50%",
+              paddingHorizontal: 4,
+              paddingVertical: 1,
+              marginBottom: 5,
+            }}
+          >
+            <Image
+              source={item.image}
+              style={{
+                position: "relative",
+                width: "100%",
+                resizeMode: "cover",
+                height: (250 * width) / 414,
+              }}
+            />
+          </TouchableOpacity>
+        );
+      } else if (showMenu == "meditation") {
+        return (
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => {
+              setLottieMeditation(item);
+              setShowMenu(false);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }}
+            style={{
+              width: "50%",
+              height: (160 * width) / 414,
+              marginBottom: 5,
+              borderRadius: 10,
+              borderWidth: 2,
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              source={item.image}
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "100%",
+                resizeMode: "cover",
+                borderRadius: 10,
+              }}
+            />
+          </TouchableOpacity>
+        );
+      }
+    };
 
     return (
       <ScaleInOut
