@@ -19,6 +19,7 @@ import Lottie from "lottie-react-native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import ScaleInOut from "../../Animations/ScaleInOut";
+import { set } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,6 +27,7 @@ const MeditationScreen = ({ navigation }) => {
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [initValue, setInitValue] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [waitingForNextLine, setWaitingForNextLine] = useState(false);
 
   const [lottieBackground, setLottieBackground] = useState({
     id: "7",
@@ -39,9 +41,189 @@ const MeditationScreen = ({ navigation }) => {
     lottie: require("../../assets/Meditation/sloth.json"),
   });
 
+  const [meditationInfo, setMeditationInfo] = useState({
+    date: "2023-07-03",
+    finishedGenerating: true,
+    meditationUrls: {
+      1: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/1.wav",
+      },
+      2: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/2.wav",
+      },
+      3: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/3.wav",
+      },
+      4: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/4.wav",
+      },
+      5: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/5.wav",
+      },
+      6: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/6.wav",
+      },
+      7: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/7.wav",
+      },
+      8: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/8.wav",
+      },
+      9: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/9.wav",
+      },
+      10: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/10.wav",
+      },
+      11: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/11.wav",
+      },
+      12: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/12.wav",
+      },
+      13: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/13.wav",
+      },
+      14: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/14.wav",
+      },
+      15: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/15.wav",
+      },
+      16: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/16.wav",
+      },
+      17: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/17.wav",
+      },
+      18: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/18.wav",
+      },
+      19: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/19.wav",
+      },
+      20: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/20.wav",
+      },
+      21: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/21.wav",
+      },
+      22: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/22.wav",
+      },
+      23: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/23.wav",
+      },
+      24: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/24.wav",
+      },
+      25: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/25.wav",
+      },
+      26: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/26.wav",
+      },
+      27: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/27.wav",
+      },
+      28: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/28.wav",
+      },
+      29: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/29.wav",
+      },
+      30: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/30.wav",
+      },
+      31: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/31.wav",
+      },
+      32: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/32.wav",
+      },
+      33: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/33.wav",
+      },
+      34: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/34.wav",
+      },
+      35: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/35.wav",
+      },
+      36: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/36.wav",
+      },
+      37: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/37.wav",
+      },
+      38: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/38.wav",
+      },
+      39: {
+        url: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/bNzLSCwIQrTOmY0Pc3zCgk6EVno2/7/39.wav",
+      },
+      count: 39,
+    },
+    phrases: [
+      null,
+      "Welcome back, Andy.",
+      "It's me, your trusty friend and meditation guide, PetYogi.",
+      "I'm here to help you find the motivation and focus you need to conquer your English assignment.",
+      "I understand that feeling of being overwhelmed and not wanting to do homework, but fear not, my friend, for within you lies the power to transform your state of mind.",
+      "Let us begin our meditation by finding a quiet and comfortable space to sit.",
+      "Close your eyes and take a deep breath in, allowing your body to relax.",
+      "As you exhale, release any tension or negativity that may be weighing you down.",
+      "Feel the weight of the world lifting off your shoulders, leaving you light and free.",
+      "Now, imagine yourself floating in the vast expanse of space, surrounded by the infinite beauty of the cosmos.",
+      "The stars twinkle like diamonds, casting a gentle glow upon your peaceful form.",
+      "Feel the warmth of the sun on your skin, as its rays of light penetrate through the darkness, awakening a sense of purpose within you.",
+      "As you gaze out into the endless void of space, notice how small and insignificant your worries seem in comparison to the vastness of the universe.",
+      "Allow this perspective to shift your mindset, realizing that the completion of your English assignment is but a small task in the grand scheme of things.",
+      "Take a moment to reflect on why you have been feeling depressed and resistant to doing your homework.",
+      "Is it the fear of failure, the pressure of expectations, or the weight of procrastination?",
+      "Allow yourself to acknowledge these emotions without judgment, knowing that they are merely temporary clouds passing through your consciousness.",
+      "Now, visualize the English assignment in front of you, surrounded by a soft, golden light.",
+      "See yourself reaching out and embracing it with open arms, accepting it as a challenge that you are fully capable of overcoming.",
+      "Feel a surge of motivation and determination coursing through your veins, empowering you to tackle this task head-on.",
+      "As you begin to work on your assignment, notice how your focus sharpens and your mind becomes clear.",
+      "Each word you write flows effortlessly from your fingertips, as if guided by a higher force.",
+      "You find yourself immersed in a state of creative flow, where time seems to stand still and distractions fade away.",
+      "Take a moment to envision the satisfaction and pride you will feel upon completing your English assignment.",
+      "Visualize handing it in with confidence, knowing that you have given it your best effort.",
+      "Feel the sense of accomplishment radiating from within, as if you have conquered a mountain and emerged victorious.",
+      "Notice the subtle shifts happening within you as you immerse yourself in this visualization.",
+      "Feel a renewed sense of energy and purpose filling every cell of your being.",
+      "Allow yourself to fully embody this state of motivation and focus, knowing that it is always within reach, waiting to be activated.",
+      "Now, take a deep breath in and exhale slowly, releasing any remaining tension or doubt.",
+      "Know that you have the power to transform your state of mind at any moment.",
+      "You are not defined by your past procrastination or current feelings of depression.",
+      "You are a limitless being capable of achieving greatness.",
+      "Before we conclude this meditation, I want to leave you with a nugget of wisdom.",
+      "Remember that motivation is not something you find outside of yourself; it is a flame that can only be ignited from within.",
+      "Cultivate a mindset of positivity and self-belief, and watch as the universe conspires to support you on your journey.",
+      "Thank you, Andy, for allowing me to guide you on this transformative meditation journey.",
+      "As you open your eyes and return to the present moment, carry this newfound motivation and focus with you throughout your day.",
+      "You have the power to conquer any challenge that comes your way.",
+      "Now, go forth and shine your light upon the world.",
+    ],
+  });
+
   const [showMenu, setShowMenu] = useState(false);
 
-  const maxNumPhrases = 20;
+  const timeBetweenPhrases = 5000;
+
+  const maxNumPhrases = meditationInfo.meditationUrls
+    ? meditationInfo.meditationUrls.count
+      ? Object.keys(meditationInfo.meditationUrls).length - 1
+      : Object.keys(meditationInfo.meditationUrls).length
+    : 0;
+
+  const generating = meditationInfo.meditationUrls
+    ? meditationInfo.meditationUrls.count
+      ? Object.keys(meditationInfo.meditationUrls).length - 1 !=
+        meditationInfo.meditationUrls.count
+      : true
+    : true;
 
   const lottieRef = useRef(null);
 
@@ -61,13 +243,57 @@ const MeditationScreen = ({ navigation }) => {
     }
   };
 
+  const incrementPhrase = () => {
+    if (currentPhrase < maxNumPhrases) {
+      setCurrentPhrase((prevPhrase) => prevPhrase + 1);
+      setInitValue(currentPhrase + 1);
+    } else if (currentPhrase == maxNumPhrases && generating) {
+      //At last line and waiting for generation
+      setWaitingForNextLine(true);
+    }
+  };
+
+  useEffect(() => {
+    let intervalId;
+
+    if (waitingForNextLine) {
+      // Don't need to wait anymore because either paused or currentPhrase changed
+      setWaitingForNextLine(false);
+    }
+
+    if (playing) {
+      // Start the interval when playing is true
+      lottieRef.current?.play();
+
+      if (currentPhrase != 0) {
+        // play meditation line
+      }
+      intervalId = setInterval(incrementPhrase, timeBetweenPhrases);
+    } else {
+      // Clear the interval when playing is false
+      lottieRef.current?.pause();
+      clearInterval(intervalId);
+    }
+
+    // Clean up the interval on unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [currentPhrase, playing]);
+
+  useEffect(() => {
+    if (waitingForNextLine) {
+      incrementPhrase();
+    }
+  }, [maxNumPhrases]);
+
   useEffect(() => {
     if (playing) {
       lottieRef.current?.play();
     } else {
       lottieRef.current?.pause();
     }
-  }, [playing, lottieMeditation]);
+  }, [lottieMeditation]);
 
   return (
     <>
@@ -146,7 +372,9 @@ const MeditationScreen = ({ navigation }) => {
                   <Text style={Fonts.progressLabelText}>
                     {currentPhrase}/{maxNumPhrases}
                   </Text>
-                  <Text style={Fonts.progressLabelText}># of phrases</Text>
+                  <Text style={Fonts.progressLabelText}>
+                    {generating ? "Generating ..." : "# of phrases"}
+                  </Text>
                 </View>
                 <View style={styles.musicControllsContainer}>
                   <View style={styles.musicControlls}>
@@ -289,14 +517,20 @@ const MeditationScreen = ({ navigation }) => {
             paddingTop: (5.0 * width) / 414,
             paddingHorizontal: (12.0 * width) / 414,
             paddingBottom: (10.0 * width) / 414,
-            backgroundColor: "rgba(37, 53, 66,0.9)",
+            backgroundColor:
+              showMenu == "music"
+                ? "rgba(101, 101, 101, 0.92)"
+                : "rgba(37, 53, 66,0.9)",
             borderBottomRightRadius: 12,
             borderBottomLeftRadius: 12,
           }}
         >
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => {}}
+            onPress={() => {
+              showMenu == "music" ? setShowMenu(false) : setShowMenu("music");
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
             style={styles.notificationIconWrapStyle}
           >
             <Ionicons
@@ -459,6 +693,37 @@ const MeditationScreen = ({ navigation }) => {
             activeOpacity={0.9}
             onPress={() => {
               setLottieMeditation(item);
+              setShowMenu(false);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }}
+            style={{
+              width: "50%",
+              height: (160 * width) / 414,
+              marginBottom: 5,
+              borderRadius: 10,
+              borderWidth: 2,
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              source={item.image}
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "100%",
+                resizeMode: "cover",
+                borderRadius: 10,
+              }}
+            />
+          </TouchableOpacity>
+        );
+      } else if (showMenu == "music") {
+        return (
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => {
+              // setLottieMeditation(item);
               setShowMenu(false);
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             }}
