@@ -19,6 +19,7 @@ import Lottie from "lottie-react-native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import ScaleInOut from "../../Animations/ScaleInOut";
+import { Audio } from "expo-av";
 import { set } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
@@ -28,6 +29,10 @@ const MeditationScreen = ({ navigation }) => {
   const [initValue, setInitValue] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [waitingForNextLine, setWaitingForNextLine] = useState(false);
+  const [sound, setSound] = useState(null);
+  const [pauseTime, setPauseTime] = useState(0);
+  const [pauseInterval, setPauseInterval] = useState(null);
+  const [lastTimePaused, setLastTimePaused] = useState(0);
 
   const [lottieBackground, setLottieBackground] = useState({
     id: "7",
@@ -253,33 +258,91 @@ const MeditationScreen = ({ navigation }) => {
     }
   };
 
+  const onPlaybackStatusUpdate = (status) => {
+    if (status.didJustFinish) {
+      // Move to the next phrase when the current one ends
+      setPauseTime(timeBetweenPhrases); // Set a 5-second pause
+      intervalId = setInterval(incrementPhrase, timeBetweenPhrases);
+      setPauseInterval(intervalId);
+      setLastTimePaused(Date.now());
+    }
+  };
+
+  // On next or prev button
   useEffect(() => {
-    let intervalId;
+    const playAudio = async () => {
+      if (sound) {
+        await sound.unloadAsync();
+      }
+
+      const url = meditationInfo.meditationUrls
+        ? meditationInfo.meditationUrls[currentPhrase]?.url
+        : null;
+
+      if (url) {
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: url },
+          { shouldPlay: playing },
+          onPlaybackStatusUpdate
+        );
+        setSound(newSound);
+      }
+    };
 
     if (waitingForNextLine) {
-      // Don't need to wait anymore because either paused or currentPhrase changed
+      // Don't need to wait anymore because currentPhrase changed
       setWaitingForNextLine(false);
     }
 
-    if (playing) {
-      // Start the interval when playing is true
-      lottieRef.current?.play();
-
-      if (currentPhrase != 0) {
-        // play meditation line
-      }
-      intervalId = setInterval(incrementPhrase, timeBetweenPhrases);
-    } else {
-      // Clear the interval when playing is false
-      lottieRef.current?.pause();
-      clearInterval(intervalId);
+    if (currentPhrase != 0) {
+      // play meditation line
+      playAudio();
     }
 
     // Clean up the interval on unmount
     return () => {
-      clearInterval(intervalId);
+      if (sound) {
+        sound.unloadAsync();
+      }
+      setPauseInterval(null);
     };
-  }, [currentPhrase, playing]);
+  }, [currentPhrase]);
+
+  // on play or pause
+  useEffect(() => {
+    if (waitingForNextLine) {
+      // Don't need to wait anymore because paused
+      setWaitingForNextLine(false);
+    }
+
+    const handlePlayChange = async () => {
+      if (playing) {
+        lottieRef.current?.play();
+
+        // If the 5 second pause is not over, resume the interval
+        if (pauseInterval) {
+          intervalId = setInterval(incrementPhrase, pauseTime);
+          setPauseInterval(intervalId);
+          setLastTimePaused(Date.now());
+        } else {
+          await sound.playAsync();
+        }
+      } else {
+        lottieRef.current?.pause();
+
+        if (pauseInterval) {
+          clearInterval(pauseInterval);
+          setPauseTime(pauseTime - (Date.now() - lastTimePaused));
+        } else {
+          if (sound) {
+            sound.pauseAsync();
+          }
+        }
+      }
+    };
+
+    handlePlayChange();
+  }, [playing]);
 
   useEffect(() => {
     if (waitingForNextLine) {
