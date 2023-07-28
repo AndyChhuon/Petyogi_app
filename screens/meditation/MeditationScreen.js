@@ -32,6 +32,7 @@ const MeditationScreen = ({ navigation }) => {
   const [pauseTime, setPauseTime] = useState(0);
   const [pauseInterval, setPauseInterval] = useState(null);
   const [lastTimePaused, setLastTimePaused] = useState(0);
+  const [phraseCurrentlyPlaying, setPhraseCurrentlyPlaying] = useState(0);
 
   const [lottieBackground, setLottieBackground] = useState({
     id: "7",
@@ -212,6 +213,8 @@ const MeditationScreen = ({ navigation }) => {
     ],
   });
 
+  const loadingAudioRef = useRef(false); // Track if audio is currently loading
+
   const [showMenu, setShowMenu] = useState(false);
 
   const timeBetweenPhrases = 5000;
@@ -260,17 +263,23 @@ const MeditationScreen = ({ navigation }) => {
   // On next or prev button
   useEffect(() => {
     const playAudio = async () => {
+      if (loadingAudioRef.current) {
+        return;
+      }
+
+      loadingAudioRef.current = true;
+
       if (sound) {
         await sound.unloadAsync();
       }
-      clearInterval(pauseInterval);
+      clearTimeout(pauseInterval);
       setPauseInterval(null);
 
       const onPlaybackStatusUpdate = (status) => {
         if (status.didJustFinish) {
           // Move to the next phrase when the current one ends
           setPauseTime(timeBetweenPhrases); // Set a 5-second pause
-          intervalId = setInterval(incrementPhrase, timeBetweenPhrases);
+          intervalId = setTimeout(incrementPhrase, timeBetweenPhrases);
           setPauseInterval(intervalId);
           setLastTimePaused(Date.now());
         }
@@ -287,7 +296,28 @@ const MeditationScreen = ({ navigation }) => {
           onPlaybackStatusUpdate
         );
         setSound(newSound);
+        loadingAudioRef.current = false;
+        setPhraseCurrentlyPlaying(currentPhrase);
       }
+    };
+
+    const indexZeroHandler = async () => {
+      if (loadingAudioRef.current) {
+        return;
+      }
+      if (sound) {
+        sound.unloadAsync();
+      }
+      clearTimeout(pauseInterval);
+      setPauseInterval(null);
+      setSound(null);
+      setPhraseCurrentlyPlaying(0);
+
+      if (playing) {
+        incrementPhrase();
+      }
+
+      loadingAudioRef.current = false;
     };
 
     if (waitingForNextLine) {
@@ -295,9 +325,13 @@ const MeditationScreen = ({ navigation }) => {
       setWaitingForNextLine(false);
     }
 
-    if (currentPhrase != 0) {
+    if (currentPhrase != 0 && phraseCurrentlyPlaying != currentPhrase) {
       // play meditation line
       playAudio();
+    } else if (currentPhrase == 0) {
+      indexZeroHandler();
+    } else {
+      loadingAudioRef.current = false;
     }
 
     // Clean up the interval on unmount
@@ -307,7 +341,7 @@ const MeditationScreen = ({ navigation }) => {
       }
       setPauseInterval(null);
     };
-  }, [currentPhrase]);
+  }, [currentPhrase, loadingAudioRef.current]);
 
   // on play or pause
   useEffect(() => {
@@ -322,23 +356,21 @@ const MeditationScreen = ({ navigation }) => {
 
         // If the 5 second pause is not over, resume the interval
         if (pauseInterval) {
-          intervalId = setInterval(incrementPhrase, pauseTime);
+          intervalId = setTimeout(incrementPhrase, pauseTime);
           setPauseInterval(intervalId);
           setLastTimePaused(Date.now());
         } else {
-          if (sound) {
-            await sound.playAsync();
-          }
           if (currentPhrase == 0) {
-            // Play the first phrase
             incrementPhrase();
+          } else if (sound) {
+            await sound.playAsync();
           }
         }
       } else {
         lottieRef.current?.pause();
 
         if (pauseInterval) {
-          clearInterval(pauseInterval);
+          clearTimeout(pauseInterval);
           setPauseTime(pauseTime - (Date.now() - lastTimePaused));
         } else {
           if (sound) {
@@ -455,7 +487,11 @@ const MeditationScreen = ({ navigation }) => {
                         color={Colors.bodyBackColor}
                       />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setPlaying(!playing)}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (!loadingAudioRef.current) setPlaying(!playing);
+                      }}
+                    >
                       <Ionicons
                         name={playing ? "ios-pause-circle" : "ios-play-circle"}
                         size={60 * (width / 414)}
