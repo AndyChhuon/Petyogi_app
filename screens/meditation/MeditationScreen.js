@@ -20,7 +20,6 @@ import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import ScaleInOut from "../../Animations/ScaleInOut";
 import { Audio } from "expo-av";
-import { set } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
 
@@ -258,22 +257,24 @@ const MeditationScreen = ({ navigation }) => {
     }
   };
 
-  const onPlaybackStatusUpdate = (status) => {
-    if (status.didJustFinish) {
-      // Move to the next phrase when the current one ends
-      setPauseTime(timeBetweenPhrases); // Set a 5-second pause
-      intervalId = setInterval(incrementPhrase, timeBetweenPhrases);
-      setPauseInterval(intervalId);
-      setLastTimePaused(Date.now());
-    }
-  };
-
   // On next or prev button
   useEffect(() => {
     const playAudio = async () => {
       if (sound) {
         await sound.unloadAsync();
       }
+      clearInterval(pauseInterval);
+      setPauseInterval(null);
+
+      const onPlaybackStatusUpdate = (status) => {
+        if (status.didJustFinish) {
+          // Move to the next phrase when the current one ends
+          setPauseTime(timeBetweenPhrases); // Set a 5-second pause
+          intervalId = setInterval(incrementPhrase, timeBetweenPhrases);
+          setPauseInterval(intervalId);
+          setLastTimePaused(Date.now());
+        }
+      };
 
       const url = meditationInfo.meditationUrls
         ? meditationInfo.meditationUrls[currentPhrase]?.url
@@ -325,7 +326,13 @@ const MeditationScreen = ({ navigation }) => {
           setPauseInterval(intervalId);
           setLastTimePaused(Date.now());
         } else {
-          await sound.playAsync();
+          if (sound) {
+            await sound.playAsync();
+          }
+          if (currentPhrase == 0) {
+            // Play the first phrase
+            incrementPhrase();
+          }
         }
       } else {
         lottieRef.current?.pause();
