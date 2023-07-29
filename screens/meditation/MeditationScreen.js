@@ -448,7 +448,7 @@ const MeditationScreen = ({ navigation }) => {
                   position: "relative",
                   top: 0,
                 }}
-                speed={0.5}
+                speed={lottieMeditation?.id == "8" ? 1 : 0.5}
                 ref={lottieRef}
                 loop
               ></Lottie>
@@ -485,7 +485,7 @@ const MeditationScreen = ({ navigation }) => {
                 {meditationInfo?.phrases[currentPhrase]}
               </Text>
             </View>
-            <View style={{ marginBottom: "15%" }}>
+            <View style={{ marginBottom: "14%" }}>
               <View style={styles.playMeditationStyle}>
                 <Slider
                   style={{
