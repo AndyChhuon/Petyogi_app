@@ -453,6 +453,38 @@ const MeditationScreen = ({ navigation }) => {
                 loop
               ></Lottie>
             </View>
+            <View
+              style={[
+                styles.meditationText,
+                lottieBackground.id == "2"
+                  ? {
+                      backgroundColor:
+                        Platform.OS === "android"
+                          ? "rgba(255, 255, 255, 0.92)"
+                          : "rgba(255, 255, 255, 0.86)",
+                    }
+                  : {
+                      backgroundColor:
+                        Platform.OS === "android"
+                          ? "rgba(32, 32, 34, 0.42)"
+                          : "rgba(32, 32, 34, 0.52)",
+                    },
+              ]}
+            >
+              <Text
+                style={[
+                  Fonts.meditationText,
+                  {
+                    color:
+                      lottieBackground.id == "2"
+                        ? Colors.bodyBackColor
+                        : Colors.whiteColor,
+                  },
+                ]}
+              >
+                {meditationInfo?.phrases[currentPhrase]}
+              </Text>
+            </View>
             <View style={{ marginBottom: "15%" }}>
               <View style={styles.playMeditationStyle}>
                 <Slider
@@ -900,6 +932,12 @@ const styles = StyleSheet.create({
       Platform.OS === "android"
         ? "rgba(32, 32, 34, 0.42)"
         : "rgba(32, 32, 34, 0.52)",
+  },
+  meditationText: {
+    paddingHorizontal: 4,
+    marginBottom: 5,
+    display: "flex",
+    alignItems: "center",
   },
   notificationIconWrapStyle: {
     padding: 1,
