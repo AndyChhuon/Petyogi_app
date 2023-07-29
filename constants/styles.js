@@ -219,6 +219,10 @@ export const Fonts = {
     fontSize: 11,
     fontFamily: "SF_Compact_Display_Medium",
   },
+  musicMeditationText: {
+    fontSize: 13,
+    fontFamily: "Sigmar_Regular",
+  },
 };
 
 export const Colors = {

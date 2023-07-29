@@ -20,10 +20,13 @@ import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import ScaleInOut from "../../Animations/ScaleInOut";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
+import { set } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
 
 const MeditationScreen = ({ navigation }) => {
+  const initialVolume = 0.3;
+
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [initValue, setInitValue] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -33,6 +36,8 @@ const MeditationScreen = ({ navigation }) => {
   const [pauseInterval, setPauseInterval] = useState(null);
   const [lastTimePaused, setLastTimePaused] = useState(0);
   const [phraseCurrentlyPlaying, setPhraseCurrentlyPlaying] = useState(0);
+  const [musicSound, setMusicSound] = useState(null);
+  const [musicVolume, setMusicVolume] = useState(initialVolume);
 
   const [lottieBackground, setLottieBackground] = useState({
     id: "7",
@@ -44,6 +49,13 @@ const MeditationScreen = ({ navigation }) => {
     id: "2",
     image: require("../../assets/Meditation/sloth.png"),
     lottie: require("../../assets/Meditation/sloth.json"),
+  });
+
+  const [musicMeditation, setMusicMeditation] = useState({
+    id: "4",
+    image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
+    title: "Peaceful Thoughts",
+    sound: require("../../assets/music/peaceful_thoughts.mp3"),
   });
 
   const [meditationInfo, setMeditationInfo] = useState({
@@ -214,6 +226,7 @@ const MeditationScreen = ({ navigation }) => {
   });
 
   const loadingAudioRef = useRef(false); // Track if audio is currently loading
+  const loadingMusicRef = useRef(false); // Track if music is currently loading
 
   const [showMenu, setShowMenu] = useState(false);
 
@@ -342,8 +355,6 @@ const MeditationScreen = ({ navigation }) => {
       playAudio();
     } else if (currentPhrase == 0) {
       indexZeroHandler();
-    } else {
-      loadingAudioRef.current = false;
     }
 
     // Clean up the interval on unmount
@@ -378,6 +389,10 @@ const MeditationScreen = ({ navigation }) => {
             await sound.playAsync();
           }
         }
+
+        if (musicSound) {
+          await musicSound.playAsync();
+        }
       } else {
         lottieRef.current?.pause();
 
@@ -388,6 +403,10 @@ const MeditationScreen = ({ navigation }) => {
           if (sound) {
             sound.pauseAsync();
           }
+        }
+
+        if (musicSound) {
+          await musicSound.pauseAsync();
         }
       }
     };
@@ -408,6 +427,59 @@ const MeditationScreen = ({ navigation }) => {
       lottieRef.current?.pause();
     }
   }, [lottieMeditation]);
+
+  useEffect(() => {
+    const replayMusic = async () => {
+      if (musicSound) {
+        // Pause the sound if it's currently playing
+        await musicSound.pauseAsync();
+
+        // Reset the position of the sound to the beginning
+        await musicSound.setPositionAsync(0);
+
+        // Replay the sound from the beginning
+        await musicSound.playAsync();
+      }
+    };
+
+    const onMusicPlaybackStatusUpdate = (status) => {
+      if (status.didJustFinish) {
+        replayMusic();
+      }
+    };
+
+    const handleMusicChange = async () => {
+      if (musicSound) {
+        await musicSound.unloadAsync();
+      }
+
+      if (!musicMeditation.sound) {
+        setMusicSound(null);
+        loadingMusicRef.current = false;
+        return;
+      }
+
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        musicMeditation.sound,
+        { shouldPlay: playing, volume: musicVolume },
+        onMusicPlaybackStatusUpdate
+      );
+      setMusicSound(newSound);
+      loadingMusicRef.current = false;
+    };
+
+    if (loadingMusicRef.current) {
+      return;
+    }
+    loadingMusicRef.current = true;
+    handleMusicChange();
+  }, [musicMeditation]);
+
+  useEffect(() => {
+    if (musicSound) {
+      musicSound.setVolumeAsync(musicVolume);
+    }
+  }, [musicVolume]);
 
   return (
     <>
@@ -675,20 +747,29 @@ const MeditationScreen = ({ navigation }) => {
             borderBottomLeftRadius: 12,
           }}
         >
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => {
-              showMenu == "music" ? setShowMenu(false) : setShowMenu("music");
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          <ImageBackground
+            source={musicMeditation.image}
+            imageStyle={{
+              height: musicMeditation.id == "1" ? 0 : "100%",
+              borderRadius: (Sizes.fixPadding * width) / 414,
             }}
-            style={styles.notificationIconWrapStyle}
+            resizeMode="cover"
           >
-            <Ionicons
-              name="musical-notes"
-              size={25 * (width / 414)}
-              color="#FFFFFF"
-            />
-          </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => {
+                showMenu == "music" ? setShowMenu(false) : setShowMenu("music");
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              style={styles.notificationIconWrapStyle}
+            >
+              <Ionicons
+                name="musical-notes"
+                size={25 * (width / 414)}
+                color="#FFFFFF"
+              />
+            </TouchableOpacity>
+          </ImageBackground>
         </View>
       </View>
     );
@@ -757,9 +838,76 @@ const MeditationScreen = ({ navigation }) => {
           id: "12",
           image: require("../../assets/background_svg/magenta_blur_preview.png"),
           lottie: require("../../assets/background_svg/magenta_blur.json"),
+          title: "",
         },
       ],
-      music: [],
+      music: [
+        {
+          id: "1",
+          image: null,
+          title: "No music",
+        },
+        {
+          id: "2",
+          image: require("../../assets/music/tranquil_rainfall_preview.jpg"),
+          title: "Nature Sounds - Rainfall",
+          sound: require("../../assets/music/tranquil_rainfall.mp3"),
+        },
+        {
+          id: "3",
+          image: require("../../assets/music/waterstream_preview.png"),
+          title: "Nature Sounds - Water Stream",
+          sound: require("../../assets/music/waterstream.mp3"),
+        },
+        {
+          id: "4",
+          image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
+          title: "Peaceful Thoughts",
+          sound: require("../../assets/music/peaceful_thoughts.mp3"),
+        },
+        {
+          id: "5",
+          image: require("../../assets/music/piano_valley_preview.jpg"),
+          title: "Piano Valley",
+          sound: require("../../assets/music/piano_valley.mp3"),
+        },
+        {
+          id: "6",
+          image: require("../../assets/music/ocean_waves_preview.jpg"),
+          title: "Nature Sounds - Ocean Waves",
+          sound: require("../../assets/music/ocean_waves.mp3"),
+        },
+        {
+          id: "7",
+          image: require("../../assets/music/quartz_bowl_preview.jpg"),
+          title: "Meditation Bowls",
+          sound: require("../../assets/music/quartz_bowl.mp3"),
+        },
+        {
+          id: "8",
+          image: require("../../assets/music/earth_chimes_preview.jpg"),
+          title: "Earth's Chimes",
+          sound: require("../../assets/music/earth_chimes.mp3"),
+        },
+        {
+          id: "9",
+          image: require("../../assets/music/mystical_handpan_preview.jpg"),
+          title: "Handpan Harmonies",
+          sound: require("../../assets/music/handpan_harmonies.mp3"),
+        },
+        {
+          id: "10",
+          image: require("../../assets/music/mystical_flute_preview.jpg"),
+          title: "Flute of Enchantments",
+          sound: require("../../assets/music/flute_enchantments.mp3"),
+        },
+        {
+          id: "11",
+          image: require("../../assets/music/earthly_wonders_preview.jpg"),
+          title: "Mind's Wonderland",
+          sound: require("../../assets/music/Mind_wonderland.mp3"),
+        },
+      ],
       meditation: [
         {
           id: "1",
@@ -873,30 +1021,54 @@ const MeditationScreen = ({ navigation }) => {
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => {
-              // setLottieMeditation(item);
+              setMusicMeditation(item);
               setShowMenu(false);
+
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             }}
-            style={{
-              width: "50%",
-              height: (160 * width) / 414,
-              marginBottom: 5,
-              borderRadius: 10,
-              borderWidth: 2,
-              display: "flex",
-              justifyContent: "center",
-            }}
           >
-            <Image
+            <ImageBackground
               source={item.image}
+              imageStyle={{ borderRadius: 8, height: "100%" }}
               style={{
-                position: "relative",
                 width: "100%",
-                height: "100%",
-                resizeMode: "cover",
+                height: (110 * width) / 414,
+                flex: 1,
                 borderRadius: 10,
+                borderWidth: 2,
+                borderColor: "rgba(255, 255, 255, 0.52)",
+                display: "flex",
+                justifyContent: "center",
               }}
-            />
+              resizeMode="cover"
+            >
+              <View
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.52)",
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  width: "100%",
+                  height: 45 * (width / 414),
+                  justifyContent: "center",
+                }}
+              >
+                <Text
+                  style={[
+                    Fonts.musicMeditationText,
+                    {
+                      flexWrap: "wrap",
+                      marginRight: 1,
+                      flex: 1,
+                      color: Colors.bodyBackColor,
+                      textAlign: "center",
+                    },
+                  ]}
+                >
+                  {item.title}
+                </Text>
+              </View>
+            </ImageBackground>
           </TouchableOpacity>
         );
       }
@@ -911,15 +1083,53 @@ const MeditationScreen = ({ navigation }) => {
           flexDirection: "row",
         }}
       >
-        <FlatList
-          horizontal={false}
-          style={[styles.flatListMenuStyle]}
-          data={data[showMenu]}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={{ flexGrow: 1 }}
-        />
+        {showMenu == "music" ? (
+          <FlatList
+            horizontal={false}
+            style={[styles.flatListMenuStyle]}
+            data={data[showMenu]}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            numColumns={1}
+            contentContainerStyle={{ flexGrow: 1 }}
+            ListHeaderComponent={
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Ionicons
+                  name="volume-high-outline"
+                  size={28}
+                  color="#FFFFFF"
+                ></Ionicons>
+                <Slider
+                  step={0.1}
+                  onValueChange={(val) => {
+                    setMusicVolume(val);
+                  }}
+                  value={initialVolume}
+                  minimumValue={0}
+                  maximumValue={1}
+                  style={{ flex: 1 }}
+                ></Slider>
+              </View>
+            }
+          />
+        ) : (
+          <FlatList
+            key={"#"}
+            horizontal={false}
+            style={[styles.flatListMenuStyle]}
+            data={data[showMenu]}
+            renderItem={renderItem}
+            keyExtractor={(item) => "#" + item.id}
+            numColumns={2}
+            contentContainerStyle={{ flexGrow: 1 }}
+          />
+        )}
       </ScaleInOut>
     );
   }
