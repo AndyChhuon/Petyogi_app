@@ -15,7 +15,11 @@
     "ios": {
       "bundleIdentifier": "com.petyogi.app",
       "buildNumber": "3.0.0",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"],
+        "UIRequiredDeviceCapabilities": ["audio"]
+      }
     },
     "android": {
       "package": "com.petyogi.app",

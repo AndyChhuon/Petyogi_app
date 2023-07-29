@@ -19,7 +19,7 @@ import Lottie from "lottie-react-native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import ScaleInOut from "../../Animations/ScaleInOut";
-import { Audio } from "expo-av";
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 
 const { width, height } = Dimensions.get("window");
 
@@ -259,6 +259,18 @@ const MeditationScreen = ({ navigation }) => {
       setWaitingForNextLine(true);
     }
   };
+
+  const configureAudioSession = async () => {
+    await Audio.setAudioModeAsync({
+      staysActiveInBackground: true,
+      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+    });
+  };
+
+  useEffect(() => {
+    configureAudioSession();
+  }, []);
 
   // On next or prev button
   useEffect(() => {
