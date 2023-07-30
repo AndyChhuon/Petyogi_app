@@ -25,8 +25,6 @@ import { set } from "react-native-reanimated";
 const { width, height } = Dimensions.get("window");
 
 const MeditationScreen = ({ navigation }) => {
-  const initialVolume = 0.3;
-
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [initValue, setInitValue] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -37,6 +35,7 @@ const MeditationScreen = ({ navigation }) => {
   const [lastTimePaused, setLastTimePaused] = useState(0);
   const [phraseCurrentlyPlaying, setPhraseCurrentlyPlaying] = useState(0);
   const [musicSound, setMusicSound] = useState(null);
+  const [initialVolume, setInitialVolume] = useState(0.3);
   const [musicVolume, setMusicVolume] = useState(initialVolume);
 
   const [lottieBackground, setLottieBackground] = useState({
@@ -276,6 +275,7 @@ const MeditationScreen = ({ navigation }) => {
   const configureAudioSession = async () => {
     await Audio.setAudioModeAsync({
       staysActiveInBackground: true,
+      playsInSilentModeIOS: true,
       interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
       interruptionModeIOS: InterruptionModeIOS.DoNotMix,
     });
@@ -759,6 +759,7 @@ const MeditationScreen = ({ navigation }) => {
               activeOpacity={0.9}
               onPress={() => {
                 showMenu == "music" ? setShowMenu(false) : setShowMenu("music");
+                setInitialVolume(musicVolume);
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               }}
               style={styles.notificationIconWrapStyle}
@@ -1022,6 +1023,7 @@ const MeditationScreen = ({ navigation }) => {
             activeOpacity={0.9}
             onPress={() => {
               setMusicMeditation(item);
+              setInitialVolume(musicVolume);
               setShowMenu(false);
 
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
