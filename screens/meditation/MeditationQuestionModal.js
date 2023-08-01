@@ -28,6 +28,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
 
   const { initMeditationQuestionsJson, readOnly } = route.params;
 
+  const [loadingClicked, setLoadingClicked] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [meditationQuestionsJson, setMeditationQuestionsJson] = useState(
     initMeditationQuestionsJson
@@ -66,6 +67,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const charCount = meditationAnswer.length;
   const maxChars = 600;
   const tooManyChars = charCount > maxChars;
+
+  useEffect(() => {
+    setLoadingClicked(false);
+  }, [currentQuestionIndex]);
 
   return (
     <SafeAreaView
@@ -315,20 +320,28 @@ const MeditationQuestionModal = ({ navigation, route }) => {
 
   function nextPrevButtons() {
     const onNextButtonPress = () => {
+      if (loadingClicked) {
+        return;
+      }
       if (
         currentQuestionIndex <
         Object.keys(meditationQuestionsJson).length - 1
       ) {
-        console.log("test");
+        setLoadingClicked(true);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setCurrentQuestionIndex((index) => index + 1);
       }
     };
 
     const onPrevButtonPress = () => {
+      if (loadingClicked) {
+        return;
+      }
+      if (currentQuestionIndex == 1) {
+        setIsTextBoxFocused(false);
+      }
       if (currentQuestionIndex > 0) {
-        console.log("test2");
-
+        setLoadingClicked(true);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setCurrentQuestionIndex((index) => index - 1);
       }
