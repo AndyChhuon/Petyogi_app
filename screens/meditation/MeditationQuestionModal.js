@@ -328,8 +328,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         Object.keys(meditationQuestionsJson).length - 1
       ) {
         setLoadingClicked(true);
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setCurrentQuestionIndex((index) => index + 1);
+        setTimeout(() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setCurrentQuestionIndex((index) => index + 1);
+        }, 250);
       }
     };
 
@@ -342,8 +344,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       }
       if (currentQuestionIndex > 0) {
         setLoadingClicked(true);
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setCurrentQuestionIndex((index) => index - 1);
+        setTimeout(() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setCurrentQuestionIndex((index) => index - 1);
+        }, 250);
       }
     };
 
@@ -359,7 +363,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         }}
       >
         <AwesomeButton
-          onPressOut={onPrevButtonPress}
+          onPressIn={onPrevButtonPress}
           style={[
             styles.loginButtonStyle,
             currentQuestionIndex == 0
@@ -381,7 +385,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           />
         </AwesomeButton>
         <AwesomeButton
-          onPressOut={onNextButtonPress}
+          onPressIn={onNextButtonPress}
           style={styles.loginButtonStyle}
           backgroundColor={tooManyChars ? "#bababa" : "#ffc802"}
           raiseLevel={3}
