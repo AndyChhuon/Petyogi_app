@@ -25,7 +25,7 @@ import VerificationScreen from "./auth/verificationScreen";
 import PasswordResetScreen from "./auth/passwordResetScreen";
 import useAuth from "../hooks/useAuth";
 import FlashMessage from "react-native-flash-message";
-import StartMeditation from "./meditation/StartMeditation";
+import MeditationQuestionModal from "./meditation/MeditationQuestionModal";
 import MeditationScreen from "./meditation/MeditationScreen";
 import { StatusBar } from "expo-status-bar";
 import ScaleInOut from "../Animations/ScaleInOut";
@@ -41,19 +41,17 @@ const AppContent = () => {
         screenOptions={{
           headerShown: false,
           ...TransitionPresets.SlideFromRightIOS,
+          gestureEnabled: false,
         }}
       >
+        <Stack.Screen name="Loading" component={LoadingScreen} />
+        <Stack.Screen name="MeditationScreen" component={MeditationScreen} />
+        <Stack.Screen name="Meditation" component={MeditationQuestionModal} />
         <Stack.Screen
-          name="Loading"
-          component={LoadingScreen}
-          options={{ gestureEnabled: false }}
+          name="BottomTabBar"
+          component={BottomTabBarScreen}
+          options={{ ...TransitionPresets.DefaultTransition }}
         />
-        <Stack.Screen
-          name="MeditationScreen"
-          component={MeditationScreen}
-          options={{ gestureEnabled: false }}
-        />
-
         {/* <Stack.Screen
                 name="Splash"
                 component={SplashScreen}
