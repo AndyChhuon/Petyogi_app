@@ -33,7 +33,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const { initMeditationQuestionsJson, readOnly } = route.params;
 
   const [loadingClicked, setLoadingClicked] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(3);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [meditationQuestionsJson, setMeditationQuestionsJson] = useState(
     initMeditationQuestionsJson
   );
@@ -211,10 +211,14 @@ const MeditationQuestionModal = ({ navigation, route }) => {
 
     useEffect(() => {
       if (isChosen) {
-        lottieRef.current.play();
+        setTimeout(() => lottieRef.current?.play());
       } else {
         lottieRef.current.pause();
       }
+
+      return () => {
+        lottieRef.current?.reset();
+      };
     }, [isChosen]);
 
     return (
@@ -246,7 +250,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 ? [{ scale: item.scale }]
                 : [{ scale: 1.04 }],
             }}
-            speed={0.8}
+            speed={0.6}
             autoPlay
             loop
           ></Lottie>
@@ -255,8 +259,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               ...StyleSheet.absoluteFillObject,
               display: isChosen ? "flex" : "none",
               zIndex: 2,
-              backgroundColor: Colors.goldColor,
-              opacity: 0.5,
+              backgroundColor: "rgba(255, 255, 255, 0.55)",
             }}
           />
         </AwesomeButton>
