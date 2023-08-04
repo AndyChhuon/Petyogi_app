@@ -326,7 +326,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       setLoadingClicked(true);
       setTimeout(() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        console.log("create meditation");
       }, 150);
     }
   };
@@ -375,8 +374,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           },
         ]}
       >
-        {console.log("rendering text box")}
-
         <Lottie
           source={meditationLotties[createMeditationLottieIndex].lottie}
           style={{
@@ -419,7 +416,11 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             </Text>
           ) : (
             <Text style={{ ...Fonts.whiteColor22SemiBold, marginBottom: 6 }}>
-              {isLastModal ? "Create Your Meditation!" : meditationQuestion}
+              {isLastModal
+                ? readOnly
+                  ? "Begin Your Meditation!"
+                  : "Create Your Meditation!"
+                : meditationQuestion}
             </Text>
           )}
         </View>
