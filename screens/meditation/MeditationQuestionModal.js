@@ -29,6 +29,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const [isLastModal, setIsLastModal] = useState(false);
   const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
     useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   const { initMeditationQuestionsJson, readOnly } = route.params;
 
@@ -231,9 +232,11 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           raiseLevel={7}
           borderRadius={8}
           onPressOut={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setIsChosen(!isChosen);
-            onButtonPress(item.text, isChosen);
+            if (!isScrolling) {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setIsChosen(!isChosen);
+              onButtonPress(item.text, isChosen);
+            }
           }}
         >
           <Lottie
@@ -289,6 +292,14 @@ const MeditationQuestionModal = ({ navigation, route }) => {
 
   const renderItem = ({ item }) => {
     return item.component;
+  };
+
+  const handleScroll = () => {
+    setIsScrolling(true);
+  };
+
+  const handleScrollEnd = () => {
+    setIsScrolling(false);
   };
 
   const onNextButtonPress = () => {
@@ -432,6 +443,8 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
                 numColumns={2}
+                onScroll={handleScroll}
+                onScrollEndDrag={handleScrollEnd}
               />
             </View>
           ) : (
