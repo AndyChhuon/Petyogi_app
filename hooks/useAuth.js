@@ -104,11 +104,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const listenMeditationUpdate = (number, setMeditationInfo) => {
-    const test = getDatabase();
-    console.log(user.uid);
-    console.log(number);
-    const meditationRef = ref(test, `meditations/${user.uid}/${number}`);
-    console.log("listener called");
+    const meditationRef = ref(db, `meditations/${user.uid}/${number}`);
+
     return onValue(meditationRef, (snapshot) => {
       const phrases = snapshot.val().phrases;
       const meditationUrls = snapshot.val().meditationUrls;

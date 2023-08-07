@@ -35,7 +35,7 @@ const MeditationScreen = ({ navigation, route }) => {
   const [musicSound, setMusicSound] = useState(null);
   const [initialVolume, setInitialVolume] = useState(0.3);
   const [musicVolume, setMusicVolume] = useState(initialVolume);
-  const { listenMeditationUpdate, unsubscribeMeditationListener } = useAuth();
+  const { listenMeditationUpdate } = useAuth();
 
   const [lottieBackground, setLottieBackground] = useState({
     id: "7",
@@ -268,6 +268,13 @@ const MeditationScreen = ({ navigation, route }) => {
       incrementPhrase();
     }
   }, [maxNumPhrases]);
+
+  // Case where maxNumPhrases increments while last sentence is playing (stays stuck bc of setInterval)
+  useEffect(() => {
+    if (waitingForNextLine && currentPhrase < maxNumPhrases) {
+      incrementPhrase();
+    }
+  }, [waitingForNextLine]);
 
   useEffect(() => {
     if (playing) {
