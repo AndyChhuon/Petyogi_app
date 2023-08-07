@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import * as Font from "expo-font";
 import { Colors } from "../constants/styles";
@@ -19,8 +19,8 @@ const LoadingScreen = ({ navigation }) => {
         SF_Compact_Display_Black: require("../assets/fonts/SF-Compact-Display-Black.ttf"),
         Sigmar_Regular: require("../assets/fonts/Sigmar-Regular.ttf"),
       });
-      navigation.navigate("MeditationScreen");
-      // setAppInitialized(true);
+
+      setAppInitialized(true);
     }
     loadFont();
   });

@@ -28,7 +28,6 @@ import FlashMessage from "react-native-flash-message";
 import MeditationQuestionModal from "./meditation/MeditationQuestionModal";
 import MeditationScreen from "./meditation/MeditationScreen";
 import { StatusBar } from "expo-status-bar";
-import ScaleInOut from "../Animations/ScaleInOut";
 
 const Stack = createStackNavigator();
 
@@ -45,13 +44,7 @@ const AppContent = () => {
         }}
       >
         <Stack.Screen name="Loading" component={LoadingScreen} />
-        <Stack.Screen name="MeditationScreen" component={MeditationScreen} />
-        <Stack.Screen name="Meditation" component={MeditationQuestionModal} />
-        <Stack.Screen
-          name="BottomTabBar"
-          component={BottomTabBarScreen}
-          options={{ ...TransitionPresets.DefaultTransition }}
-        />
+
         {/* <Stack.Screen
                 name="Splash"
                 component={SplashScreen}
@@ -65,7 +58,6 @@ const AppContent = () => {
               component={BottomTabBarScreen}
               options={{ ...TransitionPresets.DefaultTransition }}
             />
-            <Stack.Screen name="Meditation" component={StartMeditation} />
             <Stack.Screen
               name="LiveAuctionsDetail"
               component={LiveAuctionsDetailScreen}
@@ -106,6 +98,14 @@ const AppContent = () => {
             <Stack.Screen
               name="ResetPassword"
               component={PasswordResetScreen}
+            />
+            <Stack.Screen
+              name="MeditationScreen"
+              component={MeditationScreen}
+            />
+            <Stack.Screen
+              name="Meditation"
+              component={MeditationQuestionModal}
             />
           </>
         ) : (

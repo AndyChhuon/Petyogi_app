@@ -3,16 +3,13 @@ import {
   SafeAreaView,
   View,
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   FlatList,
   KeyboardAvoidingView,
   StatusBar,
   Dimensions,
-  ImageBackground,
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
@@ -22,7 +19,6 @@ import AwesomeButton from "react-native-really-awesome-button";
 import { Bar as ProgressBar } from "react-native-progress";
 import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
-import { set } from "firebase/database";
 
 const MeditationQuestionModal = ({ navigation, route }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
@@ -31,7 +27,14 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
 
-  const { initMeditationQuestionsJson, readOnly } = route.params;
+  const {
+    initMeditationQuestionsJson,
+    readOnly,
+    phrases,
+    meditationUrls,
+    finishedGenerating,
+    number,
+  } = route.params;
 
   const [loadingClicked, setLoadingClicked] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -232,7 +235,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           raiseLevel={7}
           borderRadius={8}
           onPressOut={() => {
-            if (!isScrolling) {
+            if (!isScrolling && !readOnly) {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setIsChosen(!isChosen);
               onButtonPress(item.text, isChosen);
@@ -325,7 +328,37 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     } else {
       setLoadingClicked(true);
       setTimeout(() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        // Last phrase was generated
+        if (
+          finishedGenerating &&
+          meditationUrls.hasOwnProperty("count") &&
+          meditationUrls.count in meditationUrls
+        ) {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+          const propsToPass = {
+            phrases: phrases,
+            meditationUrls: meditationUrls,
+            shouldListenRealTime: false,
+            number: number,
+          };
+
+          navigation.navigate("MeditationScreen", propsToPass);
+          setLoadingClicked(false);
+        } else {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+          const propsToPass = {
+            phrases: phrases,
+            meditationUrls: meditationUrls,
+            shouldListenRealTime: true,
+            number: number,
+          };
+
+          navigation.navigate("MeditationScreen", propsToPass);
+          setLoadingClicked(false);
+        }
+        //Not done with generation (realtime connection)
       }, 150);
     }
   };

@@ -1,5 +1,5 @@
 import AwesomeButton from "react-native-really-awesome-button";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Dimensions,
@@ -12,12 +12,13 @@ import { Colors, Fonts } from "../constants/styles";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withTiming,
   Easing,
   withRepeat,
 } from "react-native-reanimated";
+import useAuth from "../hooks/useAuth";
 import ScaleInOut from "../Animations/ScaleInOut";
+import * as Haptics from "expo-haptics";
 
 const FloatingAnimation = ({ children, style }) => {
   const translateY = useSharedValue(0);
@@ -47,6 +48,9 @@ const FloatingAnimation = ({ children, style }) => {
 const { width } = Dimensions.get("window");
 
 function Button(props) {
+  const [meditateButtonIsPressed, setMeditateButtonIsPressed] = useState(false);
+  const { getPastMeditationJson } = useAuth();
+
   const {
     number,
     dayMode,
@@ -57,8 +61,6 @@ function Button(props) {
     showTooltip,
     showTopTooltip,
   } = props;
-
-  console.log("button rendered");
 
   const buttonRef = useRef();
 
@@ -99,6 +101,19 @@ function Button(props) {
         }
       );
     });
+  };
+
+  const onMeditateButtonPress = () => {
+    if (meditateButtonIsPressed) {
+      return;
+    }
+    setMeditateButtonIsPressed(true);
+    // Past meditation
+    if (currentMeditation > number) {
+      getPastMeditationJson(number, setMeditateButtonIsPressed);
+    }
+
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
   return (
@@ -268,6 +283,7 @@ function Button(props) {
                     ? Colors.secondaryGoldColor
                     : "#ffffff"
                 }
+                onPressIn={onMeditateButtonPress}
                 raiseLevel={3}
                 borderRadius={20}
                 backgroundShadow={Colors.grayColor}

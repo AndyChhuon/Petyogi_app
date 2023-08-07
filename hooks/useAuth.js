@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { auth } from "../config/firebaseConfig";
+import { auth, db } from "../config/firebaseConfig";
 
 import {
   onAuthStateChanged,
@@ -15,6 +15,7 @@ import {
   sendPasswordResetEmail,
   getIdToken,
 } from "firebase/auth";
+import { ref, child, get, onValue, off, getDatabase } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
@@ -25,52 +26,110 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [appInitialized, setAppInitialized] = useState(false);
   const [userValues, setUserValues] = useState({});
+  const dbRef = ref(db);
 
   const navigation = useNavigation();
 
-  // useEffect(() => {
-  //   if (appInitialized) {
-  //     var unsubscribe = onAuthStateChanged(auth, (user) => {
-  //       if (user) {
-  //         setUser(user);
+  useEffect(() => {
+    if (appInitialized) {
+      var unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setUser(user);
+          if (user.emailVerified) {
+            //
+            getIdToken(user).then((idToken) => {
+              //post request
+              fetch(
+                "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    idToken: idToken,
+                  }),
+                }
+              )
+                .then((res) => res.json())
+                .then((data) => {
+                  setUserValues(data);
+                  navigation.navigate("BottomTabBar");
+                })
+                .catch((err) => {
+                  showMessage({
+                    message: "There was an error fetching your data.",
+                    type: "danger",
+                  });
+                });
+            });
+          }
+        } else {
+          navigation.navigate("Register");
+        }
+      });
 
-  //         if (user.emailVerified) {
-  //           //
-  //           getIdToken(user).then((idToken) => {
-  //             //post request
-  //             fetch(
-  //               "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
-  //               {
-  //                 method: "POST",
-  //                 headers: {
-  //                   "Content-Type": "application/json",
-  //                 },
-  //                 body: JSON.stringify({
-  //                   idToken: idToken,
-  //                 }),
-  //               }
-  //             )
-  //               .then((res) => res.json())
-  //               .then((data) => {
-  //                 setUserValues(data);
-  //                 navigation.navigate("BottomTabBar");
-  //               })
-  //               .catch((err) => {
-  //                 showMessage({
-  //                   message: "There was an error fetching your data.",
-  //                   type: "danger",
-  //                 });
-  //               });
-  //           });
-  //         }
-  //       } else {
-  //         navigation.navigate("Register");
-  //       }
-  //     });
+      return unsubscribe;
+    }
+  }, [appInitialized]);
 
-  //     return unsubscribe;
-  //   }
-  // }, [appInitialized]);
+  const getPastMeditationJson = (number, setMeditateButtonIsPressed) => {
+    get(child(dbRef, `meditations/${user.uid}/${number}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const propsToPass = {
+            initMeditationQuestionsJson: snapshot.val().userInput,
+            phrases: snapshot.val().phrases,
+            meditationUrls: snapshot.val().meditationUrls,
+            finishedGenerating: snapshot.val().finishedGenerating,
+            number: number,
+            readOnly: true,
+          };
+          navigation.navigate("Meditation", propsToPass);
+        } else {
+          showMessage({
+            message: "No past meditation was found.",
+            type: "danger",
+          });
+        }
+        setMeditateButtonIsPressed(false);
+      })
+      .catch((error) => {
+        showMessage({
+          message: "There was an error fetching your meditation.",
+          type: "danger",
+        });
+        setMeditateButtonIsPressed(false);
+      });
+  };
+
+  const listenMeditationUpdate = (number, setMeditationInfo) => {
+    const test = getDatabase();
+    console.log(user.uid);
+    console.log(number);
+    const meditationRef = ref(test, `meditations/${user.uid}/${number}`);
+    console.log("listener called");
+    return onValue(meditationRef, (snapshot) => {
+      const phrases = snapshot.val().phrases;
+      const meditationUrls = snapshot.val().meditationUrls;
+      const finishedGenerating = snapshot.val().finishedGenerating;
+
+      const shouldListenRealTime = !(
+        finishedGenerating &&
+        meditationUrls.hasOwnProperty("count") &&
+        meditationUrls.count in meditationUrls
+      );
+
+      const propsToPass = {
+        phrases: phrases,
+        meditationUrls: meditationUrls,
+        shouldListenRealTime: shouldListenRealTime,
+        number: number,
+      };
+
+      setMeditationInfo(propsToPass);
+    });
+  };
 
   const emailSignup = (setError, email, password) => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -152,15 +211,19 @@ export const AuthProvider = ({ children }) => {
       emailLogin,
       setAppInitialized,
       passwordReset,
+      getPastMeditationJson,
       userValues,
+      listenMeditationUpdate,
     }),
     [
       user,
       emailSignup,
       emailVerification,
       emailLogin,
+      getPastMeditationJson,
       setAppInitialized,
       userValues,
+      listenMeditationUpdate,
     ]
   );
 

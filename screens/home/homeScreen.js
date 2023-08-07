@@ -30,17 +30,7 @@ const HomeScreen = ({ navigation }) => {
 
   const [pressedButton, setPressedButton] = useState(null);
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  // const { userValues } = useAuth();
-
-  const [userValues, setUserValues] = useState({
-    numMeditations: 11,
-    remainingCredits: 5,
-    streak: 5,
-    coins: 100,
-    remainingCredits: 5,
-  });
+  const { userValues } = useAuth();
 
   const currentMeditation = userValues.numMeditations;
 
