@@ -60,6 +60,7 @@ function Button(props) {
     onButtonpress,
     showTooltip,
     showTopTooltip,
+    navigation,
   } = props;
 
   const buttonRef = useRef();
@@ -111,6 +112,24 @@ function Button(props) {
     // Past meditation
     if (currentMeditation > number) {
       getPastMeditationJson(number, setMeditateButtonIsPressed);
+    } else {
+      setTimeout(() => {
+        const propsToPass = {
+          initMeditationQuestionsJson: {
+            "How are you feeling?": [],
+            "What are you grateful for?": "",
+            "What are you looking forward to?": "",
+            "What are you proud of?": "",
+          },
+          phrases: null,
+          meditationUrls: null,
+          finishedGenerating: null,
+          number: number,
+          readOnly: false,
+        };
+        navigation.navigate("Meditation", propsToPass);
+        setMeditateButtonIsPressed(false);
+      }, 150);
     }
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

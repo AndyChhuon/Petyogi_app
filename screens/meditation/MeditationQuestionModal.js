@@ -19,6 +19,7 @@ import AwesomeButton from "react-native-really-awesome-button";
 import { Bar as ProgressBar } from "react-native-progress";
 import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
+import useAuth from "../../hooks/useAuth";
 
 const MeditationQuestionModal = ({ navigation, route }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
@@ -26,6 +27,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
     useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
+  const { generateNewMeditation } = useAuth();
 
   const {
     initMeditationQuestionsJson,
@@ -327,39 +329,51 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       }, 150);
     } else {
       setLoadingClicked(true);
-      setTimeout(() => {
-        // Last phrase was generated
-        if (
-          finishedGenerating &&
-          meditationUrls.hasOwnProperty("count") &&
-          meditationUrls.count in meditationUrls
-        ) {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      // Meditation generation was already called
+      if (readOnly) {
+        setTimeout(() => {
+          // Last phrase was generated
+          if (
+            finishedGenerating &&
+            meditationUrls.hasOwnProperty("count") &&
+            meditationUrls.count in meditationUrls
+          ) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
-          const propsToPass = {
-            phrases: phrases,
-            meditationUrls: meditationUrls,
-            shouldListenRealTime: false,
-            number: number,
-          };
+            const propsToPass = {
+              phrases: phrases,
+              meditationUrls: meditationUrls,
+              shouldListenRealTime: false,
+              number: number,
+            };
 
-          navigation.navigate("MeditationScreen", propsToPass);
-          setLoadingClicked(false);
-        } else {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            navigation.navigate("MeditationScreen", propsToPass);
+            setLoadingClicked(false);
+          } else {
+            //Not done with generation (realtime connection)
 
-          const propsToPass = {
-            phrases: phrases,
-            meditationUrls: meditationUrls,
-            shouldListenRealTime: true,
-            number: number,
-          };
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
-          navigation.navigate("MeditationScreen", propsToPass);
-          setLoadingClicked(false);
-        }
-        //Not done with generation (realtime connection)
-      }, 150);
+            const propsToPass = {
+              phrases: phrases,
+              meditationUrls: meditationUrls,
+              shouldListenRealTime: true,
+              number: number,
+            };
+
+            navigation.navigate("MeditationScreen", propsToPass);
+            setLoadingClicked(false);
+          }
+        }, 150);
+      }
+      // Generate new meditation
+      else {
+        generateNewMeditation(
+          meditationQuestionsJson,
+          number,
+          setLoadingClicked
+        );
+      }
     }
   };
 

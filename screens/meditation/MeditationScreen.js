@@ -422,7 +422,9 @@ const MeditationScreen = ({ navigation, route }) => {
                   },
                 ]}
               >
-                {meditationInfo?.phrases[currentPhrase]}
+                {meditationInfo?.phrases
+                  ? meditationInfo?.phrases[currentPhrase]
+                  : ""}
               </Text>
             </View>
             <View style={{ marginBottom: "14%" }}>
@@ -503,7 +505,8 @@ const MeditationScreen = ({ navigation, route }) => {
           onPress={() => {
             if (sound) sound.unloadAsync();
             if (musicSound) musicSound.unloadAsync();
-            navigation.pop();
+            if (pauseInterval) clearTimeout(pauseInterval);
+            navigation.navigate("BottomTabBar");
           }}
         />
       </View>

@@ -73,6 +73,44 @@ export const AuthProvider = ({ children }) => {
     }
   }, [appInitialized]);
 
+  const generateNewMeditation = (userInput, number, setLoadingClicked) => {
+    getIdToken(user).then((idToken) => {
+      //post request
+      fetch(
+        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/createMeditation",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+            userInput: userInput,
+          }),
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+          const propsToPass = {
+            shouldListenRealTime: true,
+            number: number,
+          };
+          setUserValues(data);
+          setLoadingClicked(false);
+          navigation.navigate("MeditationScreen", propsToPass);
+        })
+        .catch((err) => {
+          setLoadingClicked(false);
+          showMessage({
+            message: "There was an error fetching your data.",
+            type: "danger",
+          });
+        });
+    });
+  };
+
   const getPastMeditationJson = (number, setMeditateButtonIsPressed) => {
     get(child(dbRef, `meditations/${user.uid}/${number}`))
       .then((snapshot) => {
@@ -107,12 +145,13 @@ export const AuthProvider = ({ children }) => {
     const meditationRef = ref(db, `meditations/${user.uid}/${number}`);
 
     return onValue(meditationRef, (snapshot) => {
-      const phrases = snapshot.val().phrases;
-      const meditationUrls = snapshot.val().meditationUrls;
-      const finishedGenerating = snapshot.val().finishedGenerating;
+      const phrases = snapshot.val()?.phrases;
+      const meditationUrls = snapshot.val()?.meditationUrls;
+      const finishedGenerating = snapshot.val()?.finishedGenerating;
 
       const shouldListenRealTime = !(
         finishedGenerating &&
+        meditationUrls &&
         meditationUrls.hasOwnProperty("count") &&
         meditationUrls.count in meditationUrls
       );
@@ -211,6 +250,7 @@ export const AuthProvider = ({ children }) => {
       getPastMeditationJson,
       userValues,
       listenMeditationUpdate,
+      generateNewMeditation,
     }),
     [
       user,
@@ -221,6 +261,7 @@ export const AuthProvider = ({ children }) => {
       setAppInitialized,
       userValues,
       listenMeditationUpdate,
+      generateNewMeditation,
     ]
   );
 

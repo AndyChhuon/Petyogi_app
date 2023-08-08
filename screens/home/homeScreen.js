@@ -32,7 +32,7 @@ const HomeScreen = ({ navigation }) => {
 
   const { userValues } = useAuth();
 
-  const currentMeditation = userValues.numMeditations;
+  const currentMeditation = userValues.numMeditations + 1;
 
   const scrollViewRef = useRef();
   const buttonsViewRef = useRef();
@@ -60,6 +60,7 @@ const HomeScreen = ({ navigation }) => {
             onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
             showTopTooltip={pressedButton === null}
+            navigation={navigation}
           />
         ) : (
           <ButtonTooltip
@@ -71,6 +72,7 @@ const HomeScreen = ({ navigation }) => {
             buttonsViewRef={buttonsViewRef}
             onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
+            navigation={navigation}
           />
         )
       )
@@ -90,6 +92,7 @@ const HomeScreen = ({ navigation }) => {
           buttonsViewRef={buttonsViewRef}
           onButtonpress={setPressedButton}
           showTooltip={false}
+          navigation={navigation}
         />
       );
       return newArray;
@@ -136,6 +139,7 @@ const HomeScreen = ({ navigation }) => {
             onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
             showTopTooltip={pressedButton === null}
+            navigation={navigation}
           />
         ) : (
           <ButtonTooltip
@@ -147,6 +151,7 @@ const HomeScreen = ({ navigation }) => {
             buttonsViewRef={buttonsViewRef}
             onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
+            navigation={navigation}
           />
         )
       ),
@@ -161,7 +166,7 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (scrollViewRef.current) {
-      bringToBottom();
+      setTimeout(bringToBottom, 1000);
     }
   }, [contentHeight]);
 
