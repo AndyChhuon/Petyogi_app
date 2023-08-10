@@ -223,11 +223,32 @@ export const Fonts = {
     fontSize: 13,
     fontFamily: "Sigmar_Regular",
   },
+  displayScreensText: {
+    fontSize: 19,
+    color: "#dae5ed",
+    fontFamily: "SF_Compact_Display_Bold",
+  },
+  streakNumberText: {
+    color: "#253542",
+    fontSize: 40,
+    fontFamily: "Sigmar_Regular",
+  },
+  streakSecondaryText: {
+    color: "#212f36",
+    fontSize: 25,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
+  streakPrimaryText: {
+    color: "#dae5ed",
+    fontSize: 18,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
 };
 
 export const Colors = {
   lightBodyBackColor: "#e5c99f",
   bodyBackColor: "#253542",
+  bodyBackColor2: "#212f36",
   blackColor: "#000000",
   whiteColor: "#FFFFFF",
   primaryColor: "#fbe699",
@@ -237,6 +258,7 @@ export const Colors = {
   secondaryGoldColor: "#D9B45D",
   errorColor: "#cc0000",
   successColor: "#5cb85c",
+  whiteDarker: "#dae5ed",
 };
 
 export const Sizes = {

@@ -30,7 +30,14 @@ const HomeScreen = ({ navigation }) => {
 
   const [pressedButton, setPressedButton] = useState(null);
 
-  const { userValues } = useAuth();
+  // const { userValues } = useAuth();
+
+  const userValues = {
+    numMeditations: 11,
+    streak: 3,
+    remainingCredits: 2,
+    coins: 100,
+  };
 
   const currentMeditation = userValues.numMeditations + 1;
 
@@ -277,12 +284,16 @@ const HomeScreen = ({ navigation }) => {
                 justifyContent: "center",
               }}
             >
-              <View
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate("StreakScreen")}
                 style={{
                   flex: 1,
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "center",
+                  paddingTop: 3,
+                  paddingBottom: (Sizes.fixPadding * 1.5 * width) / 414,
                 }}
               >
                 <Image
@@ -302,14 +313,22 @@ const HomeScreen = ({ navigation }) => {
                 >
                   {userValues.streak}
                 </Text>
-              </View>
+              </TouchableOpacity>
 
-              <View
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() =>
+                  navigation.navigate("ShopScreen", {
+                    nbGems: userValues.coins,
+                  })
+                }
                 style={{
                   flex: 1,
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "center",
+                  paddingTop: 3,
+                  paddingBottom: (Sizes.fixPadding * 1.5 * width) / 414,
                 }}
               >
                 <Image
@@ -329,14 +348,22 @@ const HomeScreen = ({ navigation }) => {
                 >
                   {userValues.coins}
                 </Text>
-              </View>
+              </TouchableOpacity>
 
-              <View
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() =>
+                  navigation.navigate("PurchaseScreen", {
+                    remainingCredits: userValues.remainingCredits,
+                  })
+                }
                 style={{
                   flex: 1,
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "center",
+                  paddingTop: 3,
+                  paddingBottom: (Sizes.fixPadding * 1.5 * width) / 414,
                 }}
               >
                 <Image
@@ -356,10 +383,10 @@ const HomeScreen = ({ navigation }) => {
                 >
                   {userValues.remainingCredits}
                 </Text>
-              </View>
+              </TouchableOpacity>
 
               <TouchableOpacity
-                activeOpacity={0.9}
+                activeOpacity={0.8}
                 onPress={() => onModeChange()}
                 style={styles.notificationIconWrapStyle}
               >
@@ -392,6 +419,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.05)",
     width: (40.0 * width) / 414,
     height: (40.0 * width) / 414,
+    marginTop: 3,
+    marginBottom: (Sizes.fixPadding * 1.5 * width) / 414,
   },
   userImageStyle: {
     width: (50.0 * width) / 414,
@@ -404,8 +433,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: (Sizes.fixPadding * 1.5 * width) / 414,
-    paddingTop: 3,
+    paddingHorizontal: (Sizes.fixPadding * 1.5 * width) / 414,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   BackgroundImage: {

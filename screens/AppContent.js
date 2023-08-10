@@ -27,6 +27,9 @@ import useAuth from "../hooks/useAuth";
 import FlashMessage from "react-native-flash-message";
 import MeditationQuestionModal from "./meditation/MeditationQuestionModal";
 import MeditationScreen from "./meditation/MeditationScreen";
+import StreakScreen from "./displayScreens/streakScreen";
+import ShopScreen from "./displayScreens/shopScreen";
+import PurchaseScreen from "./displayScreens/purchaseScreen";
 import { StatusBar } from "expo-status-bar";
 
 const Stack = createStackNavigator();
@@ -44,6 +47,26 @@ const AppContent = () => {
         }}
       >
         <Stack.Screen name="Loading" component={LoadingScreen} />
+        <Stack.Screen
+          name="StreakScreen"
+          component={StreakScreen}
+          options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
+        />
+        <Stack.Screen
+          name="ShopScreen"
+          component={ShopScreen}
+          options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
+        />
+        <Stack.Screen
+          name="PurchaseScreen"
+          component={PurchaseScreen}
+          options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
+        />
+        <Stack.Screen
+          name="BottomTabBar"
+          component={BottomTabBarScreen}
+          options={{ ...TransitionPresets.DefaultTransition }}
+        />
 
         {/* <Stack.Screen
                 name="Splash"
