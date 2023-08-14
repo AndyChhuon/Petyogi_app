@@ -19,6 +19,7 @@ const { width, height } = Dimensions.get("window");
 const StreakScreen = ({ navigation }) => {
   return (
     <Fragment>
+      <StatusBar translucent={false} backgroundColor="#feaa34" />
       <SafeAreaView style={{ flex: 0, backgroundColor: "#feaa34" }} />
       <SafeAreaView
         style={{
@@ -26,7 +27,6 @@ const StreakScreen = ({ navigation }) => {
           width: "100%",
           height: "100%",
           zIndex: 2,
-          paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
           backgroundColor: Colors.bodyBackColor2,
         }}
       >

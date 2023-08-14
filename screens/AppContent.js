@@ -62,11 +62,6 @@ const AppContent = () => {
           component={PurchaseScreen}
           options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
         />
-        <Stack.Screen
-          name="BottomTabBar"
-          component={BottomTabBarScreen}
-          options={{ ...TransitionPresets.DefaultTransition }}
-        />
 
         {/* <Stack.Screen
                 name="Splash"

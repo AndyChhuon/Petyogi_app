@@ -117,7 +117,7 @@ function Button(props) {
         const propsToPass = {
           initMeditationQuestionsJson: {
             "How are you feeling?": [],
-            "What are you grateful for?": "",
+            "What would you like to meditate on?": "",
             "What are you looking forward to?": "",
             "What are you proud of?": "",
           },

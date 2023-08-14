@@ -243,6 +243,28 @@ export const Fonts = {
     fontSize: 18,
     fontFamily: "SF_Compact_Display_Bold",
   },
+  purchaseScreenTitle: {
+    color: "#dae5ed",
+    fontSize: 22,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
+  purchaseScreenSubtitle: {
+    color: "#f1f6fb",
+    fontSize: 17,
+    fontFamily: "SF_Compact_Display_SemiBold",
+  },
+  purchaseScreenDescription: {
+    color: "#dce5eb",
+    fontSize: 14,
+    fontFamily: "SF_Compact_Display_Regular",
+  },
+  decriptionSemiBold: {
+    fontFamily: "SF_Compact_Display_SemiBold",
+  },
+  purchaseScreenPricing: {
+    fontSize: 15,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
 };
 
 export const Colors = {

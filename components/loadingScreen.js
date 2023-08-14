@@ -22,7 +22,7 @@ const LoadingScreen = ({ navigation }) => {
 
       // setAppInitialized(true);
 
-      navigation.navigate("BottomTabBar");
+      navigation.navigate("PurchaseScreen");
     }
     loadFont();
   });

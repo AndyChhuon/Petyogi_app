@@ -30,14 +30,14 @@ const HomeScreen = ({ navigation }) => {
 
   const [pressedButton, setPressedButton] = useState(null);
 
-  // const { userValues } = useAuth();
+  const { userValues } = useAuth();
 
-  const userValues = {
-    numMeditations: 11,
-    streak: 3,
-    remainingCredits: 2,
-    coins: 100,
-  };
+  // const userValues = {
+  //   numMeditations: 11,
+  //   streak: 3,
+  //   remainingCredits: 2,
+  //   coins: 100,
+  // };
 
   const currentMeditation = userValues.numMeditations + 1;
 

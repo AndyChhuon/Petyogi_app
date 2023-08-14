@@ -20,6 +20,7 @@ const ShopScreen = ({ navigation, route }) => {
   const { nbGems } = route.params;
   return (
     <Fragment>
+      <StatusBar translucent={false} backgroundColor="#15a2de" />
       <SafeAreaView style={{ flex: 0, backgroundColor: "#15a2de" }} />
       <SafeAreaView
         style={{
@@ -27,7 +28,6 @@ const ShopScreen = ({ navigation, route }) => {
           width: "100%",
           height: "100%",
           zIndex: 2,
-          paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
           backgroundColor: Colors.bodyBackColor2,
         }}
       >

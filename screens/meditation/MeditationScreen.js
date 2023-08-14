@@ -388,7 +388,7 @@ const MeditationScreen = ({ navigation, route }) => {
                   position: "relative",
                   top: 0,
                 }}
-                speed={lottieMeditation?.id == "8" ? 1 : 0.5}
+                speed={lottieMeditation?.id == "8" ? 0.5 : 0.6}
                 ref={lottieRef}
                 loop
               ></Lottie>
@@ -424,7 +424,7 @@ const MeditationScreen = ({ navigation, route }) => {
               >
                 {meditationInfo?.phrases
                   ? meditationInfo?.phrases[currentPhrase]
-                  : ""}
+                  : "PetYogi is preparing your meditation... This may take a few seconds (estimated: 45secs)."}
               </Text>
             </View>
             <View style={{ marginBottom: "14%" }}>
