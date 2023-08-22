@@ -26,7 +26,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const [isLastModal, setIsLastModal] = useState(false);
   const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
     useState(0);
-  const [isScrolling, setIsScrolling] = useState(false);
   const { generateNewMeditation } = useAuth();
 
   const {
@@ -154,6 +153,39 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     },
   ];
 
+  const meditationTypeButtons = [
+    {
+      id: "1",
+      text: "Happy",
+      lottie: require("../../assets/emotions/happy_lottie.json"),
+    },
+    {
+      id: "2",
+      text: "Sad",
+      lottie: require("../../assets/emotions/sad_lottie.json"),
+    },
+    {
+      id: "3",
+      text: "Angry",
+      lottie: require("../../assets/emotions/angry_lottie.json"),
+    },
+    {
+      id: "4",
+      text: "Confident",
+      lottie: require("../../assets/emotions/confident_lottie.json"),
+    },
+    {
+      id: "5",
+      text: "Fearful",
+      lottie: require("../../assets/emotions/fearful_lottie.json"),
+    },
+    {
+      id: "6",
+      text: "Disappointed",
+      lottie: require("../../assets/emotions/disappointed_lottie.json"),
+    },
+  ];
+
   const meditationLotties = [
     {
       lottie: require("../../assets/Lottie/cute_dog_2.json"),
@@ -211,6 +243,91 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     }
   };
 
+  const onMeditateButtonPress = (text, isChosen) => {
+    if (isChosen) {
+      setMeditationQuestionsJson((meditationQuestionsJson) => {
+        return {
+          ...meditationQuestionsJson,
+          [meditationQuestion]: "",
+        };
+      });
+    } else {
+      setMeditationQuestionsJson((meditationQuestionsJson) => {
+        return {
+          ...meditationQuestionsJson,
+          [meditationQuestion]: text,
+        };
+      });
+    }
+  };
+
+  const RenderMeditationButtons = ({ item, isChosen }) => {
+    const lottieRef = useRef(null);
+
+    useEffect(() => {
+      if (isChosen) {
+        setTimeout(() => lottieRef.current?.play());
+      } else {
+        lottieRef.current.pause();
+      }
+
+      return () => {
+        lottieRef.current?.reset();
+      };
+    }, [isChosen]);
+
+    return (
+      <View style={styles.multipleChoiceButtonContainer}>
+        <AwesomeButton
+          width={(100 * width) / 414}
+          backgroundColor="#fcc695"
+          height={(100 * width) / 414}
+          paddingHorizontal={0}
+          raiseLevel={7}
+          borderRadius={8}
+          onPressOut={() => {
+            if (!readOnly) {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              onMeditateButtonPress(item.text, isChosen);
+            }
+          }}
+        >
+          <Lottie
+            source={item.lottie}
+            ref={lottieRef}
+            style={{
+              position: "relative",
+              zIndex: 1,
+              resizeMode: "cover",
+              width: "100%",
+              height: "100%",
+              aspectRatio: 1,
+              transform: item.scale
+                ? [{ scale: item.scale }]
+                : [{ scale: 1.04 }],
+            }}
+            speed={0.6}
+            autoPlay
+            loop
+          ></Lottie>
+          <View
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              display: isChosen ? "flex" : "none",
+              zIndex: 2,
+              backgroundColor: "rgba(255, 255, 255, 0.55)",
+            }}
+          />
+        </AwesomeButton>
+        <Text
+          style={[Fonts.musicMeditationText, { color: "white", fontSize: 14 }]}
+        >
+          {item.text}
+        </Text>
+      </View>
+    );
+  };
+
   const RenderMultipleChoiceButtons = ({ item, initIsChosen }) => {
     const [isChosen, setIsChosen] = useState(initIsChosen);
     const lottieRef = useRef(null);
@@ -237,7 +354,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           raiseLevel={7}
           borderRadius={8}
           onPressOut={() => {
-            if (!isScrolling && !readOnly) {
+            if (!readOnly) {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setIsChosen(!isChosen);
               onButtonPress(item.text, isChosen);
@@ -295,16 +412,21 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     }));
   }, [currentQuestionIndex]);
 
+  const initMeditationTypeButtons = meditationTypeButtons.map((item) => ({
+    id: item.id,
+    component: React.useMemo(() => {
+      return (
+        <RenderMeditationButtons
+          item={item}
+          key={item.id}
+          isChosen={meditationQuestionsJson[meditationQuestion] === item.text}
+        />
+      );
+    }, [meditationQuestionsJson[meditationQuestion] === item.text]),
+  }));
+
   const renderItem = ({ item }) => {
     return item.component;
-  };
-
-  const handleScroll = () => {
-    setIsScrolling(true);
-  };
-
-  const handleScrollEnd = () => {
-    setIsScrolling(false);
   };
 
   const onNextButtonPress = () => {
@@ -402,8 +524,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const RenderLastModalLottie = () => {
     const ref = useRef(null);
 
-    useState(0);
-
     useEffect(() => {
       setTimeout(() => ref.current?.play());
 
@@ -480,19 +600,21 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         {isLastModal == false ? (
           currentQuestionIndex == 0 ? (
             // Emotions buttons
-            <View
-              style={[
-                styles.textBoxContainer,
-                currentQuestionIndex != 0 ? { display: "none" } : {},
-              ]}
-            >
+            <View style={[styles.textBoxContainer]}>
               <FlatList
                 data={initButtons}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
                 numColumns={2}
-                onScroll={handleScroll}
-                onScrollEndDrag={handleScrollEnd}
+              />
+            </View>
+          ) : currentQuestionIndex == 1 ? (
+            <View style={[styles.textBoxContainer]}>
+              <FlatList
+                data={initMeditationTypeButtons}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderItem}
+                numColumns={2}
               />
             </View>
           ) : (
@@ -583,38 +705,30 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 backgroundDarker={Colors.secondaryGoldColor}
                 backgroundShadow={Colors.secondaryGoldColor}
               >
-                {isLastModal ? (
-                  <>
-                    <Text
+                <>
+                  <Text
+                    style={{
+                      ...Fonts.whiteColor20Bold,
+                      textAlign: "center",
+                      color: Colors.bodyBackColor,
+                      marginRight: 5,
+                    }}
+                  >
+                    Let's Meditate!
+                  </Text>
+                  <View>
+                    <Image
+                      source={require("../../assets/images/icons/gem.png")}
                       style={{
-                        ...Fonts.whiteColor20Bold,
-                        textAlign: "center",
-                        color: Colors.bodyBackColor,
-                        marginRight: 5,
+                        position: "relative",
+                        top: 2,
+                        width: (20.0 * width) / 414,
+                        height: (20.0 * width) / 414,
+                        resizeMode: "contain",
                       }}
-                    >
-                      Let's Meditate!
-                    </Text>
-                    <View>
-                      <Image
-                        source={require("../../assets/images/icons/gem.png")}
-                        style={{
-                          position: "relative",
-                          top: 2,
-                          width: (20.0 * width) / 414,
-                          height: (20.0 * width) / 414,
-                          resizeMode: "contain",
-                        }}
-                      />
-                    </View>
-                  </>
-                ) : (
-                  <FontAwesome
-                    name="chevron-right"
-                    color={Colors.whiteColor}
-                    size={20}
-                  />
-                )}
+                    />
+                  </View>
+                </>
               </AwesomeButton>
             </>
           ) : (
