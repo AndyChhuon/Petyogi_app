@@ -148,6 +148,12 @@ export const Fonts = {
     fontFamily: "SF_Compact_Display_SemiBold",
   },
 
+  whiteColor18SemiBold: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontFamily: "SF_Compact_Display_SemiBold",
+  },
+
   whiteColor20SemiBold: {
     color: "#FFFFFF",
     fontSize: 20,

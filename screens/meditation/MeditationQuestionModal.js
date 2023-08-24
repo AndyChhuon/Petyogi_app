@@ -14,6 +14,12 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
+import {
+  multipleChoiceButtons,
+  meditationTypeButtons,
+  meditationLotties,
+  meditationQuestionsByType,
+} from "../../constants/constants";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import AwesomeButton from "react-native-really-awesome-button";
 import { Bar as ProgressBar } from "react-native-progress";
@@ -64,7 +70,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     Keyboard.dismiss();
   };
 
-  const { width } = Dimensions.get("window");
+  const { width, height } = Dimensions.get("window");
 
   const handleTextChange = (inputText) => {
     setMeditationQuestionsJson({
@@ -81,137 +87,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   useEffect(() => {
     setLoadingClicked(false);
   }, [currentQuestionIndex, isLastModal]);
-
-  const multipleChoiceButtons = [
-    {
-      id: "1",
-      text: "Happy",
-      lottie: require("../../assets/emotions/happy_lottie.json"),
-    },
-    {
-      id: "2",
-      text: "Sad",
-      lottie: require("../../assets/emotions/sad_lottie.json"),
-    },
-    {
-      id: "3",
-      text: "Angry",
-      lottie: require("../../assets/emotions/angry_lottie.json"),
-    },
-    {
-      id: "4",
-      text: "Confident",
-      lottie: require("../../assets/emotions/confident_lottie.json"),
-    },
-    {
-      id: "5",
-      text: "Fearful",
-      lottie: require("../../assets/emotions/fearful_lottie.json"),
-    },
-    {
-      id: "6",
-      text: "Disappointed",
-      lottie: require("../../assets/emotions/disappointed_lottie.json"),
-    },
-
-    {
-      id: "8",
-      text: "Hopeful",
-      lottie: require("../../assets/emotions/hopeful_lottie.json"),
-    },
-    {
-      id: "9",
-      text: "Tired",
-      lottie: require("../../assets/emotions/tired_lottie.json"),
-    },
-    {
-      id: "10",
-      text: "Anxious",
-      lottie: require("../../assets/emotions/anxious_lottie.json"),
-    },
-    {
-      id: "7",
-      text: "Love",
-      lottie: require("../../assets/emotions/in_love_lottie.json"),
-    },
-
-    {
-      id: "12",
-      text: "Anhedonic",
-      lottie: require("../../assets/emotions/depressed_lottie.json"),
-    },
-    {
-      id: "13",
-      text: "Exasperated",
-      lottie: require("../../assets/emotions/exasperated_lottie.json"),
-    },
-    {
-      id: "11",
-      text: "Bored",
-      lottie: require("../../assets/emotions/bored_lottie.json"),
-      scale: 0.96,
-    },
-  ];
-
-  const meditationTypeButtons = [
-    {
-      id: "1",
-      text: "Happy",
-      lottie: require("../../assets/emotions/happy_lottie.json"),
-    },
-    {
-      id: "2",
-      text: "Sad",
-      lottie: require("../../assets/emotions/sad_lottie.json"),
-    },
-    {
-      id: "3",
-      text: "Angry",
-      lottie: require("../../assets/emotions/angry_lottie.json"),
-    },
-    {
-      id: "4",
-      text: "Confident",
-      lottie: require("../../assets/emotions/confident_lottie.json"),
-    },
-    {
-      id: "5",
-      text: "Fearful",
-      lottie: require("../../assets/emotions/fearful_lottie.json"),
-    },
-    {
-      id: "6",
-      text: "Disappointed",
-      lottie: require("../../assets/emotions/disappointed_lottie.json"),
-    },
-  ];
-
-  const meditationLotties = [
-    {
-      lottie: require("../../assets/Lottie/cute_dog_2.json"),
-      speed: 0.6,
-    },
-    {
-      lottie: require("../../assets/Lottie/cute_dog.json"),
-      speed: 0.8,
-    },
-    {
-      lottie: require("../../assets/Lottie/cute_penguin.json"),
-      speed: 1,
-    },
-    {
-      lottie: require("../../assets/Lottie/sleeping_panda.json"),
-      speed: 1,
-    },
-    {
-      lottie: require("../../assets/Lottie/sleeping_cat.json"),
-      speed: 1,
-    },
-    {
-      lottie: require("../../assets/Lottie/cute_giraffe.json"),
-      speed: 0.8,
-    },
-  ];
 
   useEffect(() => {
     setCreateMeditationLottieIndex(
@@ -246,28 +121,30 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const onMeditateButtonPress = (text, isChosen, meditationQuestion) => {
     if (isChosen) {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
+        const firstQuestion = Object.keys(meditationQuestionsJson)[0];
+        const firstAnswer = Object.values(meditationQuestionsJson)[0];
+
         return {
-          ...meditationQuestionsJson,
+          [firstQuestion]: firstAnswer,
           [meditationQuestion]: "",
+          ...meditationQuestionsByType[text],
         };
       });
     } else {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
+        const firstQuestion = Object.keys(meditationQuestionsJson)[0];
+        const firstAnswer = Object.values(meditationQuestionsJson)[0];
         return {
-          ...meditationQuestionsJson,
+          [firstQuestion]: firstAnswer,
           [meditationQuestion]: text,
+          ...meditationQuestionsByType[text],
         };
       });
     }
   };
 
-  const RenderMeditationButtons = ({
-    item,
-    initIsChosen,
-    meditationQuestion,
-  }) => {
+  const RenderMeditationButtons = ({ item, isChosen, meditationQuestion }) => {
     const lottieRef = useRef(null);
-    const isChosen = initIsChosen;
     useEffect(() => {
       if (isChosen) {
         setTimeout(() => lottieRef.current?.play());
@@ -281,12 +158,19 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     }, []);
 
     return (
-      <View style={styles.multipleChoiceButtonContainer}>
+      <View
+        style={[
+          styles.meditationChoiceButtonContainer,
+          { marginVertical: 0.02 * height },
+        ]}
+      >
         <AwesomeButton
-          width={(100 * width) / 414}
-          backgroundColor="#fcc695"
-          height={(100 * width) / 414}
-          paddingHorizontal={0}
+          width={(135 * width) / 414}
+          backgroundColor="#1ecbd2"
+          backgroundDarker="#10a0bd"
+          height={(125 * width) / 414}
+          paddingBottom={10}
+          paddingHorizontal={5}
           raiseLevel={7}
           borderRadius={8}
           onPressOut={() => {
@@ -324,7 +208,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           />
         </AwesomeButton>
         <Text
-          style={[Fonts.musicMeditationText, { color: "white", fontSize: 14 }]}
+          style={[
+            Fonts.musicMeditationText,
+            { color: "white", fontSize: 16, marginTop: 4 },
+          ]}
         >
           {item.text}
         </Text>
@@ -423,9 +310,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         <RenderMeditationButtons
           item={item}
           key={item.id}
-          initIsChosen={
-            meditationQuestionsJson[meditationQuestion] === item.text
-          }
+          isChosen={meditationQuestionsJson[meditationQuestion] === item.text}
           meditationQuestion={meditationQuestion}
         />
       );
@@ -572,9 +457,11 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       style={{
         flex: 1,
         backgroundColor: Colors.bodyBackColor,
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+        paddingTop: 0,
       }}
     >
+      <StatusBar translucent={false} backgroundColor={Colors.bodyBackColor} />
+
       {isTextBoxFocused ? null : topBar()}
       <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
         <View
@@ -587,12 +474,19 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             <Text
               style={{
                 ...Fonts.whiteColor20SemiBold,
+                textAlign: "center",
               }}
             >
               {isLastModal ? "Let's Meditate!" : meditationQuestion}
             </Text>
           ) : (
-            <Text style={{ ...Fonts.whiteColor22SemiBold, marginBottom: 6 }}>
+            <Text
+              style={{
+                ...Fonts.whiteColor22SemiBold,
+                marginBottom: 8,
+                textAlign: "center",
+              }}
+            >
               {isLastModal
                 ? readOnly
                   ? "Begin Your Meditation!"
@@ -619,7 +513,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               />
             </View>
           ) : currentQuestionIndex == 1 ? (
-            <View style={[styles.textBoxContainer]}>
+            <View style={[styles.meditationBoxContainer]}>
               <FlatList
                 data={initMeditationTypeButtons}
                 keyExtractor={(item) => item.id.toString()}
@@ -856,6 +750,18 @@ const styles = StyleSheet.create({
   multipleChoiceButtonContainer: {
     flex: 1,
     marginVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  meditationBoxContainer: {
+    marginHorizontal: 10,
+    flexGrow: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    height: 200,
+  },
+  meditationChoiceButtonContainer: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },

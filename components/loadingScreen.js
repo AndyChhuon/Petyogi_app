@@ -20,9 +20,9 @@ const LoadingScreen = ({ navigation }) => {
         Sigmar_Regular: require("../assets/fonts/Sigmar-Regular.ttf"),
       });
 
-      // setAppInitialized(true);
+      setAppInitialized(true);
 
-      navigation.navigate("PurchaseScreen");
+      // navigation.navigate("PurchaseScreen");
     }
     loadFont();
   });
