@@ -243,7 +243,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     }
   };
 
-  const onMeditateButtonPress = (text, isChosen) => {
+  const onMeditateButtonPress = (text, isChosen, meditationQuestion) => {
     if (isChosen) {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
         return {
@@ -261,9 +261,13 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     }
   };
 
-  const RenderMeditationButtons = ({ item, isChosen }) => {
+  const RenderMeditationButtons = ({
+    item,
+    initIsChosen,
+    meditationQuestion,
+  }) => {
     const lottieRef = useRef(null);
-
+    const isChosen = initIsChosen;
     useEffect(() => {
       if (isChosen) {
         setTimeout(() => lottieRef.current?.play());
@@ -274,7 +278,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       return () => {
         lottieRef.current?.reset();
       };
-    }, [isChosen]);
+    }, []);
 
     return (
       <View style={styles.multipleChoiceButtonContainer}>
@@ -288,7 +292,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           onPressOut={() => {
             if (!readOnly) {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              onMeditateButtonPress(item.text, isChosen);
+              onMeditateButtonPress(item.text, isChosen, meditationQuestion);
             }
           }}
         >
@@ -419,10 +423,16 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         <RenderMeditationButtons
           item={item}
           key={item.id}
-          isChosen={meditationQuestionsJson[meditationQuestion] === item.text}
+          initIsChosen={
+            meditationQuestionsJson[meditationQuestion] === item.text
+          }
+          meditationQuestion={meditationQuestion}
         />
       );
-    }, [meditationQuestionsJson[meditationQuestion] === item.text]),
+    }, [
+      meditationQuestionsJson[meditationQuestion] === item.text,
+      meditationQuestion,
+    ]),
   }));
 
   const renderItem = ({ item }) => {
