@@ -124,7 +124,7 @@ export const meditationQuestionsByType = {
   Visualization: {
     "What is on top of your mind right now?": "",
     "Why is it on your mind?": "",
-    "Describe what you would like to visualize throughout the meditation.": "",
+    "Describe what you would like to visualize throughout the meditation": "",
     "In what setting would you like this visualization to take place?": "",
   },
   "Body Scan": {
@@ -138,7 +138,7 @@ export const meditationQuestionsByType = {
     "What is on top of your mind right now?": "",
     "Why is it on your mind?": "",
     "What can I do to help you?": "",
-    "What specific anchor would you like to focus on (breath, sound, item, etc.)?":
+    "What specific anchor would you like to focus on (breath, sound, item, etc)?":
       "",
   },
   "Loving Kindness": {

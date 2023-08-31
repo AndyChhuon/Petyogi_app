@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
     if (appInitialized) {
       var unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user) {
+          console.log(user);
           setUser(user);
           if (user.emailVerified) {
             //
@@ -73,8 +74,18 @@ export const AuthProvider = ({ children }) => {
     }
   }, [appInitialized]);
 
-  const generateNewMeditation = (userInput, number, setLoadingClicked) => {
+  const generateNewMeditation = (
+    userInput,
+    meditationType,
+    number,
+    setLoadingClicked
+  ) => {
     getIdToken(user).then((idToken) => {
+      console.log({
+        idToken: idToken,
+        userInput: userInput,
+        meditationType: meditationType,
+      });
       //post request
       fetch(
         "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/createMeditation",
@@ -86,13 +97,25 @@ export const AuthProvider = ({ children }) => {
           body: JSON.stringify({
             idToken: idToken,
             userInput: userInput,
+            meditationType: meditationType,
           }),
         }
       )
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.ok) {
+            // Check if the response status is in the range of 200-299 (indicating success)
+            if (res.headers.get("Content-Type").includes("application/json")) {
+              // Response is JSON
+              return res.json();
+            } else {
+              // Response is not JSON, handle it accordingly
+              return res.text(); // Or any other processing you need
+            }
+          }
+        })
         .then((data) => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-
+          console.log(data);
           const propsToPass = {
             shouldListenRealTime: true,
             number: number,
@@ -100,11 +123,13 @@ export const AuthProvider = ({ children }) => {
           setUserValues(data);
           setLoadingClicked(false);
           navigation.navigate("MeditationScreen", propsToPass);
+          console.log("success");
         })
         .catch((err) => {
+          console.log(err);
           setLoadingClicked(false);
           showMessage({
-            message: "There was an error fetching your data.",
+            message: "There was an error creating your meditation.",
             type: "danger",
           });
         });

@@ -166,8 +166,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       >
         <AwesomeButton
           width={(135 * width) / 414}
-          backgroundColor="#1ecbd2"
-          backgroundDarker="#10a0bd"
+          backgroundColor="#fcc695"
           height={(125 * width) / 414}
           paddingBottom={10}
           paddingHorizontal={5}
@@ -387,6 +386,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       else {
         generateNewMeditation(
           meditationQuestionsJson,
+          Object.values(meditationQuestionsJson)[1],
           number,
           setLoadingClicked
         );
