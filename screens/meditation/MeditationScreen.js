@@ -98,6 +98,12 @@ const MeditationScreen = ({ navigation, route }) => {
 
   const onNextButtonPress = () => {
     if (isPlayingPrerecordedOutro) return;
+    if (preRecordedAudioShouldBePlaying && maxNumPhrases != 0) {
+      setCurrentPhrase(currentPhrase + 1);
+      setInitValue(currentPhrase + 1);
+      setIsPlayingPrerecordedOutro(true);
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     // THe first line has not been generated yet, increment pre recorded audio
     if (preRecordedAudioShouldBePlaying) {
@@ -113,6 +119,12 @@ const MeditationScreen = ({ navigation, route }) => {
 
   const onBackButtonPress = () => {
     if (isPlayingPrerecordedOutro) return;
+    if (preRecordedAudioShouldBePlaying && maxNumPhrases != 0) {
+      setCurrentPhrase(currentPhrase - 1);
+      setInitValue(currentPhrase - 1);
+      setIsPlayingPrerecordedOutro(true);
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (currentPhrase > 0) {
       setCurrentPhrase(currentPhrase - 1);
@@ -499,6 +511,11 @@ const MeditationScreen = ({ navigation, route }) => {
                   maximumValue={maxNumPhrases}
                   step={1}
                   onValueChange={(val) => {
+                    if (
+                      isPlayingPrerecordedOutro ||
+                      (preRecordedAudioShouldBePlaying && maxNumPhrases != 0)
+                    )
+                      return;
                     setCurrentPhrase(val);
                   }}
                   value={initValue}
