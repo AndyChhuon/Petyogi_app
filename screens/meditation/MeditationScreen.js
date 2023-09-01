@@ -511,13 +511,9 @@ const MeditationScreen = ({ navigation, route }) => {
                   maximumValue={maxNumPhrases}
                   step={1}
                   onValueChange={(val) => {
-                    if (
-                      isPlayingPrerecordedOutro ||
-                      (preRecordedAudioShouldBePlaying && maxNumPhrases != 0)
-                    )
-                      return;
                     setCurrentPhrase(val);
                   }}
+                  disabled={preRecordedAudioShouldBePlaying}
                   value={initValue}
                   thumbTintColor="#FFD369"
                   minimumTrackTintColor="#FFD369"
