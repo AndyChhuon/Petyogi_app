@@ -122,7 +122,7 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    emailLogin(setError, userEmail, password);
+    emailLogin(setError, userEmail.trim().toLowerCase(), password);
   }
 
   function loginButton() {

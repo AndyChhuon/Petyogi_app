@@ -162,7 +162,7 @@ const RegisterScreen = ({ navigation }) => {
       return;
     }
 
-    emailSignup(setError, userEmail, password);
+    emailSignup(setError, userEmail.trim().toLowerCase(), password);
   }
 
   function registerButton() {
