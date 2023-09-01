@@ -14,6 +14,7 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
   getIdToken,
+  updateProfile,
 } from "firebase/auth";
 import { ref, child, get, onValue, off, getDatabase } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
@@ -34,35 +35,39 @@ export const AuthProvider = ({ children }) => {
     if (appInitialized) {
       var unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user) {
+          console.log(user);
           setUser(user);
-          if (user.emailVerified) {
-            //
-            getIdToken(user).then((idToken) => {
-              //post request
-              fetch(
-                "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    idToken: idToken,
-                  }),
-                }
-              )
-                .then((res) => res.json())
-                .then((data) => {
-                  setUserValues(data);
-                  navigation.navigate("BottomTabBar");
-                })
-                .catch((err) => {
-                  showMessage({
-                    message: "There was an error fetching your data.",
-                    type: "danger",
-                  });
+          //
+          getIdToken(user).then((idToken) => {
+            //post request
+            fetch(
+              "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  idToken: idToken,
+                }),
+              }
+            )
+              .then((res) => res.json())
+              .then((data) => {
+                setUserValues(data);
+                navigation.navigate("BottomTabBar");
+              })
+              .catch((err) => {
+                showMessage({
+                  message: "There was an error fetching your data.",
+                  type: "danger",
                 });
-            });
+              });
+          });
+
+          if (!user.displayName) {
+            console.log("updating");
+            updateProfile(user, { displayName: "fellow yogi" });
           }
         } else {
           navigation.navigate("Register");
@@ -133,6 +138,44 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const reloadUser = async () => {
+    if (user) {
+      await user.reload();
+      console.log(user);
+      console.log(userValues);
+      console.log(userValues.accountType == "free");
+      console.log(user.emailVerified);
+
+      if (userValues.accountType == "free" && user.emailVerified) {
+        console.log("updating");
+        getIdToken(user).then((idToken) => {
+          //post request
+          fetch(
+            "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                idToken: idToken,
+              }),
+            }
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              setUserValues(data);
+            })
+            .catch((err) => {
+              showMessage({
+                message: "There was an error fetching your data.",
+                type: "danger",
+              });
+            });
+        });
+      }
+    }
+  };
   const getPastMeditationJson = (number, setMeditateButtonIsPressed) => {
     get(child(dbRef, `meditations/${user.uid}/${number}`))
       .then((snapshot) => {
@@ -194,7 +237,7 @@ export const AuthProvider = ({ children }) => {
       .then((userCredential) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-        navigation.navigate("Verification");
+        navigation.navigate("BottomTabBar");
 
         // Signed in successfully
       })
@@ -210,7 +253,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const emailVerification = (setError, setSuccessMsg) => {
-    sendEmailVerification(user)
+    sendEmailVerification(user, {
+      url: "https://petyogi.com/?redirect=true",
+    })
       .then(() => {
         // Verification email sent.
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -227,11 +272,7 @@ export const AuthProvider = ({ children }) => {
       .then((userCredential) => {
         // Signed in
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        if (userCredential.user.emailVerified) {
-          navigation.navigate("BottomTabBar");
-        } else {
-          navigation.navigate("Verification");
-        }
+        navigation.navigate("BottomTabBar");
       })
       .catch((error) => {
         if (isRegister) {
@@ -273,6 +314,7 @@ export const AuthProvider = ({ children }) => {
       userValues,
       listenMeditationUpdate,
       generateNewMeditation,
+      reloadUser,
     }),
     [
       user,
@@ -284,6 +326,7 @@ export const AuthProvider = ({ children }) => {
       userValues,
       listenMeditationUpdate,
       generateNewMeditation,
+      reloadUser,
     ]
   );
 

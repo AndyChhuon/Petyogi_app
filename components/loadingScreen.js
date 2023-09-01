@@ -22,7 +22,11 @@ const LoadingScreen = ({ navigation }) => {
 
       setAppInitialized(true);
 
-      // navigation.navigate("PurchaseScreen");
+      // const propsToPass = {
+      //   shouldListenRealTime: true,
+      //   number: 27,
+      // };
+      // navigation.navigate("MeditationScreen", propsToPass);
     }
     loadFont();
   });

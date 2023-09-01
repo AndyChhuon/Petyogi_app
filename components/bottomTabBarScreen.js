@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
   View,
   Image,
@@ -13,15 +13,23 @@ import HomeScreen from "../screens/home/homeScreen";
 import NotificationScreen from "../screens/notification/notificationScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";
+import useAuth from "../hooks/useAuth";
 
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get("window");
 
-const TabNavigator = () => {
+const TabNavigator = ({ route }) => {
   const backAction = () => {
     backClickCount == 1 ? BackHandler.exitApp() : _spring();
     return true;
   };
+  const { reloadUser } = useAuth();
+
+  useEffect(() => {
+    if (route.params?.isExternal) {
+      reloadUser();
+    }
+  }, [route.params]);
 
   useFocusEffect(
     useCallback(() => {

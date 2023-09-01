@@ -22,6 +22,7 @@ const ShopScreen = ({ navigation, route }) => {
   // const { remainingCredits, dayMode } = route.params;
   const remainingCredits = 1;
   const [dialogVisible, setDialogVisible] = React.useState(false);
+
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor="#5760b5" />

@@ -53,9 +53,10 @@ const VerificationScreen = ({ navigation }) => {
     } else {
       if (!user.emailVerified) {
         setEmail(user.email);
-
+        console.log("Email not verified. Sending verification email...");
         verifyEmail();
       } else {
+        console.log("Email verified. Teleporting to PetYogi...");
         navigation.navigate("BottomTabBar");
       }
     }

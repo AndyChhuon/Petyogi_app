@@ -70,12 +70,12 @@ const AppContent = () => {
               /> */}
         {user ? (
           <>
-            <Stack.Screen name="Verification" component={VerificationScreen} />
             <Stack.Screen
               name="BottomTabBar"
               component={BottomTabBarScreen}
               options={{ ...TransitionPresets.DefaultTransition }}
             />
+            <Stack.Screen name="Verification" component={VerificationScreen} />
             <Stack.Screen
               name="LiveAuctionsDetail"
               component={LiveAuctionsDetailScreen}
