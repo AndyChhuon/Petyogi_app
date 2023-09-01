@@ -154,3 +154,49 @@ export const meditationQuestionsByType = {
     "How can I help this conversation with God?": "",
   },
 };
+
+export const prerecordedAudioUrls = {
+  intro: {
+    1: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1.wav",
+    2: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/2.wav",
+    3: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/3.wav",
+    4: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/4.wav",
+    5: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/5.wav",
+  },
+  meditations: {
+    1: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/5.wav",
+    2: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/1.wav",
+    3: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/6.wav",
+    4: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/2.wav",
+    5: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/3.wav",
+    6: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/4.wav",
+    7: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/7.wav",
+    8: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/8.wav",
+  },
+  outro: {
+    1: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Outro/1.wav",
+  },
+};
+
+export const prerecordedAudioPhrases = {
+  intro: {
+    1: "Greetings to you, my favourite Yogi. Welcome back to your sacred place, with me PetYogi!",
+    2: "Thank you for joining me in this new personalized meditation, made specially for you.",
+    3: "It's always an honour to share this moment with you, and help you bring peace and joy to your life.",
+    4: "I want you to know that you are deeply loved, and I appreciate you for making the commitment to meditating with me every day.",
+    5: "Now, while your meditation is being generated, let's meditate on a few meditation tips that I want you to understand deeply.",
+  },
+  meditations: {
+    1: "Meditation is like a gym, in which you develop the powerful mental muscles of calm and insight.",
+    2: "A most useful approach to meditation practice is to schedule it as you would an extremely important appointment, and unfailingly keep your appointment with the infinite.",
+    3: "Meditation is not spacing out or running away. In fact, it is being totally honest with ourselves.",
+    4: "It is indeed a radical act of love just to sit down and be quiet for a time by yourself.",
+    5: "Learn to be calm and you will always be happy.",
+    6: "Meditation is allowing what is.",
+    7: "Remember the blue sky. It may at times, be obscured by clouds, but it is always there.",
+    8: "When meditation is mastered, the mind is unwavering like the flame of a candle in a windless place.",
+  },
+  outro: {
+    1: "We are now ready to start your meditation, so let us begin.",
+  },
+};

@@ -34,7 +34,6 @@ export const AuthProvider = ({ children }) => {
     if (appInitialized) {
       var unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user) {
-          console.log(user);
           setUser(user);
           if (user.emailVerified) {
             //
@@ -115,7 +114,6 @@ export const AuthProvider = ({ children }) => {
         })
         .then((data) => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-          console.log(data);
           const propsToPass = {
             shouldListenRealTime: true,
             number: number,
@@ -123,7 +121,6 @@ export const AuthProvider = ({ children }) => {
           setUserValues(data);
           setLoadingClicked(false);
           navigation.navigate("MeditationScreen", propsToPass);
-          console.log("success");
         })
         .catch((err) => {
           console.log(err);

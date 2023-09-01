@@ -11,6 +11,10 @@ import {
   Text,
   FlatList,
 } from "react-native";
+import {
+  prerecordedAudioUrls,
+  prerecordedAudioPhrases,
+} from "../../constants/constants";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
@@ -50,10 +54,9 @@ const MeditationScreen = ({ navigation, route }) => {
   });
 
   const [musicMeditation, setMusicMeditation] = useState({
-    id: "4",
-    image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
-    title: "Peaceful Thoughts",
-    sound: require("../../assets/music/peaceful_thoughts.mp3"),
+    id: "1",
+    image: null,
+    title: "No music",
   });
 
   const [meditationInfo, setMeditationInfo] = useState(route.params);
@@ -63,13 +66,26 @@ const MeditationScreen = ({ navigation, route }) => {
 
   const [showMenu, setShowMenu] = useState(false);
 
-  const timeBetweenPhrases = 5000;
+  const timeBetweenPhrases = 2500;
 
   const maxNumPhrases = meditationInfo.meditationUrls
     ? meditationInfo.meditationUrls.count
       ? Object.keys(meditationInfo.meditationUrls).length - 1
       : Object.keys(meditationInfo.meditationUrls).length
     : 0;
+
+  // First line has not been generated, play pre recorded audio
+  const isWaitingOnFirstLineGeneration = maxNumPhrases == 0;
+  const [preRecordedAudioShouldBePlaying, setPreRecordedAudioShouldBePlaying] =
+    useState(isWaitingOnFirstLineGeneration);
+  const [isPlayingPrerecordedOutro, setIsPlayingPrerecordedOutro] =
+    useState(false);
+  const [randomNumberFirstMeditation, setRandomNumberFirstMeditation] =
+    useState(
+      Math.floor(
+        Math.random() * Object.keys(prerecordedAudioUrls.meditations).length
+      ) + 1
+    );
 
   const generating = meditationInfo.meditationUrls
     ? meditationInfo.meditationUrls.count
@@ -81,14 +97,22 @@ const MeditationScreen = ({ navigation, route }) => {
   const lottieRef = useRef(null);
 
   const onNextButtonPress = () => {
+    if (isPlayingPrerecordedOutro) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (currentPhrase < maxNumPhrases) {
+    // THe first line has not been generated yet, increment pre recorded audio
+    if (preRecordedAudioShouldBePlaying) {
       setCurrentPhrase(currentPhrase + 1);
       setInitValue(currentPhrase + 1);
+    } else {
+      if (currentPhrase < maxNumPhrases) {
+        setCurrentPhrase(currentPhrase + 1);
+        setInitValue(currentPhrase + 1);
+      }
     }
   };
 
   const onBackButtonPress = () => {
+    if (isPlayingPrerecordedOutro) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (currentPhrase > 0) {
       setCurrentPhrase(currentPhrase - 1);
@@ -96,13 +120,21 @@ const MeditationScreen = ({ navigation, route }) => {
     }
   };
 
+  // Called after the current phrase ends and timeBetweenPhrases has passed
   const incrementPhrase = () => {
-    if (currentPhrase < maxNumPhrases) {
+    // THe first line has not been generated yet, increment pre recorded audio
+    if (preRecordedAudioShouldBePlaying) {
+      if (maxNumPhrases != 0) setIsPlayingPrerecordedOutro(true);
       setCurrentPhrase((prevPhrase) => prevPhrase + 1);
       setInitValue(currentPhrase + 1);
-    } else if (currentPhrase == maxNumPhrases && generating) {
-      //At last line and waiting for generation
-      setWaitingForNextLine(true);
+    } else {
+      if (currentPhrase < maxNumPhrases) {
+        setCurrentPhrase((prevPhrase) => prevPhrase + 1);
+        setInitValue(currentPhrase + 1);
+      } else if (currentPhrase == maxNumPhrases && generating) {
+        //At last line and waiting for generation
+        setWaitingForNextLine(true);
+      }
     }
   };
 
@@ -159,7 +191,27 @@ const MeditationScreen = ({ navigation, route }) => {
         }
       };
 
-      const url = meditationInfo.meditationUrls
+      const onOutroEndUpdate = (status) => {
+        if (status.didJustFinish) {
+          // Move on to the generated meditation
+          setPreRecordedAudioShouldBePlaying(false);
+          setIsPlayingPrerecordedOutro(false);
+          setCurrentPhrase(0);
+          setInitValue(0);
+        }
+      };
+
+      const url = preRecordedAudioShouldBePlaying
+        ? isPlayingPrerecordedOutro
+          ? prerecordedAudioUrls.outro["1"]
+          : currentPhrase > Object.keys(prerecordedAudioUrls.intro).length
+          ? prerecordedAudioUrls.meditations[
+              ((currentPhrase + randomNumberFirstMeditation) %
+                Object.keys(prerecordedAudioUrls.meditations).length) +
+                1
+            ]
+          : prerecordedAudioUrls.intro[currentPhrase]
+        : meditationInfo.meditationUrls
         ? meditationInfo.meditationUrls[currentPhrase]?.url
         : null;
 
@@ -167,7 +219,7 @@ const MeditationScreen = ({ navigation, route }) => {
         const { sound: newSound } = await Audio.Sound.createAsync(
           { uri: url },
           { shouldPlay: playing },
-          onPlaybackStatusUpdate
+          isPlayingPrerecordedOutro ? onOutroEndUpdate : onPlaybackStatusUpdate
         );
         setSound(newSound);
         loadingAudioRef.current = false;
@@ -422,9 +474,19 @@ const MeditationScreen = ({ navigation, route }) => {
                   },
                 ]}
               >
-                {meditationInfo?.phrases
-                  ? meditationInfo?.phrases[currentPhrase]
-                  : "PetYogi is preparing your meditation... This may take a few seconds (estimated: 45secs)."}
+                {preRecordedAudioShouldBePlaying
+                  ? isPlayingPrerecordedOutro
+                    ? prerecordedAudioPhrases.outro["1"]
+                    : currentPhrase >
+                      Object.keys(prerecordedAudioPhrases.intro).length
+                    ? prerecordedAudioPhrases.meditations[
+                        ((currentPhrase + randomNumberFirstMeditation) %
+                          Object.keys(prerecordedAudioPhrases.meditations)
+                            .length) +
+                          1
+                      ]
+                    : prerecordedAudioPhrases.intro[currentPhrase]
+                  : meditationInfo?.phrases[currentPhrase]}
               </Text>
             </View>
             <View style={{ marginBottom: "14%" }}>
