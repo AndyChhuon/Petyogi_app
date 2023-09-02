@@ -156,7 +156,7 @@ const VerificationScreen = ({ navigation }) => {
         >
           {successMsg
             ? `PetYogi has sent a verification link to: \n${email}.`
-            : `Please verify the following email address:  \n${email}.`}
+            : `Please click to verify the following email address:  \n${email}.`}
         </Text>
       </View>
     );

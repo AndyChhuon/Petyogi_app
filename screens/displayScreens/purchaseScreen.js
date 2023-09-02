@@ -16,23 +16,33 @@ import {
 import Dialog from "react-native-dialog";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Sizes, Fonts } from "../../constants/styles";
+import { purchaseScreenCTA } from "../../constants/constants";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
+import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+
 const { width, height } = Dimensions.get("window");
 
 const ShopScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
   const { userValues, reloadUser, isWaitingOnEmailVerification } = useAuth();
-  const { remainingCredits, accountType } = userValues;
+  const { remainingCredits, accountType, hasFreeTrial } = userValues;
+
+  const accountPlan =
+    accountType == "freeVerified"
+      ? hasFreeTrial
+        ? "freeVerifiedTrial"
+        : "freeVerifiedNoTrial"
+      : accountType;
+
+  const noCreditsLeft = remainingCredits == 0;
 
   useEffect(() => {
     if (isWaitingOnEmailVerification) {
-      console.log("reloading");
       reloadUser();
     }
   }, []);
 
-  console.log(accountType);
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor="#5760b5" />
@@ -85,7 +95,6 @@ const ShopScreen = ({ navigation }) => {
         </View>
         <View
           style={{
-            flexDirection: "row",
             paddingBottom: (12 * height) / 850,
             borderBottomWidth: 2,
             borderBottomColor: "#121f24",
@@ -94,35 +103,102 @@ const ShopScreen = ({ navigation }) => {
         >
           <View
             style={{
-              flex: 6,
-              alignItems: "center",
-              justifyContent: "center",
+              flexDirection: "row",
             }}
           >
-            <Text style={Fonts.streakNumberText}>{remainingCredits}</Text>
-            <Text style={[Fonts.streakSecondaryText, { fontSize: 21 }]}>
-              Meditation credits
-            </Text>
+            <View
+              style={{
+                flex: 6,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={Fonts.streakNumberText}>{remainingCredits}</Text>
+              <Text style={[Fonts.streakSecondaryText, { fontSize: 21 }]}>
+                Meditation credits
+              </Text>
+            </View>
+            <View
+              style={{
+                flex: 5,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Image
+                source={require("../../assets/images/icons/tiger_meditation.jpg")}
+                style={{
+                  width: noCreditsLeft
+                    ? (130.0 * width) / 414
+                    : (140.0 * width) / 414,
+                  height: noCreditsLeft
+                    ? (130.0 * width) / 414
+                    : (140.0 * width) / 414,
+                  borderRadius: 20,
+                  resizeMode: "contain",
+                  borderColor: Colors.bodyBackColor,
+                  borderWidth: 2,
+                  //grey out
+                }}
+              />
+            </View>
           </View>
           <View
-            style={{
-              flex: 5,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            style={
+              noCreditsLeft
+                ? {
+                    backgroundColor: Colors.bodyBackColor2,
+                    flexDirection: "row",
+                    marginHorizontal: 10,
+                    paddingLeft: 8,
+                    paddingRight: 15,
+                    paddingVertical: 15,
+                    marginTop: 10,
+                    borderRadius: 7,
+                  }
+                : { display: "none" }
+            }
           >
-            <Image
-              source={require("../../assets/images/icons/tiger_meditation.jpg")}
+            <View
               style={{
-                width: (140.0 * width) / 414,
-                height: (140.0 * width) / 414,
-                borderRadius: 20,
-                resizeMode: "contain",
-                borderColor: Colors.bodyBackColor,
-                borderWidth: 2,
-                //grey out
+                flex: 1,
+                alignItems: "center",
+                marginTop: 2,
+                paddingRight: 2,
               }}
-            />
+            >
+              <Image
+                source={require("../../assets/images/icons/bell_red.png")}
+                style={{
+                  width: (32.0 * width) / 414,
+                  height: (32.0 * width) / 414,
+                  resizeMode: "contain",
+                }}
+              />
+            </View>
+            <View style={{ flex: 6 }}>
+              <Text
+                style={[Fonts.purchaseScreenDescription, { fontSize: 16.5 }]}
+              >
+                {purchaseScreenCTA[accountPlan].noCreditsText}
+              </Text>
+              <TouchableOpacity
+                style={
+                  purchaseScreenCTA[accountPlan].noCreditsCTA
+                    ? {}
+                    : { display: "none" }
+                }
+              >
+                <Text
+                  style={[
+                    Fonts.purchaseScreenTitle,
+                    { fontSize: 17, color: "#42c2fa", marginTop: 9 },
+                  ]}
+                >
+                  {purchaseScreenCTA[accountPlan].noCreditsCTA}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
         <ScrollView
@@ -138,12 +214,13 @@ const ShopScreen = ({ navigation }) => {
                 width: "100%",
                 marginTop: 9,
                 display: "flex",
-                minHeight: width / 2.2,
+                minHeight:
+                  accountPlan == "yogiPlan" ? width / 3.5 : width / 2.2,
                 backgroundColor: "#262674",
               }}
             >
               <ImageBackground
-                source={require("../../assets/orange_gradient.png")}
+                source={purchaseScreenCTA[accountPlan].background}
                 style={[
                   styles.BackgroundImage,
                   { borderRadius: 10, borderWidth: 3, borderColor: "#39474f" },
@@ -158,9 +235,9 @@ const ShopScreen = ({ navigation }) => {
                     flexDirection: "row",
                   }}
                 >
-                  <View>
+                  <View style={{ marginRight: 4 }}>
                     <Text style={[Fonts.tryForFreeTitle, { marginLeft: 8 }]}>
-                      Unverified Yogi
+                      {purchaseScreenCTA[accountPlan].title}
                     </Text>
                     <Text
                       style={[
@@ -173,9 +250,11 @@ const ShopScreen = ({ navigation }) => {
                         },
                       ]}
                     >
-                      Verify your email and get{" "}
-                      <Text style={Fonts.decriptionSemiBold}>2 free</Text>{" "}
-                      meditation credits.
+                      {purchaseScreenCTA[accountPlan].subtitleOne}{" "}
+                      <Text style={Fonts.decriptionSemiBold}>
+                        {purchaseScreenCTA[accountPlan].subtitleBold}
+                      </Text>{" "}
+                      {purchaseScreenCTA[accountPlan].subtitleTwo}
                     </Text>
                   </View>
                   <Image
@@ -183,29 +262,36 @@ const ShopScreen = ({ navigation }) => {
                       width: width / 4.5,
                       height: width / 4.5,
                       borderRadius: 10,
-                      marginLeft: 2,
                       borderColor: Colors.bodyBackColor,
                       borderWidth: 2,
                     }}
-                    source={require("../../assets/images/purchaseScreen/monkey_banana.png")}
+                    source={purchaseScreenCTA[accountPlan].image}
                   ></Image>
                 </View>
                 <AwesomeButton
                   backgroundColor="#f1f6fb"
-                  borderColor="rgb(181 157 137)"
-                  backgroundDarker="rgb(181 136 128)"
+                  borderColor={purchaseScreenCTA[accountPlan].borderColor}
+                  backgroundDarker={
+                    purchaseScreenCTA[accountPlan].backgroundDarker
+                  }
                   borderWidth={2}
                   paddingHorizontal={0}
                   borderRadius={8}
                   raiseLevel={3}
                   width="100%"
                   height={width / 8}
-                  style={{ marginTop: 5 }}
+                  style={
+                    accountPlan == "yogiPlan"
+                      ? { display: "none" }
+                      : { marginTop: 5 }
+                  }
                   onPress={() => {
                     navigation.navigate("Verification");
                   }}
                 >
-                  <Text style={Fonts.tryForFreeButton}>Claim 2 Credits</Text>
+                  <Text style={Fonts.tryForFreeButton}>
+                    {purchaseScreenCTA[accountPlan].cta}
+                  </Text>
                 </AwesomeButton>
               </ImageBackground>
             </View>
@@ -214,8 +300,14 @@ const ShopScreen = ({ navigation }) => {
               Subscription Plans
             </Text>
             <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setDialogVisible(true)}
+              style={
+                accountPlan == "slothPlan" ? { opacity: 0.5 } : { opacity: 1 }
+              }
+              activeOpacity={accountPlan == "slothPlan" ? 0.5 : 0.8}
+              onPress={() => {
+                if (accountPlan == "slothPlan") return;
+                setDialogVisible(true);
+              }}
             >
               <View
                 style={{
@@ -283,8 +375,14 @@ const ShopScreen = ({ navigation }) => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setDialogVisible(true)}
+              style={
+                accountPlan == "turtlePlan" ? { opacity: 0.5 } : { opacity: 1 }
+              }
+              activeOpacity={accountPlan == "turtlePlan" ? 0.5 : 0.8}
+              onPress={() => {
+                if (accountPlan == "turtlePlan") return;
+                setDialogVisible(true);
+              }}
             >
               <View
                 style={{
@@ -352,8 +450,14 @@ const ShopScreen = ({ navigation }) => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setDialogVisible(true)}
+              style={
+                accountPlan == "yogiPlan" ? { opacity: 0.5 } : { opacity: 1 }
+              }
+              activeOpacity={accountPlan == "yogiPlan" ? 0.5 : 0.8}
+              onPress={() => {
+                if (accountPlan == "yogiPlan") return;
+                setDialogVisible(true);
+              }}
             >
               <View
                 style={{
