@@ -230,7 +230,7 @@ const ShopScreen = ({ navigation }) => {
               >
                 <View
                   style={{
-                    flexGrow: "1",
+                    flexGrow: 1,
                     display: "flex",
                     flexDirection: "row",
                   }}
