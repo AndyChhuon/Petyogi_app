@@ -23,10 +23,10 @@ const TabNavigator = ({ route }) => {
     backClickCount == 1 ? BackHandler.exitApp() : _spring();
     return true;
   };
-  const { reloadUser } = useAuth();
+  const { reloadUser, isWaitingOnEmailVerification } = useAuth();
 
   useEffect(() => {
-    if (route.params?.isExternal) {
+    if (route.params?.isExternal && isWaitingOnEmailVerification) {
       reloadUser();
     }
   }, [route.params]);

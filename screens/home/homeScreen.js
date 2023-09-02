@@ -317,11 +317,7 @@ const HomeScreen = ({ navigation }) => {
 
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() =>
-                  navigation.navigate("ShopScreen", {
-                    nbGems: userValues.coins,
-                  })
-                }
+                onPress={() => navigation.navigate("ShopScreen")}
                 style={{
                   flex: 1,
                   flexDirection: "row",
@@ -352,11 +348,7 @@ const HomeScreen = ({ navigation }) => {
 
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() =>
-                  navigation.navigate("PurchaseScreen", {
-                    remainingCredits: userValues.remainingCredits,
-                  })
-                }
+                onPress={() => navigation.navigate("PurchaseScreen")}
                 style={{
                   flex: 1,
                   flexDirection: "row",

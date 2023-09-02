@@ -271,6 +271,16 @@ export const Fonts = {
     fontSize: 15,
     fontFamily: "SF_Compact_Display_Bold",
   },
+  tryForFreeTitle: {
+    color: "#f1f6fb",
+    fontSize: 21,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
+  tryForFreeButton: {
+    color: "#212f36",
+    fontSize: 15,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
 };
 
 export const Colors = {

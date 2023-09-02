@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 
 import {
   SafeAreaView,
@@ -16,13 +16,23 @@ import {
 import Dialog from "react-native-dialog";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Sizes, Fonts } from "../../constants/styles";
+import AwesomeButton from "react-native-really-awesome-button";
+import useAuth from "../../hooks/useAuth";
 const { width, height } = Dimensions.get("window");
 
-const ShopScreen = ({ navigation, route }) => {
-  // const { remainingCredits, dayMode } = route.params;
-  const remainingCredits = 1;
+const ShopScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
+  const { userValues, reloadUser, isWaitingOnEmailVerification } = useAuth();
+  const { remainingCredits, accountType } = userValues;
 
+  useEffect(() => {
+    if (isWaitingOnEmailVerification) {
+      console.log("reloading");
+      reloadUser();
+    }
+  }, []);
+
+  console.log(accountType);
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor="#5760b5" />
@@ -76,7 +86,7 @@ const ShopScreen = ({ navigation, route }) => {
         <View
           style={{
             flexDirection: "row",
-            paddingBottom: (25 * height) / 850,
+            paddingBottom: (12 * height) / 850,
             borderBottomWidth: 2,
             borderBottomColor: "#121f24",
             backgroundColor: "#5760b5",
@@ -119,11 +129,90 @@ const ShopScreen = ({ navigation, route }) => {
           style={{
             flexGrow: 1,
             backgroundColor: Colors.bodyBackColor2,
-            paddingTop: 25,
+            paddingTop: 5,
           }}
         >
           <View style={{ marginHorizontal: 10 }}>
-            <Text style={Fonts.purchaseScreenTitle}>Subscription Plans</Text>
+            <View
+              style={{
+                width: "100%",
+                marginTop: 9,
+                display: "flex",
+                minHeight: width / 2.2,
+                backgroundColor: "#262674",
+              }}
+            >
+              <ImageBackground
+                source={require("../../assets/orange_gradient.png")}
+                style={[
+                  styles.BackgroundImage,
+                  { borderRadius: 10, borderWidth: 3, borderColor: "#39474f" },
+                ]}
+                borderRadius={6}
+                backgroundColor="none"
+              >
+                <View
+                  style={{
+                    flexGrow: "1",
+                    display: "flex",
+                    flexDirection: "row",
+                  }}
+                >
+                  <View>
+                    <Text style={[Fonts.tryForFreeTitle, { marginLeft: 8 }]}>
+                      Unverified Yogi
+                    </Text>
+                    <Text
+                      style={[
+                        Fonts.purchaseScreenDescription,
+                        {
+                          marginLeft: 8,
+                          paddingTop: 5,
+                          flexGrow: 1,
+                          width: width - width / 4 - 46,
+                        },
+                      ]}
+                    >
+                      Verify your email and get{" "}
+                      <Text style={Fonts.decriptionSemiBold}>2 free</Text>{" "}
+                      meditation credits.
+                    </Text>
+                  </View>
+                  <Image
+                    style={{
+                      width: width / 4.5,
+                      height: width / 4.5,
+                      borderRadius: 10,
+                      marginLeft: 2,
+                      borderColor: Colors.bodyBackColor,
+                      borderWidth: 2,
+                    }}
+                    source={require("../../assets/images/purchaseScreen/monkey_banana.png")}
+                  ></Image>
+                </View>
+                <AwesomeButton
+                  backgroundColor="#f1f6fb"
+                  borderColor="rgb(181 157 137)"
+                  backgroundDarker="rgb(181 136 128)"
+                  borderWidth={2}
+                  paddingHorizontal={0}
+                  borderRadius={8}
+                  raiseLevel={3}
+                  width="100%"
+                  height={width / 8}
+                  style={{ marginTop: 5 }}
+                  onPress={() => {
+                    navigation.navigate("Verification");
+                  }}
+                >
+                  <Text style={Fonts.tryForFreeButton}>Claim 2 Credits</Text>
+                </AwesomeButton>
+              </ImageBackground>
+            </View>
+
+            <Text style={[Fonts.purchaseScreenTitle, { marginTop: 10 }]}>
+              Subscription Plans
+            </Text>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => setDialogVisible(true)}
@@ -188,7 +277,7 @@ const ShopScreen = ({ navigation, route }) => {
                       },
                     ]}
                   >
-                    $12.99
+                    $10.99
                   </Text>
                 </View>
               </View>
@@ -257,7 +346,7 @@ const ShopScreen = ({ navigation, route }) => {
                       },
                     ]}
                   >
-                    $16.99
+                    $13.99
                   </Text>
                 </View>
               </View>
@@ -326,7 +415,7 @@ const ShopScreen = ({ navigation, route }) => {
                       },
                     ]}
                   >
-                    $18.99
+                    $15.99
                   </Text>
                 </View>
               </View>
@@ -479,6 +568,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#5760b5",
+  },
+  BackgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
+    padding: 10,
   },
 });
 

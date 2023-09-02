@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 
 import {
   SafeAreaView,
@@ -15,9 +15,19 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Sizes, Fonts } from "../../constants/styles";
 const { width, height } = Dimensions.get("window");
+import useAuth from "../../hooks/useAuth";
 
-const ShopScreen = ({ navigation, route }) => {
-  const { nbGems } = route.params;
+const ShopScreen = ({ navigation }) => {
+  const { userValues, reloadUser, isWaitingOnEmailVerification } = useAuth();
+  const nbGems = userValues.coins;
+
+  useEffect(() => {
+    if (isWaitingOnEmailVerification) {
+      console.log("reloading");
+      reloadUser();
+    }
+  }, []);
+
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor="#15a2de" />

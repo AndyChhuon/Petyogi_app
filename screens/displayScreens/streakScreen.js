@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 
 import {
   SafeAreaView,
@@ -15,8 +15,18 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Sizes, Fonts } from "../../constants/styles";
 const { width, height } = Dimensions.get("window");
+import useAuth from "../../hooks/useAuth";
 
 const StreakScreen = ({ navigation }) => {
+  const { reloadUser, isWaitingOnEmailVerification } = useAuth();
+
+  useEffect(() => {
+    if (isWaitingOnEmailVerification) {
+      console.log("reloading");
+      reloadUser();
+    }
+  }, []);
+
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor="#feaa34" />

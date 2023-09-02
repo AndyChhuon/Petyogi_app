@@ -49,7 +49,7 @@ const { width } = Dimensions.get("window");
 
 function Button(props) {
   const [meditateButtonIsPressed, setMeditateButtonIsPressed] = useState(false);
-  const { getPastMeditationJson } = useAuth();
+  const { getPastMeditationJson, userValues } = useAuth();
 
   const {
     number,
@@ -114,6 +114,12 @@ function Button(props) {
       getPastMeditationJson(number, setMeditateButtonIsPressed);
     } else {
       setTimeout(() => {
+        if (userValues.remainingCredits == 0) {
+          navigation.navigate("PurchaseScreen");
+          setMeditateButtonIsPressed(false);
+          return;
+        }
+
         const propsToPass = {
           initMeditationQuestionsJson: {
             "How are you feeling?": [],

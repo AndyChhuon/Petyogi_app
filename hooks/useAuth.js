@@ -28,6 +28,8 @@ export const AuthProvider = ({ children }) => {
   const [appInitialized, setAppInitialized] = useState(false);
   const [userValues, setUserValues] = useState({});
   const dbRef = ref(db);
+  const [isWaitingOnEmailVerification, setIsWaitingOnEmailVerification] =
+    useState(false);
 
   const navigation = useNavigation();
 
@@ -66,7 +68,6 @@ export const AuthProvider = ({ children }) => {
           });
 
           if (!user.displayName) {
-            console.log("updating");
             updateProfile(user, { displayName: "fellow yogi" });
           }
         } else {
@@ -85,11 +86,6 @@ export const AuthProvider = ({ children }) => {
     setLoadingClicked
   ) => {
     getIdToken(user).then((idToken) => {
-      console.log({
-        idToken: idToken,
-        userInput: userInput,
-        meditationType: meditationType,
-      });
       //post request
       fetch(
         "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/createMeditation",
@@ -141,13 +137,8 @@ export const AuthProvider = ({ children }) => {
   const reloadUser = async () => {
     if (user) {
       await user.reload();
-      console.log(user);
-      console.log(userValues);
-      console.log(userValues.accountType == "free");
-      console.log(user.emailVerified);
 
       if (userValues.accountType == "free" && user.emailVerified) {
-        console.log("updating");
         getIdToken(user).then((idToken) => {
           //post request
           fetch(
@@ -165,6 +156,7 @@ export const AuthProvider = ({ children }) => {
             .then((res) => res.json())
             .then((data) => {
               setUserValues(data);
+              setIsWaitingOnEmailVerification(false);
             })
             .catch((err) => {
               showMessage({
@@ -253,18 +245,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const emailVerification = (setError, setSuccessMsg) => {
-    sendEmailVerification(user, {
-      url: "https://petyogi.com/?redirect=true",
-    })
-      .then(() => {
-        // Verification email sent.
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        setSuccessMsg("Verification email sent. Please check your inbox.");
+    if (!user.emailVerifiedemailVerified) {
+      sendEmailVerification(user, {
+        url: "https://petyogi.com/?redirect=true",
       })
-      .catch((error) => {
-        // Error occurred. Inspect error.code.
-        setError(error.code);
-      });
+        .then(() => {
+          // Verification email sent.
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          setSuccessMsg("Verification email sent. Please check your inbox.");
+          setIsWaitingOnEmailVerification(true);
+        })
+        .catch((error) => {
+          // Error occurred. Inspect error.code.
+          setError(error.code);
+        });
+    }
   };
 
   function emailLogin(setError, email, password, isRegister = false) {
@@ -315,6 +310,7 @@ export const AuthProvider = ({ children }) => {
       listenMeditationUpdate,
       generateNewMeditation,
       reloadUser,
+      isWaitingOnEmailVerification,
     }),
     [
       user,
@@ -327,6 +323,7 @@ export const AuthProvider = ({ children }) => {
       listenMeditationUpdate,
       generateNewMeditation,
       reloadUser,
+      isWaitingOnEmailVerification,
     ]
   );
 

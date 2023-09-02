@@ -16,12 +16,20 @@ import * as Haptics from "expo-haptics";
 const { width } = Dimensions.get("window");
 
 const VerificationScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
-  const { emailVerification, user } = useAuth();
+  const { emailVerification, user, reloadUser, isWaitingOnEmailVerification } =
+    useAuth();
+  const email = user.email;
+
+  useEffect(() => {
+    if (isWaitingOnEmailVerification) {
+      console.log("reloading");
+      reloadUser();
+    }
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -47,21 +55,6 @@ const VerificationScreen = ({ navigation }) => {
     }
   }, [error]);
 
-  useEffect(() => {
-    if (!user) {
-      navigation.navigate("Register");
-    } else {
-      if (!user.emailVerified) {
-        setEmail(user.email);
-        console.log("Email not verified. Sending verification email...");
-        verifyEmail();
-      } else {
-        console.log("Email verified. Teleporting to PetYogi...");
-        navigation.navigate("BottomTabBar");
-      }
-    }
-  }, [user]);
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
       <View style={{ flex: 1 }}>
@@ -84,26 +77,10 @@ const VerificationScreen = ({ navigation }) => {
           name="chevron-left"
           color={Colors.whiteColor}
           size={26}
-          onPress={() => navigation.navigate("Register")}
+          onPress={() => navigation.pop()}
         />
       </View>
     );
-  }
-
-  async function verifyOnClick() {
-    setError(null);
-    setErrorMsg(null);
-    setSuccessMsg(null);
-    await user.reload();
-    if (!user.emailVerified) {
-      setErrorMsg(
-        "Email not verified. Please check your inbox and click the verification link."
-      );
-    } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      setSuccessMsg("Verification successful! Teleporting to PetYogi...");
-      navigation.navigate("BottomTabBar");
-    }
   }
 
   function verifyEmail() {
@@ -116,34 +93,47 @@ const VerificationScreen = ({ navigation }) => {
   function verifyButton() {
     return (
       <TouchableOpacity
-        activeOpacity={0.9}
+        activeOpacity={successMsg ? 1 : 0.9}
         onPress={() => {
-          verifyOnClick();
+          if (!successMsg && !user.emailVerified) {
+            verifyEmail();
+          } else if (user.emailVerified) {
+            setErrorMsg("Email already verified.");
+          }
         }}
-        style={styles.verifyButtonStyle}
+        style={[
+          styles.verifyButtonStyle,
+          successMsg ? { backgroundColor: "grey" } : {},
+        ]}
       >
-        <Text style={{ ...Fonts.whiteColor20SemiBold }}>Continue</Text>
+        <Text style={{ ...Fonts.whiteColor20SemiBold }}>
+          {successMsg ? "Email Sent" : "Send"}
+        </Text>
       </TouchableOpacity>
     );
   }
 
   function resendInfo() {
-    return (
-      <Text style={{ marginTop: Sizes.fixPadding * 2.0, textAlign: "center" }}>
-        <Text style={{ ...Fonts.whiteColor14Medium }}>
-          Didn’t receive any code? {}
-        </Text>
+    if (successMsg) {
+      return (
         <Text
-          style={{
-            ...Fonts.primaryColor14Medium,
-            textDecorationLine: "underline",
-          }}
-          onPress={() => verifyEmail()}
+          style={{ marginTop: Sizes.fixPadding * 2.0, textAlign: "center" }}
         >
-          Resend New Code
+          <Text style={{ ...Fonts.whiteColor14Medium }}>
+            Didn’t receive any code? {}
+          </Text>
+          <Text
+            style={{
+              ...Fonts.primaryColor14Medium,
+              textDecorationLine: "underline",
+            }}
+            onPress={() => verifyEmail()}
+          >
+            Resend New Code
+          </Text>
         </Text>
-      </Text>
-    );
+      );
+    }
   }
 
   function verificationInfo() {
@@ -164,7 +154,9 @@ const VerificationScreen = ({ navigation }) => {
             marginTop: Sizes.fixPadding * 3,
           }}
         >
-          {`PetYogi has sent a verification link to: \n${email}.`}
+          {successMsg
+            ? `PetYogi has sent a verification link to: \n${email}.`
+            : `Please verify the following email address:  \n${email}.`}
         </Text>
       </View>
     );
