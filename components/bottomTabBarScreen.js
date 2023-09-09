@@ -8,9 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { Colors, Sizes, Fonts } from "../constants/styles";
-import ProfileScreen from "../screens/profile/profileScreen";
 import HomeScreen from "../screens/home/homeScreen";
-import NotificationScreen from "../screens/notification/notificationScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";
 import useAuth from "../hooks/useAuth";
@@ -72,22 +70,10 @@ const TabNavigator = ({ route }) => {
               }),
           }}
         />
-        {/* 
-        <Tab.Screen
-          name={"Notification"}
-          component={NotificationScreen}
-          options={{
-            tabBarIcon: ({ color, focused }) =>
-              tabIconSort({
-                icon: require("../assets/images/icons/notification.png"),
-                focused: focused,
-                color: color,
-              }),
-          }}
-        /> */}
+
         <Tab.Screen
           name={"Profile"}
-          component={ProfileScreen}
+          component={HomeScreen}
           options={{
             tabBarIcon: ({ color, focused }) =>
               tabIconSort({

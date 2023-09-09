@@ -349,25 +349,6 @@ const MeditationScreen = ({ navigation, route }) => {
   }, [lottieMeditation]);
 
   useEffect(() => {
-    const replayMusic = async () => {
-      if (musicSound) {
-        // Pause the sound if it's currently playing
-        await musicSound.pauseAsync();
-
-        // Reset the position of the sound to the beginning
-        await musicSound.setPositionAsync(0);
-
-        // Replay the sound from the beginning
-        await musicSound.playAsync();
-      }
-    };
-
-    const onMusicPlaybackStatusUpdate = (status) => {
-      if (status.didJustFinish) {
-        replayMusic();
-      }
-    };
-
     const handleMusicChange = async () => {
       if (musicSound) {
         await musicSound.unloadAsync();
@@ -380,9 +361,8 @@ const MeditationScreen = ({ navigation, route }) => {
       }
 
       const { sound: newSound } = await Audio.Sound.createAsync(
-        musicMeditation.sound,
-        { shouldPlay: playing, volume: musicVolume },
-        onMusicPlaybackStatusUpdate
+        { uri: musicMeditation.sound },
+        { shouldPlay: playing, volume: musicVolume, isLooping: true }
       );
       setMusicSound(newSound);
       loadingMusicRef.current = false;
@@ -790,61 +770,71 @@ const MeditationScreen = ({ navigation, route }) => {
           id: "2",
           image: require("../../assets/music/tranquil_rainfall_preview.jpg"),
           title: "Nature Sounds - Rainfall",
-          sound: require("../../assets/music/tranquil_rainfall.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/tranquil_rainfall.mp3",
         },
         {
           id: "3",
           image: require("../../assets/music/waterstream_preview.png"),
           title: "Nature Sounds - Water Stream",
-          sound: require("../../assets/music/waterstream.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/waterstream.mp3",
         },
         {
           id: "4",
           image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
           title: "Peaceful Thoughts",
-          sound: require("../../assets/music/peaceful_thoughts.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/peaceful_thoughts.mp3",
         },
         {
           id: "5",
           image: require("../../assets/music/piano_valley_preview.jpg"),
           title: "Piano Valley",
-          sound: require("../../assets/music/piano_valley.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/piano_valley.mp3",
         },
         {
           id: "6",
           image: require("../../assets/music/ocean_waves_preview.jpg"),
           title: "Nature Sounds - Ocean Waves",
-          sound: require("../../assets/music/ocean_waves.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/ocean_waves.mp3",
         },
         {
           id: "7",
           image: require("../../assets/music/quartz_bowl_preview.jpg"),
           title: "Meditation Bowls",
-          sound: require("../../assets/music/quartz_bowl.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/quartz_bowl.mp3",
         },
         {
           id: "8",
           image: require("../../assets/music/earth_chimes_preview.jpg"),
           title: "Earth's Chimes",
-          sound: require("../../assets/music/earth_chimes.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/earth_chimes.mp3",
         },
         {
           id: "9",
           image: require("../../assets/music/mystical_handpan_preview.jpg"),
           title: "Handpan Harmonies",
-          sound: require("../../assets/music/handpan_harmonies.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/handpan_harmonies.mp3",
         },
         {
           id: "10",
           image: require("../../assets/music/mystical_flute_preview.jpg"),
           title: "Flute of Enchantments",
-          sound: require("../../assets/music/flute_enchantments.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/flute_enchantments.mp3",
         },
         {
           id: "11",
           image: require("../../assets/music/earthly_wonders_preview.jpg"),
           title: "Mind's Wonderland",
-          sound: require("../../assets/music/Mind_wonderland.mp3"),
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/Mind_wonderland.mp3",
         },
       ],
       meditation: [

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import React, { useEffect } from "react";
+import { SafeAreaView, View, Image } from "react-native";
 import * as Font from "expo-font";
 import { Colors } from "../constants/styles";
 import useAuth from "../hooks/useAuth";
@@ -20,18 +20,25 @@ const LoadingScreen = ({ navigation }) => {
         Sigmar_Regular: require("../assets/fonts/Sigmar-Regular.ttf"),
       });
 
-      setAppInitialized(true);
+      setTimeout(() => {
+        setAppInitialized(true);
+      }, 1000);
 
       // const propsToPass = {
       //   shouldListenRealTime: true,
       //   number: 27,
       // };
-      // navigation.navigate("MeditationScreen", propsToPass);
+      // navigation.navigate("PurchaseScreen");
     }
     loadFont();
-  });
+  }, []);
 
-  return <View style={{ flex: 1, backgroundColor: Colors.whiteColor }} />;
+  return (
+    <Image
+      style={{ height: "100%", width: "100%", resizeMode: "cover" }}
+      source={require("../assets/images/splash-screen.png")}
+    />
+  );
 };
 
 export default LoadingScreen;

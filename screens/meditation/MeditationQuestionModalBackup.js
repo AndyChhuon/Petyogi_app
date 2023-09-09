@@ -3,16 +3,13 @@ import {
   SafeAreaView,
   View,
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   FlatList,
   KeyboardAvoidingView,
   StatusBar,
   Dimensions,
-  ImageBackground,
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
@@ -22,11 +19,23 @@ import AwesomeButton from "react-native-really-awesome-button";
 import { Bar as ProgressBar } from "react-native-progress";
 import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
+import useAuth from "../../hooks/useAuth";
 
 const MeditationQuestionModal = ({ navigation, route }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
+  const [isLastModal, setIsLastModal] = useState(false);
+  const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
+    useState(0);
+  const { generateNewMeditation } = useAuth();
 
-  const { initMeditationQuestionsJson, readOnly } = route.params;
+  const {
+    initMeditationQuestionsJson,
+    readOnly,
+    phrases,
+    meditationUrls,
+    finishedGenerating,
+    number,
+  } = route.params;
 
   const [loadingClicked, setLoadingClicked] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -67,10 +76,492 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const charCount = meditationAnswer.length;
   const maxChars = 600;
   const tooManyChars = charCount > maxChars;
+  const noteEnoughChars = charCount < 1;
 
   useEffect(() => {
     setLoadingClicked(false);
+  }, [currentQuestionIndex, isLastModal]);
+
+  const multipleChoiceButtons = [
+    {
+      id: "1",
+      text: "Happy",
+      lottie: require("../../assets/emotions/happy_lottie.json"),
+    },
+    {
+      id: "2",
+      text: "Sad",
+      lottie: require("../../assets/emotions/sad_lottie.json"),
+    },
+    {
+      id: "3",
+      text: "Angry",
+      lottie: require("../../assets/emotions/angry_lottie.json"),
+    },
+    {
+      id: "4",
+      text: "Confident",
+      lottie: require("../../assets/emotions/confident_lottie.json"),
+    },
+    {
+      id: "5",
+      text: "Fearful",
+      lottie: require("../../assets/emotions/fearful_lottie.json"),
+    },
+    {
+      id: "6",
+      text: "Disappointed",
+      lottie: require("../../assets/emotions/disappointed_lottie.json"),
+    },
+
+    {
+      id: "8",
+      text: "Hopeful",
+      lottie: require("../../assets/emotions/hopeful_lottie.json"),
+    },
+    {
+      id: "9",
+      text: "Tired",
+      lottie: require("../../assets/emotions/tired_lottie.json"),
+    },
+    {
+      id: "10",
+      text: "Anxious",
+      lottie: require("../../assets/emotions/anxious_lottie.json"),
+    },
+    {
+      id: "7",
+      text: "Love",
+      lottie: require("../../assets/emotions/in_love_lottie.json"),
+    },
+
+    {
+      id: "12",
+      text: "Anhedonic",
+      lottie: require("../../assets/emotions/depressed_lottie.json"),
+    },
+    {
+      id: "13",
+      text: "Exasperated",
+      lottie: require("../../assets/emotions/exasperated_lottie.json"),
+    },
+    {
+      id: "11",
+      text: "Bored",
+      lottie: require("../../assets/emotions/bored_lottie.json"),
+      scale: 0.96,
+    },
+  ];
+
+  const meditationTypeButtons = [
+    {
+      id: "1",
+      text: "Happy",
+      lottie: require("../../assets/emotions/happy_lottie.json"),
+    },
+    {
+      id: "2",
+      text: "Sad",
+      lottie: require("../../assets/emotions/sad_lottie.json"),
+    },
+    {
+      id: "3",
+      text: "Angry",
+      lottie: require("../../assets/emotions/angry_lottie.json"),
+    },
+    {
+      id: "4",
+      text: "Confident",
+      lottie: require("../../assets/emotions/confident_lottie.json"),
+    },
+    {
+      id: "5",
+      text: "Fearful",
+      lottie: require("../../assets/emotions/fearful_lottie.json"),
+    },
+    {
+      id: "6",
+      text: "Disappointed",
+      lottie: require("../../assets/emotions/disappointed_lottie.json"),
+    },
+  ];
+
+  const meditationLotties = [
+    {
+      lottie: require("../../assets/Lottie/cute_dog_2.json"),
+      speed: 0.6,
+    },
+    {
+      lottie: require("../../assets/Lottie/cute_dog.json"),
+      speed: 0.8,
+    },
+    {
+      lottie: require("../../assets/Lottie/cute_penguin.json"),
+      speed: 1,
+    },
+    {
+      lottie: require("../../assets/Lottie/sleeping_panda.json"),
+      speed: 1,
+    },
+    {
+      lottie: require("../../assets/Lottie/sleeping_cat.json"),
+      speed: 1,
+    },
+    {
+      lottie: require("../../assets/Lottie/cute_giraffe.json"),
+      speed: 0.8,
+    },
+  ];
+
+  useEffect(() => {
+    setCreateMeditationLottieIndex(
+      Math.floor(Math.random() * meditationLotties.length)
+    );
+  }, []);
+
+  const onButtonPress = (text, isChosen) => {
+    if (isChosen) {
+      setMeditationQuestionsJson((meditationQuestionsJson) => {
+        const chosenButtons = meditationQuestionsJson[meditationQuestion];
+
+        return {
+          ...meditationQuestionsJson,
+          [meditationQuestion]: chosenButtons.filter(
+            (button) => button !== text
+          ),
+        };
+      });
+    } else {
+      setMeditationQuestionsJson((meditationQuestionsJson) => {
+        const chosenButtons = meditationQuestionsJson[meditationQuestion];
+
+        return {
+          ...meditationQuestionsJson,
+          [meditationQuestion]: [...chosenButtons, text],
+        };
+      });
+    }
+  };
+
+  const onMeditateButtonPress = (text, isChosen) => {
+    if (isChosen) {
+      setMeditationQuestionsJson((meditationQuestionsJson) => {
+        return {
+          ...meditationQuestionsJson,
+          [meditationQuestion]: "",
+        };
+      });
+    } else {
+      setMeditationQuestionsJson((meditationQuestionsJson) => {
+        return {
+          ...meditationQuestionsJson,
+          [meditationQuestion]: text,
+        };
+      });
+    }
+  };
+
+  const RenderMeditationButtons = ({ item, initIsChosen }) => {
+    const lottieRef = useRef(null);
+
+    useEffect(() => {
+      console.log("rendered");
+
+      if (isChosen) {
+        setTimeout(() => lottieRef.current?.play());
+      } else {
+        lottieRef.current.pause();
+      }
+
+      return () => {
+        lottieRef.current?.reset();
+      };
+    }, [isChosen]);
+
+    return (
+      <View style={styles.multipleChoiceButtonContainer}>
+        <AwesomeButton
+          width={(100 * width) / 414}
+          backgroundColor="#fcc695"
+          height={(100 * width) / 414}
+          paddingHorizontal={0}
+          raiseLevel={7}
+          borderRadius={8}
+          onPressOut={() => {
+            if (!readOnly) {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              onMeditateButtonPress(item.text, isChosen);
+            }
+          }}
+        >
+          <Lottie
+            source={item.lottie}
+            ref={lottieRef}
+            style={{
+              position: "relative",
+              zIndex: 1,
+              resizeMode: "cover",
+              width: "100%",
+              height: "100%",
+              aspectRatio: 1,
+              transform: item.scale
+                ? [{ scale: item.scale }]
+                : [{ scale: 1.04 }],
+            }}
+            speed={0.6}
+            autoPlay
+            loop
+          ></Lottie>
+          <View
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              display: isChosen ? "flex" : "none",
+              zIndex: 2,
+              backgroundColor: "rgba(255, 255, 255, 0.55)",
+            }}
+          />
+        </AwesomeButton>
+        <Text
+          style={[Fonts.musicMeditationText, { color: "white", fontSize: 14 }]}
+        >
+          {item.text}
+        </Text>
+      </View>
+    );
+  };
+
+  const RenderMultipleChoiceButtons = ({ item, initIsChosen }) => {
+    const [isChosen, setIsChosen] = useState(initIsChosen);
+    const lottieRef = useRef(null);
+
+    useEffect(() => {
+      if (isChosen) {
+        setTimeout(() => lottieRef.current?.play());
+      } else {
+        lottieRef.current.pause();
+      }
+
+      return () => {
+        lottieRef.current?.reset();
+      };
+    }, [isChosen]);
+
+    return (
+      <View style={styles.multipleChoiceButtonContainer}>
+        <AwesomeButton
+          width={(100 * width) / 414}
+          backgroundColor="#fcc695"
+          height={(100 * width) / 414}
+          paddingHorizontal={0}
+          raiseLevel={7}
+          borderRadius={8}
+          onPressOut={() => {
+            if (!readOnly) {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setIsChosen(!isChosen);
+              onButtonPress(item.text, isChosen);
+            }
+          }}
+        >
+          <Lottie
+            source={item.lottie}
+            ref={lottieRef}
+            style={{
+              position: "relative",
+              zIndex: 1,
+              resizeMode: "cover",
+              width: "100%",
+              height: "100%",
+              aspectRatio: 1,
+              transform: item.scale
+                ? [{ scale: item.scale }]
+                : [{ scale: 1.04 }],
+            }}
+            speed={0.6}
+            autoPlay
+            loop
+          ></Lottie>
+          <View
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              display: isChosen ? "flex" : "none",
+              zIndex: 2,
+              backgroundColor: "rgba(255, 255, 255, 0.55)",
+            }}
+          />
+        </AwesomeButton>
+        <Text
+          style={[Fonts.musicMeditationText, { color: "white", fontSize: 14 }]}
+        >
+          {item.text}
+        </Text>
+      </View>
+    );
+  };
+
+  const initButtons = React.useMemo(() => {
+    return multipleChoiceButtons.map((item) => ({
+      id: item.id,
+      component: (
+        <RenderMultipleChoiceButtons
+          item={item}
+          key={item.id}
+          initIsChosen={meditationQuestionsJson[meditationQuestion].includes(
+            item.text
+          )}
+        />
+      ),
+    }));
   }, [currentQuestionIndex]);
+
+  const initMeditationTypeButtons = React.useMemo(() => {
+    return meditationTypeButtons.map((item) => ({
+      id: item.id,
+      component: React.useMemo(() => {
+        <RenderMeditationButtons
+          item={item}
+          key={item.id}
+          initIsChosen={
+            meditationQuestionsJson[meditationQuestion] === item.text
+          }
+        />;
+      }, [meditationQuestionsJson[meditationQuestion] === item.text]),
+    }));
+  }, [currentQuestionIndex, meditationQuestionsJson]);
+
+  const renderItem = ({ item }) => {
+    return item.component;
+  };
+
+  const onNextButtonPress = () => {
+    if (loadingClicked) {
+      return;
+    }
+    if (
+      currentQuestionIndex <
+      Object.keys(meditationQuestionsJson).length - 1
+    ) {
+      setLoadingClicked(true);
+      setTimeout(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setCurrentQuestionIndex((index) => index + 1);
+      }, 150);
+    } else if (!isLastModal) {
+      setLoadingClicked(true);
+      setIsTextBoxFocused(false);
+      setTimeout(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setIsLastModal(true);
+      }, 150);
+    } else {
+      setLoadingClicked(true);
+      // Meditation generation was already called
+      if (readOnly) {
+        setTimeout(() => {
+          // Last phrase was generated
+          if (
+            finishedGenerating &&
+            meditationUrls.hasOwnProperty("count") &&
+            meditationUrls.count in meditationUrls
+          ) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+            const propsToPass = {
+              phrases: phrases,
+              meditationUrls: meditationUrls,
+              shouldListenRealTime: false,
+              number: number,
+            };
+
+            navigation.navigate("MeditationScreen", propsToPass);
+            setLoadingClicked(false);
+          } else {
+            //Not done with generation (realtime connection)
+
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+            const propsToPass = {
+              phrases: phrases,
+              meditationUrls: meditationUrls,
+              shouldListenRealTime: true,
+              number: number,
+            };
+
+            navigation.navigate("MeditationScreen", propsToPass);
+            setLoadingClicked(false);
+          }
+        }, 150);
+      }
+      // Generate new meditation
+      else {
+        generateNewMeditation(
+          meditationQuestionsJson,
+          number,
+          setLoadingClicked
+        );
+      }
+    }
+  };
+
+  const onPrevButtonPress = () => {
+    if (loadingClicked) {
+      return;
+    }
+    if (currentQuestionIndex == 1) {
+      setIsTextBoxFocused(false);
+    }
+
+    if (isLastModal) {
+      setTimeout(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setIsLastModal(false);
+      }, 150);
+    } else if (currentQuestionIndex > 0) {
+      setLoadingClicked(true);
+      setTimeout(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setCurrentQuestionIndex((index) => index - 1);
+      }, 150);
+    }
+  };
+
+  const RenderLastModalLottie = () => {
+    const ref = useRef(null);
+
+    useState(0);
+
+    useEffect(() => {
+      setTimeout(() => ref.current?.play());
+
+      return () => {
+        ref.current?.reset();
+      };
+    }, []);
+
+    return (
+      <View
+        style={[
+          styles.textBoxContainer,
+          {
+            justifyContent: "center",
+          },
+        ]}
+      >
+        <Lottie
+          source={meditationLotties[createMeditationLottieIndex].lottie}
+          style={{
+            position: "relative",
+            zIndex: 1,
+            resizeMode: "cover",
+          }}
+          autoPlay
+          loop
+          speed={meditationLotties[createMeditationLottieIndex].speed}
+          ref={ref}
+        ></Lottie>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView
@@ -94,11 +585,15 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 ...Fonts.whiteColor20SemiBold,
               }}
             >
-              {meditationQuestion}
+              {isLastModal ? "Let's Meditate!" : meditationQuestion}
             </Text>
           ) : (
             <Text style={{ ...Fonts.whiteColor22SemiBold, marginBottom: 6 }}>
-              {meditationQuestion}
+              {isLastModal
+                ? readOnly
+                  ? "Begin Your Meditation!"
+                  : "Create Your Meditation!"
+                : meditationQuestion}
             </Text>
           )}
         </View>
@@ -108,303 +603,196 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         style={{ flex: 1, backgroundColor: "transparent" }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {currentQuestionIndex == 0 ? multipleChoice() : textBox()}
-        {nextPrevButtons()}
+        {isLastModal == false ? (
+          currentQuestionIndex == 0 ? (
+            // Emotions buttons
+            <View style={[styles.textBoxContainer]}>
+              <FlatList
+                data={initButtons}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderItem}
+                numColumns={2}
+              />
+            </View>
+          ) : currentQuestionIndex == 1 ? (
+            <View style={[styles.textBoxContainer]}>
+              <FlatList
+                data={initMeditationTypeButtons}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderItem}
+                numColumns={2}
+              />
+            </View>
+          ) : (
+            // Text box
+            <View style={[styles.textBoxContainer]}>
+              <TextInput
+                style={[
+                  styles.textBoxStyle,
+                  readOnly
+                    ? {
+                        backgroundColor: Colors.goldColor,
+                        color: Colors.bodyBackColor,
+                        fontWeight: "bold",
+                      }
+                    : {},
+                ]}
+                multiline={true}
+                underlineColorAndroid="transparent"
+                onFocus={handleTextBoxFocus}
+                onBlur={handleTextBoxBlur}
+                onChangeText={handleTextChange}
+                editable={readOnly ? false : true}
+                value={meditationAnswer}
+              ></TextInput>
+              <View style={styles.counterContainer}>
+                <Text
+                  style={[
+                    styles.counterText,
+                    tooManyChars || noteEnoughChars
+                      ? { color: Colors.errorColor }
+                      : {},
+                  ]}
+                >
+                  {charCount}/{maxChars}
+                </Text>
+              </View>
+            </View>
+          )
+        ) : (
+          // Last modal
+          <RenderLastModalLottie />
+        )}
+        {/*Prev Next buttons*/}
+        <View
+          style={{
+            height: 50,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            marginVertical: 2,
+            backgroundColor: "transparent",
+          }}
+        >
+          {isLastModal ? (
+            <>
+              <AwesomeButton
+                onPressIn={onPrevButtonPress}
+                key={0}
+                style={[
+                  styles.loginButtonStyle,
+                  currentQuestionIndex == 0
+                    ? { display: "none" }
+                    : { display: "flex" },
+                ]}
+                backgroundColor="#ffc802"
+                raiseLevel={3}
+                width={width * 0.2}
+                borderRadius={20}
+                height={(width * 45) / 414}
+                backgroundDarker="#e7a60b"
+                backgroundShadow="#e7a60b"
+              >
+                <FontAwesome
+                  name="chevron-left"
+                  color={Colors.whiteColor}
+                  size={20}
+                />
+              </AwesomeButton>
+              <AwesomeButton
+                key={1}
+                onPressIn={onNextButtonPress}
+                style={styles.loginButtonStyle}
+                backgroundColor={Colors.goldColor}
+                raiseLevel={3}
+                width={width * 0.6}
+                borderRadius={20}
+                height={(width * 45) / 414}
+                backgroundDarker={Colors.secondaryGoldColor}
+                backgroundShadow={Colors.secondaryGoldColor}
+              >
+                <>
+                  <Text
+                    style={{
+                      ...Fonts.whiteColor20Bold,
+                      textAlign: "center",
+                      color: Colors.bodyBackColor,
+                      marginRight: 5,
+                    }}
+                  >
+                    Let's Meditate!
+                  </Text>
+                  <View>
+                    <Image
+                      source={require("../../assets/images/icons/gem.png")}
+                      style={{
+                        position: "relative",
+                        top: 2,
+                        width: (20.0 * width) / 414,
+                        height: (20.0 * width) / 414,
+                        resizeMode: "contain",
+                      }}
+                    />
+                  </View>
+                </>
+              </AwesomeButton>
+            </>
+          ) : (
+            <>
+              <AwesomeButton
+                key={3}
+                onPressIn={onPrevButtonPress}
+                style={[
+                  styles.loginButtonStyle,
+                  currentQuestionIndex == 0
+                    ? { display: "none" }
+                    : { display: "flex" },
+                ]}
+                backgroundColor="#ffc802"
+                raiseLevel={3}
+                width={width * 0.4}
+                borderRadius={20}
+                height={(width * 45) / 414}
+                backgroundDarker="#e7a60b"
+                backgroundShadow="#e7a60b"
+              >
+                <FontAwesome
+                  name="chevron-left"
+                  color={Colors.whiteColor}
+                  size={20}
+                />
+              </AwesomeButton>
+              <AwesomeButton
+                key={4}
+                onPressIn={onNextButtonPress}
+                style={styles.loginButtonStyle}
+                backgroundColor={
+                  tooManyChars || noteEnoughChars ? "#bababa" : "#ffc802"
+                }
+                raiseLevel={3}
+                width={width * 0.4}
+                borderRadius={20}
+                height={(width * 45) / 414}
+                backgroundDarker={
+                  tooManyChars || noteEnoughChars ? "#dbdee8" : "#e7a60b"
+                }
+                backgroundShadow={
+                  tooManyChars || noteEnoughChars ? "#dcdfe7" : "#e7a60b"
+                }
+                disabled={tooManyChars || noteEnoughChars}
+              >
+                <FontAwesome
+                  name="chevron-right"
+                  color={Colors.whiteColor}
+                  size={20}
+                />
+              </AwesomeButton>
+            </>
+          )}
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-
-  function textBox() {
-    return (
-      <View style={[styles.textBoxContainer]}>
-        <TextInput
-          style={[
-            styles.textBoxStyle,
-            readOnly
-              ? {
-                  backgroundColor: Colors.goldColor,
-                  color: Colors.bodyBackColor,
-                  fontWeight: "bold",
-                }
-              : {},
-          ]}
-          multiline={true}
-          underlineColorAndroid="transparent"
-          onFocus={handleTextBoxFocus}
-          onBlur={handleTextBoxBlur}
-          onChangeText={handleTextChange}
-          editable={readOnly ? false : true}
-          value={meditationAnswer}
-        ></TextInput>
-        <View style={styles.counterContainer}>
-          <Text
-            style={[
-              styles.counterText,
-              tooManyChars ? { color: Colors.errorColor } : {},
-            ]}
-          >
-            {charCount}/{maxChars}
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
-  function multipleChoice() {
-    const multipleChoiceButtons = [
-      {
-        id: "1",
-        text: "Happy",
-        lottie: require("../../assets/emotions/happy_lottie.json"),
-      },
-      {
-        id: "2",
-        text: "Sad",
-        lottie: require("../../assets/emotions/sad_lottie.json"),
-      },
-      {
-        id: "3",
-        text: "Angry",
-        lottie: require("../../assets/emotions/angry_lottie.json"),
-      },
-      {
-        id: "4",
-        text: "Confident",
-        lottie: require("../../assets/emotions/confident_lottie.json"),
-      },
-      {
-        id: "5",
-        text: "Fearful",
-        lottie: require("../../assets/emotions/fearful_lottie.json"),
-      },
-      {
-        id: "6",
-        text: "Disappointed",
-        lottie: require("../../assets/emotions/disappointed_lottie.json"),
-      },
-
-      {
-        id: "8",
-        text: "Hopeful",
-        lottie: require("../../assets/emotions/hopeful_lottie.json"),
-      },
-      {
-        id: "9",
-        text: "Tired",
-        lottie: require("../../assets/emotions/tired_lottie.json"),
-      },
-      {
-        id: "10",
-        text: "Anxious",
-        lottie: require("../../assets/emotions/anxious_lottie.json"),
-      },
-      {
-        id: "7",
-        text: "Love",
-        lottie: require("../../assets/emotions/in_love_lottie.json"),
-      },
-
-      {
-        id: "12",
-        text: "Anhedonic",
-        lottie: require("../../assets/emotions/depressed_lottie.json"),
-      },
-      {
-        id: "13",
-        text: "Exasperated",
-        lottie: require("../../assets/emotions/exasperated_lottie.json"),
-      },
-      {
-        id: "11",
-        text: "Bored",
-        lottie: require("../../assets/emotions/bored_lottie.json"),
-        scale: 0.96,
-      },
-    ];
-
-    const chosenButtons = meditationQuestionsJson[meditationQuestion];
-
-    const onButtonPress = (text) => {
-      if (chosenButtons.includes(text)) {
-        setMeditationQuestionsJson({
-          ...meditationQuestionsJson,
-          [meditationQuestion]: chosenButtons.filter(
-            (button) => button !== text
-          ),
-        });
-      } else {
-        setMeditationQuestionsJson({
-          ...meditationQuestionsJson,
-          [meditationQuestion]: [...chosenButtons, text],
-        });
-      }
-    };
-
-    const renderMultipleChoiceButtons = ({ item }) => {
-      const isChosen = chosenButtons.includes(item.text);
-      console.log(chosenButtons);
-      console.log(isChosen);
-
-      return (
-        <View style={styles.multipleChoiceButtonContainer}>
-          <AwesomeButton
-            width={(100 * width) / 414}
-            backgroundColor="#fcc695"
-            height={(100 * width) / 414}
-            paddingHorizontal={0}
-            raiseLevel={7}
-            borderRadius={8}
-            onPressOut={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              onButtonPress(item.text);
-            }}
-          >
-            <Lottie
-              source={item.lottie}
-              style={{
-                position: "relative",
-                zIndex: 1,
-                resizeMode: "cover",
-                width: "100%",
-                height: "100%",
-                aspectRatio: 1,
-                transform: item.scale
-                  ? [{ scale: item.scale }]
-                  : [{ scale: 1.04 }],
-              }}
-              speed={isChosen ? 0.8 : 0}
-              autoPlay
-              loop
-            ></Lottie>
-            {isChosen ? (
-              <View
-                style={{
-                  ...StyleSheet.absoluteFillObject,
-                  zIndex: 2,
-                  backgroundColor: Colors.goldColor,
-                  opacity: 0.5,
-                }}
-              />
-            ) : null}
-          </AwesomeButton>
-          <Text
-            style={[
-              Fonts.musicMeditationText,
-              { color: "white", fontSize: 14 },
-            ]}
-          >
-            {item.text}
-          </Text>
-        </View>
-      );
-    };
-
-    return (
-      <View
-        style={[
-          styles.textBoxContainer,
-          currentQuestionIndex != 0 ? { display: "none" } : {},
-        ]}
-      >
-        <FlatList
-          horizontal={false}
-          style={[styles.flatListMenuStyle]}
-          data={multipleChoiceButtons}
-          renderItem={renderMultipleChoiceButtons}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-        />
-      </View>
-    );
-  }
-
-  function nextPrevButtons() {
-    const onNextButtonPress = () => {
-      if (loadingClicked) {
-        return;
-      }
-      if (
-        currentQuestionIndex <
-        Object.keys(meditationQuestionsJson).length - 1
-      ) {
-        setLoadingClicked(true);
-        setTimeout(() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          setCurrentQuestionIndex((index) => index + 1);
-        }, 250);
-      }
-    };
-
-    const onPrevButtonPress = () => {
-      if (loadingClicked) {
-        return;
-      }
-      if (currentQuestionIndex == 1) {
-        setIsTextBoxFocused(false);
-      }
-      if (currentQuestionIndex > 0) {
-        setLoadingClicked(true);
-        setTimeout(() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          setCurrentQuestionIndex((index) => index - 1);
-        }, 250);
-      }
-    };
-
-    return (
-      <View
-        style={{
-          height: 50,
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          marginVertical: 2,
-          backgroundColor: "transparent",
-        }}
-      >
-        <AwesomeButton
-          onPressIn={onPrevButtonPress}
-          style={[
-            styles.loginButtonStyle,
-            currentQuestionIndex == 0
-              ? { display: "none" }
-              : { display: "flex" },
-          ]}
-          backgroundColor="#ffc802"
-          raiseLevel={3}
-          width={width * 0.4}
-          borderRadius={20}
-          height={(width * 45) / 414}
-          backgroundDarker="#e7a60b"
-          backgroundShadow="#e7a60b"
-        >
-          <FontAwesome
-            name="chevron-left"
-            color={Colors.whiteColor}
-            size={20}
-          />
-        </AwesomeButton>
-        <AwesomeButton
-          onPressIn={onNextButtonPress}
-          style={styles.loginButtonStyle}
-          backgroundColor={tooManyChars ? "#bababa" : "#ffc802"}
-          raiseLevel={3}
-          width={width * 0.4}
-          borderRadius={20}
-          height={(width * 45) / 414}
-          backgroundDarker={tooManyChars ? "#dbdee8" : "#e7a60b"}
-          backgroundShadow={tooManyChars ? "#dcdfe7" : "#e7a60b"}
-          disabled={tooManyChars}
-        >
-          <FontAwesome
-            name="chevron-right"
-            color={Colors.whiteColor}
-            size={20}
-          />
-        </AwesomeButton>
-      </View>
-    );
-  }
 
   function topBar() {
     return (

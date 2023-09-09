@@ -15,7 +15,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.petyogi.app",
-      "buildNumber": "3.0.0",
+      "buildNumber": "4.0.0",
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": ["audio"],
@@ -24,14 +24,24 @@
     },
     "android": {
       "package": "com.petyogi.app",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA"
+      ],
+      "permissions": []
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "905cf4a0-13c6-44dd-81d4-731dd42b6ee4"
+      }
     }
   }
 }

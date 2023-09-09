@@ -19,15 +19,16 @@ import { Colors, Sizes, Fonts } from "../../constants/styles";
 import { purchaseScreenCTA } from "../../constants/constants";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import useRevenueCat from "../../hooks/useRevenueCat";
 
 const { width, height } = Dimensions.get("window");
 
 const ShopScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
   const { userValues, reloadUser, isWaitingOnEmailVerification } = useAuth();
+  const { currentOffering, customerInfo } = useRevenueCat();
+  console.log(currentOffering);
   const { remainingCredits, accountType, hasFreeTrial } = userValues;
-
   const accountPlan =
     accountType == "freeVerified"
       ? hasFreeTrial
@@ -369,7 +370,7 @@ const ShopScreen = ({ navigation }) => {
                       },
                     ]}
                   >
-                    $10.99
+                    $9.99
                   </Text>
                 </View>
               </View>
@@ -444,7 +445,7 @@ const ShopScreen = ({ navigation }) => {
                       },
                     ]}
                   >
-                    $13.99
+                    $12.99
                   </Text>
                 </View>
               </View>
@@ -519,7 +520,7 @@ const ShopScreen = ({ navigation }) => {
                       },
                     ]}
                   >
-                    $15.99
+                    $14.99
                   </Text>
                 </View>
               </View>
