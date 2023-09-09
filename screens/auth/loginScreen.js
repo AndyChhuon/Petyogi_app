@@ -3,18 +3,23 @@ import {
   SafeAreaView,
   View,
   Image,
-  ScrollView,
+  Keyboard,
+  Dimensions,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
+  TouchableWithoutFeedback,
 } from "react-native";
+import Lottie from "lottie-react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
 import { useHeaderHeight } from "@react-navigation/elements";
+import * as Haptics from "expo-haptics";
+const { height } = Dimensions.get("window");
 
 const LoginScreen = ({ navigation }) => {
   const [state, setState] = useState({
@@ -52,44 +57,64 @@ const LoginScreen = ({ navigation }) => {
 
   const { password, userEmail, securePassword } = state;
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
-      <View style={{ flex: 1 }}>
-        {backArrow()}
+  const handlePressOutsideTextBox = () => {
+    Keyboard.dismiss();
+  };
 
-        {loginTitle()}
-        <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "space-between",
-            flexDirection: "column",
+  return (
+    <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor2 }}>
+        <View style={{ flexGrow: 1 }}>
+          {backArrow()}
+          {loginTitle()}
+        </View>
+        <View
+          style={{
+            flexShrink: 1,
+            alignItems: "center",
+            position: "relative",
+            width: "100%",
           }}
-          keyboardShouldPersistTaps="handled"
         >
-          <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-            <View style={{ flex: 1, justifyContent: "flex-end" }}>
-              {userEmailTextField()}
-              {passwordTextField()}
-              {loginButton()}
-              {dontAccountInfo()}
-            </View>
-          </KeyboardAvoidingView>
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+          <Lottie
+            source={require("../../assets/Lottie/cute_penguin.json")}
+            style={{
+              position: "relative",
+              resizeMode: "cover",
+              flexGrow: 1,
+            }}
+            speed={0.8}
+            autoPlay
+            loop
+          ></Lottie>
+        </View>
+        <KeyboardAvoidingView
+          style={{ flexGrow: 1, justifyContent: "flex-end" }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          {userEmailTextField()}
+          {passwordTextField()}
+        </KeyboardAvoidingView>
+        {loginButton()}
+        {dontAccountInfo()}
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 
   function dontAccountInfo() {
     return (
       <Text
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          navigation.push("ResetPassword");
+        }}
         style={{
           textAlign: "center",
-          margin: Sizes.fixPadding * 2.0,
-          marginTop: Sizes.fixPadding * 4.0,
+          padding: (Sizes.fixPadding * 2.0 * height) / 880,
+          marginTop: (Sizes.fixPadding * 2.0 * height) / 880,
         }}
       >
         <Text
-          onPress={() => navigation.push("ResetPassword")}
           style={{
             ...Fonts.primaryColor14Medium,
             textDecorationLine: "underline",
@@ -161,7 +186,10 @@ const LoginScreen = ({ navigation }) => {
           name="chevron-left"
           color={Colors.whiteColor}
           size={26}
-          onPress={() => navigation.pop()}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            navigation.pop();
+          }}
         />
       </View>
     );
@@ -169,7 +197,7 @@ const LoginScreen = ({ navigation }) => {
 
   function passwordTextField() {
     return (
-      <View style={{ marginBottom: Sizes.fixPadding * 4.0 }}>
+      <View style={{ marginBottom: (Sizes.fixPadding * height) / 880 }}>
         <View
           style={
             passwordError
@@ -207,7 +235,7 @@ const LoginScreen = ({ navigation }) => {
                 ...Fonts.whiteColor14Medium,
                 marginLeft: Sizes.fixPadding + 2.0,
                 flex: 1,
-                paddingVertical: Sizes.fixPadding + 7.0,
+                paddingVertical: ((Sizes.fixPadding + 7.0) * height) / 880,
               }}
               selectionColor={Colors.primaryColor}
             />
@@ -272,7 +300,7 @@ const LoginScreen = ({ navigation }) => {
               ...Fonts.whiteColor14Medium,
               flex: 1,
               marginLeft: Sizes.fixPadding + 2.0,
-              paddingVertical: Sizes.fixPadding + 7.0,
+              paddingVertical: ((Sizes.fixPadding + 7.0) * height) / 880,
             }}
             selectionColor={Colors.primaryColor}
           />
@@ -280,7 +308,7 @@ const LoginScreen = ({ navigation }) => {
         <View
           style={{
             marginHorizontal: Sizes.fixPadding * 2.0,
-            marginBottom: 7,
+            marginBottom: (7 * height) / 880,
           }}
         >
           <Text
@@ -297,7 +325,7 @@ const LoginScreen = ({ navigation }) => {
     return (
       <View
         style={{
-          marginVertical: Sizes.fixPadding * 4.0,
+          marginVertical: (Sizes.fixPadding * 4.0 * height) / 880,
           alignItems: "center",
           zIndex: 1,
           marginLeft: "auto",
@@ -330,7 +358,7 @@ const styles = StyleSheet.create({
     marginHorizontal: Sizes.fixPadding * 2.0,
   },
   forgetPasswordTextStyle: {
-    marginTop: Sizes.fixPadding - 5.0,
+    marginTop: ((Sizes.fixPadding - 5.0) * height) / 880,
     marginHorizontal: Sizes.fixPadding * 2.0,
     textAlign: "right",
     textDecorationLine: "underline",
@@ -341,6 +369,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: Sizes.fixPadding * 2.0,
     borderRadius: Sizes.fixPadding - 5.0,
+    marginTop: (Sizes.fixPadding * 3.0 * height) / 880,
   },
   googleAndFacebookButtonWrapStyle: {
     flex: 1,

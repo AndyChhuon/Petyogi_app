@@ -56,7 +56,7 @@ const VerificationScreen = ({ navigation }) => {
   }, [error]);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor2 }}>
       <View style={{ flex: 1 }}>
         {backArrow()}
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -77,7 +77,10 @@ const VerificationScreen = ({ navigation }) => {
           name="chevron-left"
           color={Colors.whiteColor}
           size={26}
-          onPress={() => navigation.pop()}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            navigation.pop();
+          }}
         />
       </View>
     );
@@ -127,7 +130,10 @@ const VerificationScreen = ({ navigation }) => {
               ...Fonts.primaryColor14Medium,
               textDecorationLine: "underline",
             }}
-            onPress={() => verifyEmail()}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              verifyEmail();
+            }}
           >
             Resend New Code
           </Text>

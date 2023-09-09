@@ -4,20 +4,24 @@ import {
   SafeAreaView,
   View,
   Image,
-  ScrollView,
+  Keyboard,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Dimensions,
 } from "react-native";
+import Lottie from "lottie-react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
-import { useHeaderHeight } from "@react-navigation/elements";
+import * as Haptics from "expo-haptics";
 
+const { height } = Dimensions.get("window");
 const RegisterScreen = ({ navigation }) => {
   const { emailSignup } = useAuth();
 
@@ -78,54 +82,69 @@ const RegisterScreen = ({ navigation }) => {
     }, 1000);
   }
 
+  const handlePressOutsideTextBox = () => {
+    Keyboard.dismiss();
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
-      <View style={{ flex: 1 }}>
+    <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor2 }}>
         {loginTitle()}
-        <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "space-between",
-            flexDirection: "column",
+        <View
+          style={{
+            flexShrink: 1,
+            alignItems: "center",
+            position: "relative",
+            width: "100%",
           }}
-          keyboardShouldPersistTaps="handled"
         >
-          <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior="padding"
-            keyboardVerticalOffset={useHeaderHeight() + 47}
-          >
-            <View style={{ flex: 1, justifyContent: "flex-end" }}>
-              {userEmailTextField()}
-              {passwordTextField()}
-              {agreeOrNotInfo()}
-              {registerButton()}
-              {dontAccountInfo()}
-            </View>
-          </KeyboardAvoidingView>
-        </ScrollView>
-      </View>
-      {backClickCount == 1 ? (
-        <View style={[styles.animatedView]}>
-          <Text style={{ ...Fonts.whiteColor14Medium }}>
-            Press Back Once Again To Exit
-          </Text>
+          <Lottie
+            source={require("../../assets/Lottie/tiger_waving.json")}
+            style={{
+              position: "relative",
+              resizeMode: "cover",
+              flexGrow: 0.8,
+            }}
+            speed={0.8}
+            autoPlay
+            loop
+          ></Lottie>
         </View>
-      ) : null}
-    </SafeAreaView>
+        <KeyboardAvoidingView
+          style={{ flexGrow: 1, justifyContent: "flex-end" }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          {userEmailTextField()}
+          {passwordTextField()}
+          {agreeOrNotInfo()}
+        </KeyboardAvoidingView>
+        {registerButton()}
+        {dontAccountInfo()}
+        {backClickCount == 1 ? (
+          <View style={[styles.animatedView]}>
+            <Text style={{ ...Fonts.whiteColor14Medium }}>
+              Press Back Once Again To Exit
+            </Text>
+          </View>
+        ) : null}
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 
   function dontAccountInfo() {
     return (
       <Text
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          navigation.push("Login");
+        }}
         style={{
           textAlign: "center",
-          margin: Sizes.fixPadding * 2.0,
-          marginTop: Sizes.fixPadding * 4.0,
+          paddingBottom: (Sizes.fixPadding * 2.0 * height) / 880,
+          marginTop: (Sizes.fixPadding * 4.0 * height) / 880,
         }}
       >
         <Text
-          onPress={() => navigation.push("Login")}
           style={{
             ...Fonts.primaryColor14Medium,
             textDecorationLine: "underline",
@@ -195,6 +214,8 @@ const RegisterScreen = ({ navigation }) => {
   }
 
   function passwordTextField() {
+    const passInput = useRef();
+
     return (
       <View>
         <View
@@ -219,12 +240,18 @@ const RegisterScreen = ({ navigation }) => {
               width: "100%",
             }}
           >
-            <MaterialIcons
-              name="lock-open"
-              size={20}
-              color={Colors.whiteColor}
-            />
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => passInput.current.focus()}
+            >
+              <MaterialIcons
+                name="lock-open"
+                size={20}
+                color={Colors.whiteColor}
+              />
+            </TouchableOpacity>
             <TextInput
+              ref={passInput}
               value={password}
               onChangeText={(value) => updateState({ password: value })}
               placeholder="Enter Password"
@@ -234,7 +261,7 @@ const RegisterScreen = ({ navigation }) => {
                 ...Fonts.whiteColor14Medium,
                 marginLeft: Sizes.fixPadding + 2.0,
                 flex: 1,
-                paddingVertical: Sizes.fixPadding + 7.0,
+                paddingVertical: ((Sizes.fixPadding + 7.0) * height) / 880,
               }}
               selectionColor={Colors.primaryColor}
             />
@@ -270,7 +297,6 @@ const RegisterScreen = ({ navigation }) => {
     return (
       <View
         style={{
-          marginBottom: Sizes.fixPadding * 4.0,
           marginRight: Sizes.fixPadding * 2.0,
         }}
       >
@@ -364,7 +390,7 @@ const RegisterScreen = ({ navigation }) => {
               ...Fonts.whiteColor14Medium,
               flex: 1,
               marginLeft: Sizes.fixPadding + 2.0,
-              paddingVertical: Sizes.fixPadding + 7.0,
+              paddingVertical: ((Sizes.fixPadding + 7.0) * height) / 880,
             }}
             selectionColor={Colors.primaryColor}
           />
@@ -372,7 +398,7 @@ const RegisterScreen = ({ navigation }) => {
         <View
           style={{
             marginHorizontal: Sizes.fixPadding * 2.0,
-            marginBottom: 7,
+            marginBottom: (7 * height) / 880,
           }}
         >
           <Text
@@ -388,13 +414,16 @@ const RegisterScreen = ({ navigation }) => {
   function loginTitle() {
     return (
       <View
-        style={{ marginVertical: Sizes.fixPadding * 4.0, alignItems: "center" }}
+        style={{
+          marginVertical: (Sizes.fixPadding * 4.0 * height) / 880,
+          alignItems: "center",
+        }}
       >
         <Text style={{ ...Fonts.whiteColor26SemiBold }}>
           Let’s get you started.
         </Text>
         <Text style={{ ...Fonts.whiteColor14Medium }}>
-          Welcome Back. You’ve been missed!
+          Welcome Yogi. Your adventure awaits!
         </Text>
       </View>
     );
@@ -431,6 +460,7 @@ const styles = StyleSheet.create({
     ...Fonts.primaryColor14Medium,
   },
   registerButtonStyle: {
+    marginTop: (Sizes.fixPadding * 4.0 * height) / 880,
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: Sizes.fixPadding * 2.0,

@@ -50,7 +50,7 @@ const PasswordResetScreen = ({ navigation }) => {
   }, [error]);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor2 }}>
       <View style={{ flex: 1 }}>
         {backArrow()}
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -72,7 +72,10 @@ const PasswordResetScreen = ({ navigation }) => {
           name="chevron-left"
           color={Colors.whiteColor}
           size={26}
-          onPress={() => navigation.pop()}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            navigation.pop();
+          }}
         />
       </View>
     );
@@ -144,6 +147,7 @@ const PasswordResetScreen = ({ navigation }) => {
           onPress={() => {
             if (loading) {
             } else {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               verifyEmail(setLoading);
             }
           }}
