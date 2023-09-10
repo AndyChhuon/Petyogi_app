@@ -28,7 +28,7 @@ const LoadingScreen = ({ navigation }) => {
       //   shouldListenRealTime: true,
       //   number: 27,
       // };
-      // navigation.navigate("PurchaseScreen");
+      // navigation.navigate("ProfileScreen");
     }
     loadFont();
   }, []);

@@ -94,6 +94,7 @@ const RegisterScreen = ({ navigation }) => {
           style={{
             flexShrink: 1,
             alignItems: "center",
+            justifyContent: "center",
             position: "relative",
             width: "100%",
           }}
@@ -103,9 +104,9 @@ const RegisterScreen = ({ navigation }) => {
             style={{
               position: "relative",
               resizeMode: "cover",
-              flexGrow: 0.8,
+              flexGrow: height < 560 ? 0.8 : 0.65,
             }}
-            speed={0.8}
+            speed={0.7}
             autoPlay
             loop
           ></Lottie>

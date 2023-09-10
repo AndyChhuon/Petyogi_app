@@ -72,6 +72,7 @@ const LoginScreen = ({ navigation }) => {
           style={{
             flexShrink: 1,
             alignItems: "center",
+            justifyContent: "center",
             position: "relative",
             width: "100%",
           }}
@@ -83,7 +84,7 @@ const LoginScreen = ({ navigation }) => {
               resizeMode: "cover",
               flexGrow: 1,
             }}
-            speed={0.8}
+            speed={1}
             autoPlay
             loop
           ></Lottie>
@@ -196,6 +197,8 @@ const LoginScreen = ({ navigation }) => {
   }
 
   function passwordTextField() {
+    const passInput = useRef();
+
     return (
       <View style={{ marginBottom: (Sizes.fixPadding * height) / 880 }}>
         <View
@@ -220,12 +223,18 @@ const LoginScreen = ({ navigation }) => {
               width: "100%",
             }}
           >
-            <MaterialIcons
-              name="lock-open"
-              size={20}
-              color={Colors.whiteColor}
-            />
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => passInput.current.focus()}
+            >
+              <MaterialIcons
+                name="lock-open"
+                size={20}
+                color={Colors.whiteColor}
+              />
+            </TouchableOpacity>
             <TextInput
+              ref={passInput}
               value={password}
               onChangeText={(value) => updateState({ password: value })}
               placeholder="Enter Password"

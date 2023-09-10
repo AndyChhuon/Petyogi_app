@@ -19,16 +19,13 @@ import { Colors, Sizes, Fonts } from "../../constants/styles";
 import { purchaseScreenCTA } from "../../constants/constants";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
-import useRevenueCat from "../../hooks/useRevenueCat";
 
 const { width, height } = Dimensions.get("window");
 
 const ShopScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
   const { userValues, reloadUser, isWaitingOnEmailVerification } = useAuth();
-  // const { currentOffering, customerInfo } = useRevenueCat();
-  // console.log(currentOffering);
-  const { remainingCredits, accountType, hasFreeTrial } = userValues;
+  const { remainingCredits, accountType, hasFreeTrial, coins } = userValues;
   const accountPlan =
     accountType == "freeVerified"
       ? hasFreeTrial
@@ -46,8 +43,10 @@ const ShopScreen = ({ navigation }) => {
 
   return (
     <Fragment>
-      <StatusBar translucent={false} backgroundColor="#5760b5" />
-      <SafeAreaView style={{ flex: 0, backgroundColor: "#5760b5" }} />
+      <StatusBar translucent={false} backgroundColor={Colors.bodyBackColor2} />
+      <SafeAreaView
+        style={{ flex: 0, backgroundColor: Colors.bodyBackColor2 }}
+      />
       <SafeAreaView
         style={{
           flex: 1,
@@ -57,151 +56,37 @@ const ShopScreen = ({ navigation }) => {
           backgroundColor: Colors.bodyBackColor2,
         }}
       >
-        <View style={[styles.closeButtonStyle]}>
-          {/* Confirm dialog  */}
-          <View>
-            <Dialog.Container visible={dialogVisible}>
-              <Dialog.Title>Account delete</Dialog.Title>
-              <Dialog.Description>
-                Do you want to delete this account? You cannot undo this action.
-              </Dialog.Description>
-              <Dialog.Button
-                label="Cancel"
-                onPress={() => setDialogVisible(false)}
-              />
-              <Dialog.Button
-                color="red"
-                label="Delete"
-                onPress={() => setDialogVisible(false)}
-              />
-            </Dialog.Container>
-          </View>
-          <Ionicons
-            name="close"
-            color={Colors.whiteDarker}
-            size={32}
-            onPress={() => navigation.pop()}
-          />
+        <View style={{ borderBottomWidth: 2, borderBottomColor: "#53666c" }}>
           <Text
-            style={[Fonts.displayScreensText, { flex: 1, textAlign: "center" }]}
+            style={[
+              Fonts.displayScreensText,
+              {
+                paddingBottom: (12 * height) / 850,
+                textAlign: "center",
+              },
+            ]}
           >
-            Meditations
+            Profile
           </Text>
-          <Ionicons
-            name="share-outline"
-            color={Colors.whiteDarker}
-            size={32}
-            style={{ opacity: 0 }}
-          />
         </View>
-        <View
-          style={{
-            paddingBottom: (12 * height) / 850,
-            borderBottomWidth: 2,
-            borderBottomColor: "#121f24",
-            backgroundColor: "#5760b5",
-          }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-            }}
-          >
-            <View
-              style={{
-                flex: 6,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text style={Fonts.streakNumberText}>{remainingCredits}</Text>
-              <Text style={[Fonts.streakSecondaryText, { fontSize: 21 }]}>
-                Meditation credits
-              </Text>
-            </View>
-            <View
-              style={{
-                flex: 5,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Image
-                source={require("../../assets/images/icons/tiger_meditation.jpg")}
-                style={{
-                  width: noCreditsLeft
-                    ? (130.0 * width) / 414
-                    : (140.0 * width) / 414,
-                  height: noCreditsLeft
-                    ? (130.0 * width) / 414
-                    : (140.0 * width) / 414,
-                  borderRadius: 20,
-                  resizeMode: "contain",
-                  borderColor: Colors.bodyBackColor,
-                  borderWidth: 2,
-                  //grey out
-                }}
-              />
-            </View>
-          </View>
-          <View
-            style={
-              noCreditsLeft
-                ? {
-                    backgroundColor: Colors.bodyBackColor2,
-                    flexDirection: "row",
-                    marginHorizontal: 10,
-                    paddingLeft: 8,
-                    paddingRight: 15,
-                    paddingVertical: 15,
-                    marginTop: 10,
-                    borderRadius: 7,
-                  }
-                : { display: "none" }
-            }
-          >
-            <View
-              style={{
-                flex: 1,
-                alignItems: "center",
-                marginTop: 2,
-                paddingRight: 2,
-              }}
-            >
-              <Image
-                source={require("../../assets/images/icons/bell_red.png")}
-                style={{
-                  width: (32.0 * width) / 414,
-                  height: (32.0 * width) / 414,
-                  resizeMode: "contain",
-                }}
-              />
-            </View>
-            <View style={{ flex: 6 }}>
-              <Text
-                style={[Fonts.purchaseScreenDescription, { fontSize: 16.5 }]}
-              >
-                {purchaseScreenCTA[accountPlan].noCreditsText}
-              </Text>
-              <TouchableOpacity
-                style={
-                  purchaseScreenCTA[accountPlan].noCreditsCTA
-                    ? {}
-                    : { display: "none" }
-                }
-              >
-                <Text
-                  style={[
-                    Fonts.purchaseScreenTitle,
-                    { fontSize: 17, color: "#42c2fa", marginTop: 9 },
-                  ]}
-                >
-                  {purchaseScreenCTA[accountPlan].noCreditsCTA}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+        <View>
+          <Dialog.Container visible={dialogVisible}>
+            <Dialog.Title>Account delete</Dialog.Title>
+            <Dialog.Description>
+              Do you want to delete this account? You cannot undo this action.
+            </Dialog.Description>
+            <Dialog.Button
+              label="Cancel"
+              onPress={() => setDialogVisible(false)}
+            />
+            <Dialog.Button
+              color="red"
+              label="Delete"
+              onPress={() => setDialogVisible(false)}
+            />
+          </Dialog.Container>
         </View>
+
         <ScrollView
           style={{
             flexGrow: 1,
@@ -209,7 +94,269 @@ const ShopScreen = ({ navigation }) => {
             paddingTop: 5,
           }}
         >
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              navigation.navigate("PurchaseScreen");
+            }}
+            style={{ marginHorizontal: 10 }}
+          >
+            <View
+              style={{
+                width: "100%",
+                marginTop: 9,
+                display: "flex",
+              }}
+            >
+              <View
+                style={{
+                  paddingVertical: (12 * height) / 850,
+                  borderBottomWidth: 2,
+                  borderBottomColor: "#121f24",
+                  backgroundColor: "#5760b5",
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  borderColor: "#39474f",
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                  }}
+                >
+                  <View
+                    style={{
+                      flex: 6,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text style={Fonts.streakNumberText}>
+                      {remainingCredits}
+                    </Text>
+                    <Text style={[Fonts.streakSecondaryText, { fontSize: 21 }]}>
+                      Meditation credits
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 5,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Image
+                      source={require("../../assets/images/icons/tiger_meditation.jpg")}
+                      style={{
+                        width: noCreditsLeft
+                          ? (130.0 * width) / 414
+                          : (140.0 * width) / 414,
+                        height: noCreditsLeft
+                          ? (130.0 * width) / 414
+                          : (140.0 * width) / 414,
+                        borderRadius: 20,
+                        resizeMode: "contain",
+                        borderColor: Colors.bodyBackColor,
+                        borderWidth: 2,
+                        //grey out
+                      }}
+                    />
+                  </View>
+                </View>
+                <TouchableOpacity
+                  activeOpacity={1}
+                  style={
+                    noCreditsLeft
+                      ? {
+                          backgroundColor: Colors.bodyBackColor2,
+                          flexDirection: "row",
+                          marginHorizontal: 10,
+                          paddingLeft: 8,
+                          paddingRight: 15,
+                          paddingVertical: 15,
+                          marginTop: 10,
+                          borderRadius: 7,
+                        }
+                      : { display: "none" }
+                  }
+                >
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      marginTop: 2,
+                      paddingRight: 2,
+                    }}
+                  >
+                    <Image
+                      source={require("../../assets/images/icons/bell_red.png")}
+                      style={{
+                        width: (32.0 * width) / 414,
+                        height: (32.0 * width) / 414,
+                        resizeMode: "contain",
+                      }}
+                    />
+                  </View>
+                  <View style={{ flex: 6 }}>
+                    <Text
+                      style={[
+                        Fonts.purchaseScreenDescription,
+                        { fontSize: 16.5 },
+                      ]}
+                    >
+                      {purchaseScreenCTA[accountPlan].noCreditsText}
+                    </Text>
+                    <TouchableOpacity
+                      style={
+                        purchaseScreenCTA[accountPlan].noCreditsCTA
+                          ? {}
+                          : { display: "none" }
+                      }
+                    >
+                      <Text
+                        style={[
+                          Fonts.purchaseScreenTitle,
+                          { fontSize: 17, color: "#42c2fa", marginTop: 9 },
+                        ]}
+                      >
+                        {purchaseScreenCTA[accountPlan].noCreditsCTA}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              navigation.navigate("StreakScreen");
+            }}
+            style={{ marginHorizontal: 10 }}
+          >
+            <View
+              style={{
+                width: "100%",
+                marginTop: 9,
+                display: "flex",
+              }}
+            >
+              <View
+                style={{
+                  paddingVertical: (8 * height) / 850,
+                  borderBottomWidth: 2,
+                  borderBottomColor: "#121f24",
+                  backgroundColor: "#feaa34",
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  borderColor: "#39474f",
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                  }}
+                >
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text style={Fonts.streakNumberText2}>165</Text>
+                    <Text style={Fonts.streakSecondaryText2}>day streak!</Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Image
+                      source={require("../../assets/images/icons/streak.png")}
+                      style={{
+                        width: (115.0 * width) / 414,
+                        height: (115.0 * width) / 414,
+                        marginVertical: 10,
+                        resizeMode: "contain",
+                        //grey out
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              navigation.navigate("ShopScreen");
+            }}
+            style={{ marginHorizontal: 10 }}
+          >
+            <View
+              style={{
+                width: "100%",
+                marginTop: 9,
+                display: "flex",
+              }}
+            >
+              <View
+                style={{
+                  paddingVertical: (12 * height) / 850,
+                  borderBottomWidth: 2,
+                  borderBottomColor: "#121f24",
+                  backgroundColor: "#15a2de",
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  borderColor: "#39474f",
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                  }}
+                >
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text style={Fonts.streakNumberText2}>{coins}</Text>
+                    <Text style={Fonts.streakSecondaryText2}>
+                      yogi crystals
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Image
+                      source={require("../../assets/images/icons/gem.png")}
+                      style={{
+                        width: (115.0 * width) / 414,
+                        height: (115.0 * width) / 414,
+                        resizeMode: "contain",
+                        //grey out
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+
           <View style={{ marginHorizontal: 10 }}>
+            <Text style={[Fonts.purchaseScreenTitle, { marginTop: 8 }]}>
+              Current Plan
+            </Text>
             <View
               style={{
                 width: "100%",
@@ -665,15 +812,6 @@ const ShopScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  closeButtonStyle: {
-    paddingHorizontal: (20.0 * width) / 414,
-    paddingVertical: (5.0 * width) / 414,
-    zIndex: 4,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#5760b5",
-  },
   BackgroundImage: {
     flex: 1,
     resizeMode: "cover",

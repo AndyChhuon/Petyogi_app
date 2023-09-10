@@ -239,9 +239,19 @@ export const Fonts = {
     fontSize: 40,
     fontFamily: "Sigmar_Regular",
   },
+  streakNumberText2: {
+    color: "#253542",
+    fontSize: 34.5,
+    fontFamily: "Sigmar_Regular",
+  },
   streakSecondaryText: {
     color: "#212f36",
     fontSize: 25,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
+  streakSecondaryText2: {
+    color: "#212f36",
+    fontSize: 23,
     fontFamily: "SF_Compact_Display_Bold",
   },
   streakPrimaryText: {

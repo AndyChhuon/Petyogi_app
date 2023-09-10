@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Colors, Sizes, Fonts } from "../constants/styles";
 import HomeScreen from "../screens/home/homeScreen";
+import ProfileScreen from "../screens/displayScreens/profileScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";
 import useAuth from "../hooks/useAuth";
@@ -73,7 +74,7 @@ const TabNavigator = ({ route }) => {
 
         <Tab.Screen
           name={"Profile"}
-          component={HomeScreen}
+          component={ProfileScreen}
           options={{
             tabBarIcon: ({ color, focused }) =>
               tabIconSort({

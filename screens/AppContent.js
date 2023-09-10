@@ -17,7 +17,7 @@ import MeditationScreen from "./meditation/MeditationScreen";
 import StreakScreen from "./displayScreens/streakScreen";
 import ShopScreen from "./displayScreens/shopScreen";
 import PurchaseScreen from "./displayScreens/purchaseScreen";
-import SplashScreen from "./splashScreen";
+import ProfileScreen from "./displayScreens/profileScreen";
 import { StatusBar } from "expo-status-bar";
 
 const Stack = createStackNavigator();
@@ -36,11 +36,6 @@ const AppContent = () => {
       >
         <Stack.Screen name="Loading" component={LoadingScreen} />
 
-        {/* <Stack.Screen
-                name="Splash"
-                component={SplashScreen}
-                options={{ ...TransitionPresets.DefaultTransition }}
-              /> */}
         {user ? (
           <>
             <Stack.Screen
