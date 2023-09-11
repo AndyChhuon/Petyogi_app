@@ -400,7 +400,12 @@ const TermsAndConditions = ({ navigation }) => {
             <Text style={[Fonts.purchaseScreenDescription, { paddingTop: 20 }]}>
               11.3 Essential Communications
             </Text>
-            <Text style={[Fonts.purchaseScreenDescription, { paddingTop: 6 }]}>
+            <Text
+              style={[
+                Fonts.purchaseScreenDescription,
+                { paddingTop: 6, paddingBottom: 10 },
+              ]}
+            >
               Please note that even if you choose to opt out of promotional
               emails, you may continue to receive essential communications
               related to your account and the use of the App, as these messages
