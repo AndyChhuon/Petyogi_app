@@ -325,6 +325,10 @@ const RegisterScreen = ({ navigation }) => {
                 By creating an account, you agree to our {}
               </Text>
               <Text
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  navigation.push("TermsAndConditions");
+                }}
                 style={{
                   ...Fonts.primaryColor14Medium,
                   textDecorationLine: "underline",

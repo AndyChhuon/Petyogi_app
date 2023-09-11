@@ -22,10 +22,11 @@ import useAuth from "../../hooks/useAuth";
 
 const { width, height } = Dimensions.get("window");
 
-const ShopScreen = ({ navigation }) => {
+const ProfileScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
   const { userValues, reloadUser, isWaitingOnEmailVerification } = useAuth();
-  const { remainingCredits, accountType, hasFreeTrial, coins } = userValues;
+  const { remainingCredits, accountType, hasFreeTrial, coins, streak } =
+    userValues;
   const accountPlan =
     accountType == "freeVerified"
       ? hasFreeTrial
@@ -264,7 +265,7 @@ const ShopScreen = ({ navigation }) => {
                       justifyContent: "center",
                     }}
                   >
-                    <Text style={Fonts.streakNumberText2}>165</Text>
+                    <Text style={Fonts.streakNumberText2}>{streak}</Text>
                     <Text style={Fonts.streakSecondaryText2}>day streak!</Text>
                   </View>
                   <View
@@ -820,4 +821,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ShopScreen;
+export default ProfileScreen;

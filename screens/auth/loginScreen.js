@@ -17,7 +17,6 @@ import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
-import { useHeaderHeight } from "@react-navigation/elements";
 import * as Haptics from "expo-haptics";
 const { height } = Dimensions.get("window");
 
