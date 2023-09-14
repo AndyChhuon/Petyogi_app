@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 
 import {
   SafeAreaView,
@@ -11,28 +11,40 @@ import {
   Image,
   StyleSheet,
   Text,
-  FlatList,
 } from "react-native";
 import Dialog from "react-native-dialog";
-import { Ionicons } from "@expo/vector-icons";
-import { Colors, Sizes, Fonts } from "../../constants/styles";
+import { Colors, Fonts } from "../../constants/styles";
 import { purchaseScreenCTA } from "../../constants/constants";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
+import Purchases from "react-native-purchases";
+import { showMessage } from "react-native-flash-message";
+import Lottie from "lottie-react-native";
+import { meditationLotties } from "../../constants/constants";
 
 const { width, height } = Dimensions.get("window");
 
 const ProfileScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
-  const { userValues, reloadUser, isWaitingOnEmailVerification } = useAuth();
+  const [purchaseAwaiting, setPurchaseAwaiting] = useState(false);
+  const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
+    useState(0);
+  const {
+    userValues,
+    reloadUser,
+    isWaitingOnEmailVerification,
+    revenueCatCustomerInfo,
+    currentOffering,
+  } = useAuth();
   const { remainingCredits, accountType, hasFreeTrial, coins, streak } =
     userValues;
-  const accountPlan =
-    accountType == "freeVerified"
-      ? hasFreeTrial
-        ? "freeVerifiedTrial"
-        : "freeVerifiedNoTrial"
-      : accountType;
+  const accountPlan = revenueCatCustomerInfo?.activeSubscriptions[0]
+    ? revenueCatCustomerInfo?.activeSubscriptions[0]
+    : accountType == "freeVerified"
+    ? hasFreeTrial
+      ? "freeVerifiedTrial"
+      : "freeVerifiedNoTrial"
+    : accountType;
 
   const noCreditsLeft = remainingCredits == 0;
 
@@ -42,12 +54,107 @@ const ProfileScreen = ({ navigation }) => {
     }
   }, []);
 
+  const handlePurchase = async (packageID) => {
+    if (purchaseAwaiting) return;
+    setCreateMeditationLottieIndex(
+      Math.floor(Math.random() * meditationLotties.length)
+    );
+    setPurchaseAwaiting(true);
+    console.log(packageID);
+    Purchases.purchasePackage(packageID)
+      .then((purchase) => {
+        setPurchaseAwaiting(false);
+      })
+      .catch((err) => {
+        if (!err.userCancelled && err.code != 15) {
+          showMessage({
+            message: "There was an error purchasing the subscription plan.",
+            type: "danger",
+          });
+        }
+        if (err.userCancelled) {
+          showMessage({
+            message: "Purchase cancelled.",
+            type: "warning",
+          });
+        }
+        if (err.code != 15) setPurchaseAwaiting(false);
+      });
+  };
+
+  const onUpgradeClick = () => {
+    if (accountPlan == "free") {
+      navigation.navigate("Verification");
+    } else if (accountPlan == "freeVerifiedTrial") {
+      // free trial
+      handlePurchase(
+        currentOffering?.availablePackages.find(
+          (item) => item.identifier === "Turtle Plan"
+        )
+      );
+    } else if (
+      accountPlan == "freeVerifiedNoTrial" ||
+      accountPlan == "sloth_plan"
+    ) {
+      handlePurchase(
+        currentOffering?.availablePackages.find(
+          (item) => item.identifier === "Turtle Plan"
+        )
+      );
+    } else if (accountPlan == "turtle_plan") {
+      handlePurchase(
+        currentOffering?.availablePackages.find(
+          (item) => item.identifier === "Yogi Plan"
+        )
+      );
+    }
+  };
+
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor={Colors.bodyBackColor2} />
       <SafeAreaView
         style={{ flex: 0, backgroundColor: Colors.bodyBackColor2 }}
       />
+      <View
+        style={{
+          display: purchaseAwaiting ? "flex" : "none",
+          backgroundColor: "rgba(37, 53, 66, 0.5)",
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 3,
+        }}
+      >
+        <View style={{ width: "80%", alignItems: "center" }}>
+          <Lottie
+            source={meditationLotties[createMeditationLottieIndex].lottie}
+            style={{
+              position: "relative",
+              resizeMode: "cover",
+              flexGrow: 1,
+              opacity: 1,
+              width: "100%",
+            }}
+            speed={meditationLotties[createMeditationLottieIndex].speed}
+            autoPlay
+            loop
+          ></Lottie>
+          <View
+            style={{
+              backgroundColor: Colors.whiteDarker,
+              borderRadius: 10,
+              padding: 10,
+              width: "90%",
+              alignItems: "center",
+            }}
+          >
+            <Text style={Fonts.loadingText}>Loading...</Text>
+          </View>
+        </View>
+      </View>
       <SafeAreaView
         style={{
           flex: 1,
@@ -213,6 +320,7 @@ const ProfileScreen = ({ navigation }) => {
                           ? {}
                           : { display: "none" }
                       }
+                      onPress={onUpgradeClick}
                     >
                       <Text
                         style={[
@@ -354,7 +462,7 @@ const ProfileScreen = ({ navigation }) => {
             </View>
           </TouchableOpacity>
 
-          <View style={{ marginHorizontal: 10 }}>
+          <View style={{ marginHorizontal: 10, marginTop: 15 }}>
             <Text style={[Fonts.purchaseScreenTitle, { marginTop: 8 }]}>
               Current Plan
             </Text>
@@ -364,7 +472,7 @@ const ProfileScreen = ({ navigation }) => {
                 marginTop: 9,
                 display: "flex",
                 minHeight:
-                  accountPlan == "yogiPlan" ? width / 3.5 : width / 2.2,
+                  accountPlan == "yogi_plan" ? width / 3.5 : width / 2.2,
                 backgroundColor: "#262674",
               }}
             >
@@ -430,12 +538,12 @@ const ProfileScreen = ({ navigation }) => {
                   width="100%"
                   height={width / 8}
                   style={
-                    accountPlan == "yogiPlan"
+                    accountPlan == "yogi_plan"
                       ? { display: "none" }
                       : { marginTop: 5 }
                   }
                   onPress={() => {
-                    navigation.navigate("Verification");
+                    onUpgradeClick();
                   }}
                 >
                   <Text style={Fonts.tryForFreeButton}>
@@ -447,15 +555,35 @@ const ProfileScreen = ({ navigation }) => {
 
             <Text style={[Fonts.purchaseScreenTitle, { marginTop: 10 }]}>
               Subscription Plans
+              <Text style={[Fonts.purchaseScreenSubtitle]}>*</Text>
             </Text>
             <TouchableOpacity
               style={
-                accountPlan == "slothPlan" ? { opacity: 0.5 } : { opacity: 1 }
+                accountPlan == "sloth_plan" ||
+                accountPlan == "yogi_plan" ||
+                accountPlan == "turtle_plan"
+                  ? { opacity: 0.5 }
+                  : { opacity: 1 }
               }
-              activeOpacity={accountPlan == "slothPlan" ? 0.5 : 0.8}
+              activeOpacity={
+                accountPlan == "sloth_plan" ||
+                accountPlan == "yogi_plan" ||
+                accountPlan == "turtle_plan"
+                  ? 0.5
+                  : 0.8
+              }
               onPress={() => {
-                if (accountPlan == "slothPlan") return;
-                setDialogVisible(true);
+                if (
+                  accountPlan == "sloth_plan" ||
+                  accountPlan == "yogi_plan" ||
+                  accountPlan == "turtle_plan"
+                )
+                  return;
+                handlePurchase(
+                  currentOffering?.availablePackages.find(
+                    (item) => item.identifier === "Sloth Plan"
+                  )
+                );
               }}
             >
               <View
@@ -505,7 +633,7 @@ const ProfileScreen = ({ navigation }) => {
                     <Text style={Fonts.decriptionSemiBold}>
                       1 credit every 2 days.
                     </Text>{" "}
-                    Max accumulated credits:{" "}
+                    Max offline accumulated credits:{" "}
                     <Text style={Fonts.decriptionSemiBold}>3</Text>.
                   </Text>
                   <Text
@@ -525,12 +653,23 @@ const ProfileScreen = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={
-                accountPlan == "turtlePlan" ? { opacity: 0.5 } : { opacity: 1 }
+                accountPlan == "turtle_plan" || accountPlan == "yogi_plan"
+                  ? { opacity: 0.5 }
+                  : { opacity: 1 }
               }
-              activeOpacity={accountPlan == "turtlePlan" ? 0.5 : 0.8}
+              activeOpacity={
+                accountPlan == "turtle_plan" || accountPlan == "yogi_plan"
+                  ? 0.5
+                  : 0.8
+              }
               onPress={() => {
-                if (accountPlan == "turtlePlan") return;
-                setDialogVisible(true);
+                if (accountPlan == "turtle_plan" || accountPlan == "yogi_plan")
+                  return;
+                handlePurchase(
+                  currentOffering?.availablePackages.find(
+                    (item) => item.identifier === "Turtle Plan"
+                  )
+                );
               }}
             >
               <View
@@ -580,7 +719,7 @@ const ProfileScreen = ({ navigation }) => {
                     <Text style={Fonts.decriptionSemiBold}>
                       1 credit per day.
                     </Text>{" "}
-                    Max accumulated credits:{" "}
+                    max offline accumulated credits:{" "}
                     <Text style={Fonts.decriptionSemiBold}>5</Text>.
                   </Text>
                   <Text
@@ -600,12 +739,16 @@ const ProfileScreen = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={
-                accountPlan == "yogiPlan" ? { opacity: 0.5 } : { opacity: 1 }
+                accountPlan == "yogi_plan" ? { opacity: 0.5 } : { opacity: 1 }
               }
-              activeOpacity={accountPlan == "yogiPlan" ? 0.5 : 0.8}
+              activeOpacity={accountPlan == "yogi_plan" ? 0.5 : 0.8}
               onPress={() => {
-                if (accountPlan == "yogiPlan") return;
-                setDialogVisible(true);
+                if (accountPlan == "yogi_plan") return;
+                handlePurchase(
+                  currentOffering?.availablePackages.find(
+                    (item) => item.identifier === "Yogi Plan"
+                  )
+                );
               }}
             >
               <View
@@ -655,7 +798,7 @@ const ProfileScreen = ({ navigation }) => {
                     <Text style={Fonts.decriptionSemiBold}>
                       2 credits per day.
                     </Text>{" "}
-                    Max accumulated credits:{" "}
+                    max offline accumulated credits:{" "}
                     <Text style={Fonts.decriptionSemiBold}>8</Text>.
                   </Text>
                   <Text
@@ -675,10 +818,10 @@ const ProfileScreen = ({ navigation }) => {
             </TouchableOpacity>
             <Text style={[Fonts.purchaseScreenTitle, { paddingTop: 20 }]}>
               Credit Top-Up
+              <Text style={[Fonts.purchaseScreenSubtitle]}>*</Text>
             </Text>
             <View
               style={{
-                paddingBottom: 35,
                 display: "flex",
                 flexDirection: "row",
                 justifyContent: "space-between",
@@ -686,7 +829,13 @@ const ProfileScreen = ({ navigation }) => {
             >
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => setDialogVisible(true)}
+                onPress={() =>
+                  handlePurchase(
+                    currentOffering?.availablePackages.find(
+                      (item) => item.identifier === "3_credits"
+                    )
+                  )
+                }
                 style={{
                   width: width / 3.3,
                   paddingTop: 8,
@@ -726,7 +875,13 @@ const ProfileScreen = ({ navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => setDialogVisible(true)}
+                onPress={() =>
+                  handlePurchase(
+                    currentOffering?.availablePackages.find(
+                      (item) => item.identifier === "8_credits"
+                    )
+                  )
+                }
                 style={{
                   width: width / 3.3,
                   paddingTop: 8,
@@ -766,7 +921,13 @@ const ProfileScreen = ({ navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => setDialogVisible(true)}
+                onPress={() =>
+                  handlePurchase(
+                    currentOffering?.availablePackages.find(
+                      (item) => item.identifier === "22_credits"
+                    )
+                  )
+                }
                 style={{
                   width: width / 3.3,
                   paddingTop: 8,
@@ -801,10 +962,27 @@ const ProfileScreen = ({ navigation }) => {
                     { marginLeft: 10, marginBottom: 5, color: "#3ec1fa" },
                   ]}
                 >
-                  $15.99
+                  $17.99
                 </Text>
               </TouchableOpacity>
             </View>
+            <Text
+              style={[
+                Fonts.purchaseScreenDescription,
+                { paddingTop: 8, fontSize: 12 },
+              ]}
+            >
+              * prices may fluctuate based on location
+            </Text>
+            <Text
+              style={[
+                Fonts.purchaseScreenDescription,
+                { paddingBottom: 35, paddingTop: 2, fontSize: 12 },
+              ]}
+            >
+              * max accumulated credits: max credits accumulated offline,
+              calculated from the start of the month or last login.
+            </Text>
           </View>
         </ScrollView>
       </SafeAreaView>

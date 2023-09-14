@@ -178,7 +178,7 @@ const HomeScreen = ({ navigation }) => {
   }, [contentHeight]);
 
   const bringToBottom = () => {
-    scrollViewRef?.current.scrollToEnd({ animated: true });
+    scrollViewRef?.current?.scrollToEnd({ animated: true });
   };
 
   return (

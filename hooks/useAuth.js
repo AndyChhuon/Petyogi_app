@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import { auth, db } from "../config/firebaseConfig";
-
+import Purchases from "react-native-purchases";
 import {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
@@ -18,14 +18,20 @@ import {
 } from "firebase/auth";
 import { ref, child, get, onValue, off, getDatabase } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
-import { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
 
 const AuthContext = createContext({});
+const APIKeys = {
+  apple: "appl_mTTdHSJWtMTIsPypmaQXWiXGVzs",
+  google: "",
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [appInitialized, setAppInitialized] = useState(false);
+  const [currentOffering, setCurrentOffering] = useState(null);
+  const [revenueCatCustomerInfo, setRevenueCatCustomerInfo] = useState(null);
   const [userValues, setUserValues] = useState({});
   const dbRef = ref(db);
   const [isWaitingOnEmailVerification, setIsWaitingOnEmailVerification] =
@@ -35,11 +41,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (appInitialized) {
-      var unsubscribe = onAuthStateChanged(auth, (user) => {
+      var unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           console.log(user);
           setUser(user);
-          //
+
           getIdToken(user).then((idToken) => {
             //post request
             fetch(
@@ -60,6 +66,7 @@ export const AuthProvider = ({ children }) => {
                 navigation.navigate("BottomTabBar");
               })
               .catch((err) => {
+                console.log(err);
                 showMessage({
                   message: "There was an error fetching your data.",
                   type: "danger",
@@ -70,6 +77,45 @@ export const AuthProvider = ({ children }) => {
           if (!user.displayName) {
             updateProfile(user, { displayName: "fellow yogi" });
           }
+
+          //setup Revenue Cat
+          if (Platform.OS === "android") {
+            await Purchases.configure({
+              apiKey: APIKeys.google,
+              appUserID: user.uid,
+            });
+          } else {
+            await Purchases.configure({
+              apiKey: APIKeys.apple,
+              appUserID: user.uid,
+            });
+          }
+
+          await Purchases.syncPurchases();
+
+          Purchases.getOfferings()
+            .then((offerings) => {
+              setCurrentOffering(offerings.current);
+            })
+            .catch((err) => {
+              showMessage({
+                message: "There was an error fetching in app purchases.",
+                type: "danger",
+              });
+            });
+
+          Purchases.logIn(user.uid)
+            .then((infoCustomer) => {
+              console.log("login");
+              console.log(infoCustomer);
+              setRevenueCatCustomerInfo(infoCustomer.customerInfo);
+            })
+            .catch((err) => {
+              showMessage({
+                message: "There was an error fetching your customer info.",
+                type: "danger",
+              });
+            });
         } else {
           navigation.navigate("Register");
         }
@@ -77,6 +123,18 @@ export const AuthProvider = ({ children }) => {
 
       return unsubscribe;
     }
+  }, [appInitialized]);
+
+  useEffect(() => {
+    const customerInfoUpdated = async (purchaserInfo) => {
+      console.log(purchaserInfo);
+      setRevenueCatCustomerInfo(purchaserInfo);
+    };
+
+    Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
+
+    return () =>
+      Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
   }, [appInitialized]);
 
   const generateNewMeditation = (
@@ -311,6 +369,8 @@ export const AuthProvider = ({ children }) => {
       generateNewMeditation,
       reloadUser,
       isWaitingOnEmailVerification,
+      currentOffering,
+      revenueCatCustomerInfo,
     }),
     [
       user,
@@ -324,6 +384,8 @@ export const AuthProvider = ({ children }) => {
       generateNewMeditation,
       reloadUser,
       isWaitingOnEmailVerification,
+      currentOffering,
+      revenueCatCustomerInfo,
     ]
   );
 

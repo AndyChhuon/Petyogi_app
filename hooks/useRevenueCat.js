@@ -1,9 +1,8 @@
-import Purchases, {
-  CustomerInfo,
-  PurchasesOffering,
-} from "react-native-purchases";
+import Purchases from "react-native-purchases";
+import { showMessage, hideMessage } from "react-native-flash-message";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
+import useAuth from "./useAuth";
 const APIKeys = {
   apple: "appl_mTTdHSJWtMTIsPypmaQXWiXGVzs",
   google: "",
@@ -12,25 +11,26 @@ const APIKeys = {
 function useRevenueCat() {
   const [currentOffering, setCurrentOffering] = useState(null);
   const [customerInfo, setCustomerInfo] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
-      if (Platform.OS === "android") {
-        await Purchases.configure({ apiKey: APIKeys.google });
-      } else {
-        console.log("apple");
-        await Purchases.configure({ apiKey: APIKeys.apple });
-      }
       console.log("getofferings");
       const offerings = await Purchases.getOfferings();
+      console.log(offerings.current);
       console.log("getcustomerinfo");
       const customerInfo = await Purchases.getCustomerInfo();
-
+      console.log(customerInfo);
       setCurrentOffering(offerings.current);
       setCustomerInfo(customerInfo);
     };
 
-    fetchData().catch(console.error);
+    fetchData().catch((err) =>
+      showMessage({
+        message: "There was an error fetching your data.",
+        type: "danger",
+      })
+    );
   }, []);
 
   useEffect(() => {
@@ -38,7 +38,10 @@ function useRevenueCat() {
       setCustomerInfo(purchaserInfo);
     };
 
-    Purchases.addPurchaserInfoUpdateListener(customerInfoUpdated);
+    Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
+
+    return () =>
+      Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
   }, []);
 
   return { currentOffering, customerInfo };

@@ -291,6 +291,11 @@ export const Fonts = {
     fontSize: 15,
     fontFamily: "SF_Compact_Display_Bold",
   },
+  loadingText: {
+    color: "#253542",
+    fontSize: 17,
+    fontFamily: "Sigmar_Regular",
+  },
 };
 
 export const Colors = {

@@ -244,7 +244,7 @@ export const purchaseScreenCTA = {
       "You have no credits left. Upgrade your account and get daily credits.",
     noCreditsCTA: "UPGRADE PLAN",
   },
-  slothPlan: {
+  sloth_plan: {
     title: "You are: Sloth Plan",
     subtitleOne: "Upgrade to Turtle Plan!",
     subtitleBold: "1  meditation credit every day",
@@ -258,7 +258,7 @@ export const purchaseScreenCTA = {
       "You have no credits left. Less than 2 hours before your next credit fill.",
     noCreditsCTA: "UPGRADE",
   },
-  turtlePlan: {
+  turtle_plan: {
     title: "You are: Turtle Plan",
     subtitleOne: "Upgrade to Yogi Plan!",
     subtitleBold: "2  meditation credits every day",
@@ -272,7 +272,7 @@ export const purchaseScreenCTA = {
       "You have no credits left. Less than 2 hours before your next credit fill.",
     noCreditsCTA: "UPGRADE",
   },
-  yogiPlan: {
+  yogi_plan: {
     title: "You are: Yogi Plan",
     subtitleOne: "You will receive",
     subtitleBold: "2  meditation credits every day",
