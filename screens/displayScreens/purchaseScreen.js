@@ -813,8 +813,8 @@ const ShopScreen = ({ navigation }) => {
                 { paddingBottom: 35, paddingTop: 2, fontSize: 12 },
               ]}
             >
-              * max accumulated credits: max credits accumulated offline,
-              calculated from the start of the month or last login.
+              * max accumulated credits are credits given while offline,
+              resets every month.
             </Text>
           </View>
         </ScrollView>

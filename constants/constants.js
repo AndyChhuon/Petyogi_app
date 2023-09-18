@@ -69,6 +69,51 @@ export const multipleChoiceButtons = [
   },
 ];
 
+export const streaksLostImage = [
+  {
+    image: require("../assets/images/streaksModal/sad_cat.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/sad_panda.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/shiba_sad.png"),
+  },
+];
+
+export const streaksSavedImage = [
+  {
+    image: require("../assets/images/streaksModal/happy_cat_fish.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/happy_shiba_inu_bone.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/happy_panda_bamboo.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/happy_bear_honey.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/happy_astronaut_monkey.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/happy_monkey_bananas.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/happy_shiba.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/happy_bear.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/happy_panda.png"),
+  },
+  {
+    image: require("../assets/images/streaksModal/happy_monkey.png"),
+  },
+];
+
 export const meditationTypeButtons = [
   {
     id: "1",

@@ -296,6 +296,26 @@ export const Fonts = {
     fontSize: 17,
     fontFamily: "Sigmar_Regular",
   },
+  streakModalText: {
+    color: "#253542",
+    fontSize: 17,
+    fontFamily: "Inter_Black",
+  },
+  streakModalTitle: {
+    color: "#212f36",
+    fontSize: 17.5,
+    fontFamily: "Sigmar_Regular",
+  },
+  streakModalButton: {
+    color: "#f6f9fd",
+    fontSize: 14,
+    fontFamily: "Inter_Black",
+  },
+  streakSaveStreakText: {
+    color: "#173746",
+    fontSize: 14,
+    fontFamily: "SF_Compact_Display_SemiBold",
+  },
 };
 
 export const Colors = {

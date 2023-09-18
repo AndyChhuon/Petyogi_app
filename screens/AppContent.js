@@ -18,12 +18,13 @@ import StreakScreen from "./displayScreens/streakScreen";
 import ShopScreen from "./displayScreens/shopScreen";
 import PurchaseScreen from "./displayScreens/purchaseScreen";
 import TermsAndConditions from "./displayScreens/termsAndConditions";
+import StreaksModal from "./modals/streaksModal";
 import { StatusBar } from "expo-status-bar";
 
 const Stack = createStackNavigator();
 
 const AppContent = () => {
-  const { user } = useAuth();
+  const { user, appInitialized } = useAuth();
 
   return (
     <>
@@ -101,6 +102,7 @@ const AppContent = () => {
         )}
       </Stack.Navigator>
       <FlashMessage position="top" />
+      {appInitialized && <StreaksModal />}
       <StatusBar style="dark" />
     </>
   );

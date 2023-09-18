@@ -29,6 +29,7 @@ const APIKeys = {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [streakObj, setStreakObj] = useState();
   const [appInitialized, setAppInitialized] = useState(false);
   const [currentOffering, setCurrentOffering] = useState(null);
   const [revenueCatCustomerInfo, setRevenueCatCustomerInfo] = useState(null);
@@ -62,7 +63,8 @@ export const AuthProvider = ({ children }) => {
             )
               .then((res) => res.json())
               .then((data) => {
-                setUserValues(data);
+                setUserValues(data.userValues);
+                setStreakObj(data.streakObj);
                 navigation.navigate("BottomTabBar");
               })
               .catch((err) => {
@@ -177,7 +179,8 @@ export const AuthProvider = ({ children }) => {
             shouldListenRealTime: true,
             number: number,
           };
-          setUserValues(data);
+          setUserValues(data.userValues);
+          setStreakObj(data.streakObj);
           setLoadingClicked(false);
           navigation.navigate("MeditationScreen", propsToPass);
         })
@@ -213,7 +216,8 @@ export const AuthProvider = ({ children }) => {
           )
             .then((res) => res.json())
             .then((data) => {
-              setUserValues(data);
+              setUserValues(data.userValues);
+              setStreakObj(data.streakObj);
               setIsWaitingOnEmailVerification(false);
             })
             .catch((err) => {
@@ -371,6 +375,8 @@ export const AuthProvider = ({ children }) => {
       isWaitingOnEmailVerification,
       currentOffering,
       revenueCatCustomerInfo,
+      streakObj,
+      appInitialized,
     }),
     [
       user,
@@ -386,6 +392,8 @@ export const AuthProvider = ({ children }) => {
       isWaitingOnEmailVerification,
       currentOffering,
       revenueCatCustomerInfo,
+      streakObj,
+      appInitialized,
     ]
   );
 

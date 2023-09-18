@@ -18,6 +18,7 @@ const LoadingScreen = ({ navigation }) => {
         SF_Compact_Display_Thin: require("../assets/fonts/SF-Compact-Display-Thin.ttf"),
         SF_Compact_Display_Black: require("../assets/fonts/SF-Compact-Display-Black.ttf"),
         Sigmar_Regular: require("../assets/fonts/Sigmar-Regular.ttf"),
+        Inter_Black: require("../assets/fonts/Inter-Black.ttf"),
       });
 
       setTimeout(() => {
