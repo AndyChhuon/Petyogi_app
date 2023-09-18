@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [streakObj, setStreakObj] = useState();
   const [appInitialized, setAppInitialized] = useState(false);
+  const [loadingModalVisible, setLoadingModalVisible] = useState(false);
   const [currentOffering, setCurrentOffering] = useState(null);
   const [revenueCatCustomerInfo, setRevenueCatCustomerInfo] = useState(null);
   const [userValues, setUserValues] = useState({});
@@ -163,14 +164,7 @@ export const AuthProvider = ({ children }) => {
       )
         .then((res) => {
           if (res.ok) {
-            // Check if the response status is in the range of 200-299 (indicating success)
-            if (res.headers.get("Content-Type").includes("application/json")) {
-              // Response is JSON
-              return res.json();
-            } else {
-              // Response is not JSON, handle it accordingly
-              return res.text(); // Or any other processing you need
-            }
+            return res.json();
           }
         })
         .then((data) => {
@@ -191,6 +185,46 @@ export const AuthProvider = ({ children }) => {
             message: "There was an error creating your meditation.",
             type: "danger",
           });
+        });
+    });
+  };
+
+  const saveStreak = () => {
+    setLoadingModalVisible(true);
+    getIdToken(user).then((idToken) => {
+      //post request
+      fetch(
+        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/saveStreak",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+          }),
+        }
+      )
+        .then((res) => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            res.text().then((text) => {
+              console.log(text);
+              showMessage({
+                message: text,
+                type: "danger",
+              });
+            });
+          }
+        })
+        .then((data) => {
+          setLoadingModalVisible(false);
+          setUserValues(data.userValues);
+          setStreakObj(data.streakObj);
+        })
+        .catch((err) => {
+          setLoadingModalVisible(false);
         });
     });
   };
@@ -377,6 +411,9 @@ export const AuthProvider = ({ children }) => {
       revenueCatCustomerInfo,
       streakObj,
       appInitialized,
+      saveStreak,
+      loadingModalVisible,
+      setLoadingModalVisible,
     }),
     [
       user,
@@ -394,6 +431,9 @@ export const AuthProvider = ({ children }) => {
       revenueCatCustomerInfo,
       streakObj,
       appInitialized,
+      saveStreak,
+      loadingModalVisible,
+      setLoadingModalVisible,
     ]
   );
 

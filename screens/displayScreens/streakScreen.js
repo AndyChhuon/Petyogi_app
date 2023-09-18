@@ -18,7 +18,8 @@ const { width, height } = Dimensions.get("window");
 import useAuth from "../../hooks/useAuth";
 
 const StreakScreen = ({ navigation }) => {
-  const { reloadUser, isWaitingOnEmailVerification } = useAuth();
+  const { reloadUser, isWaitingOnEmailVerification, userValues } = useAuth();
+  const streak = userValues.streak;
 
   useEffect(() => {
     if (isWaitingOnEmailVerification) {
@@ -78,7 +79,7 @@ const StreakScreen = ({ navigation }) => {
                 justifyContent: "center",
               }}
             >
-              <Text style={Fonts.streakNumberText}>195</Text>
+              <Text style={Fonts.streakNumberText}>{streak}</Text>
               <Text style={Fonts.streakSecondaryText}>day streak!</Text>
             </View>
             <View
@@ -109,7 +110,7 @@ const StreakScreen = ({ navigation }) => {
           }}
         >
           <Text style={Fonts.streakPrimaryText}>
-            Streak feature coming soon!
+            Streak calendar coming soon!
           </Text>
         </View>
       </SafeAreaView>

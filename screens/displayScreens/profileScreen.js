@@ -26,15 +26,14 @@ const { width, height } = Dimensions.get("window");
 
 const ProfileScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
-  const [purchaseAwaiting, setPurchaseAwaiting] = useState(false);
-  const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
-    useState(0);
   const {
     userValues,
     reloadUser,
     isWaitingOnEmailVerification,
     revenueCatCustomerInfo,
     currentOffering,
+    loadingModalVisible,
+    setLoadingModalVisible,
   } = useAuth();
   const { remainingCredits, accountType, hasFreeTrial, coins, streak } =
     userValues;
@@ -55,15 +54,12 @@ const ProfileScreen = ({ navigation }) => {
   }, []);
 
   const handlePurchase = async (packageID) => {
-    if (purchaseAwaiting) return;
-    setCreateMeditationLottieIndex(
-      Math.floor(Math.random() * meditationLotties.length)
-    );
-    setPurchaseAwaiting(true);
+    if (loadingModalVisible) return;
+    setLoadingModalVisible(true);
     console.log(packageID);
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
-        setPurchaseAwaiting(false);
+        setLoadingModalVisible(false);
       })
       .catch((err) => {
         if (!err.userCancelled && err.code != 15) {
@@ -78,7 +74,7 @@ const ProfileScreen = ({ navigation }) => {
             type: "warning",
           });
         }
-        if (err.code != 15) setPurchaseAwaiting(false);
+        if (err.code != 15) setLoadingModalVisible(false);
       });
   };
 
@@ -116,45 +112,6 @@ const ProfileScreen = ({ navigation }) => {
       <SafeAreaView
         style={{ flex: 0, backgroundColor: Colors.bodyBackColor2 }}
       />
-      <View
-        style={{
-          display: purchaseAwaiting ? "flex" : "none",
-          backgroundColor: "rgba(37, 53, 66, 0.5)",
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 3,
-        }}
-      >
-        <View style={{ width: "80%", alignItems: "center" }}>
-          <Lottie
-            source={meditationLotties[createMeditationLottieIndex].lottie}
-            style={{
-              position: "relative",
-              resizeMode: "cover",
-              flexGrow: 1,
-              opacity: 1,
-              width: "100%",
-            }}
-            speed={meditationLotties[createMeditationLottieIndex].speed}
-            autoPlay
-            loop
-          ></Lottie>
-          <View
-            style={{
-              backgroundColor: Colors.whiteDarker,
-              borderRadius: 10,
-              padding: 10,
-              width: "90%",
-              alignItems: "center",
-            }}
-          >
-            <Text style={Fonts.loadingText}>Loading...</Text>
-          </View>
-        </View>
-      </View>
       <SafeAreaView
         style={{
           flex: 1,
@@ -980,8 +937,8 @@ const ProfileScreen = ({ navigation }) => {
                 { paddingBottom: 35, paddingTop: 2, fontSize: 12 },
               ]}
             >
-              * max accumulated credits are credits given while offline,
-              resets every month.
+              * max accumulated credits are credits given while offline, resets
+              every month.
             </Text>
           </View>
         </ScrollView>

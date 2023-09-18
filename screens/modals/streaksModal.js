@@ -1,48 +1,18 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import {
-  SafeAreaView,
-  View,
-  StatusBar,
-  Dimensions,
-  ImageBackground,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-  StyleSheet,
-  Text,
-  FlatList,
-} from "react-native";
+import { View, Dimensions, Image, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors, Sizes, Fonts } from "../../constants/styles";
+import { Colors, Fonts } from "../../constants/styles";
 import { streaksLostImage, streaksSavedImage } from "../../constants/constants";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
-import Purchases from "react-native-purchases";
-import { showMessage } from "react-native-flash-message";
-import Lottie from "lottie-react-native";
 import ScaleInOut from "../../Animations/ScaleInOut";
 import * as Haptics from "expo-haptics";
-import { set } from "firebase/database";
 
 const { width, height } = Dimensions.get("window");
 
 const streaksModal = () => {
-  // const { streakObj, userValues } = useAuth();
-
-  const { streakObj, userValues } = {
-    streakObj: {
-      coinsNeededToSaveStreak: 600,
-      daysMissed: 2,
-      shouldAllowStreakSave: true,
-      streakMsg: "lostStreakMsg",
-      streakToSave: 21,
-    },
-    userValues: {
-      coins: 400,
-      streak: 21,
-    },
-  };
+  const { streakObj, userValues, saveStreak } = useAuth();
   const [streaksLostImageIndex, setStreaksLostImageIndex] = useState(0);
   const [streaksSavedImageIndex, setStreakSavedImageIndex] = useState(0);
   const [notEnoughCoins, setNotEnoughCoins] = useState(false);
@@ -71,7 +41,7 @@ const streaksModal = () => {
         Math.floor(Math.random() * streaksSavedImage.length)
       );
       setTimeout(() => {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }, streakDelay);
     }
 
@@ -81,6 +51,7 @@ const streaksModal = () => {
   const handleSaveStreak = () => {
     if (streakObj?.coinsNeededToSaveStreak <= coins) {
       setStreakMsgState("noStreakMsg");
+      saveStreak();
     } else {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setNotEnoughCoins(true);
@@ -127,7 +98,7 @@ const streaksModal = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 99999,
+          zIndex: 20,
           paddingBottom: "15%",
         }}
       >
@@ -142,10 +113,15 @@ const streaksModal = () => {
             alignItems: "center",
             borderTopLeftRadius: 10,
             borderTopRightRadius: 10,
+            borderWidth:
+              streakMsgState == "saveStreakMsg" ||
+              streakMsgState == "lostStreakMsg"
+                ? 2
+                : 0,
+            borderColor: "#a26208",
             borderBottomColor: modalColors[streakMsgState]
               ? modalColors[streakMsgState].topBorder
               : "#e9d076",
-            borderBottomWidth: 2,
           }}
         >
           {streakMsgState == "saveStreakMsg" ||
@@ -168,7 +144,7 @@ const streaksModal = () => {
               paddingHorizontal={0}
               backgroundColor="#eb910a"
               backgroundDarker="#a26208"
-              onPressIn={() => {
+              onPressOut={() => {
                 setNotEnoughCoins(false);
                 setStreakMsgState("noStreakMsg");
               }}
@@ -189,6 +165,13 @@ const streaksModal = () => {
             paddingBottom: (25 * height) / 880,
             borderBottomLeftRadius: 10,
             borderBottomRightRadius: 10,
+            borderWidth:
+              streakMsgState == "saveStreakMsg" ||
+              streakMsgState == "lostStreakMsg"
+                ? 2
+                : 0,
+            borderColor: "#a26208",
+            borderTopWidth: 0,
           }}
         >
           <Image
@@ -308,7 +291,7 @@ const streaksModal = () => {
               borderWidth={1}
               borderColor="#005aae"
               borderRadius={8}
-              onPressIn={() => {
+              onPressOut={() => {
                 handleSaveStreak();
               }}
             >
