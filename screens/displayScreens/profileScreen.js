@@ -34,6 +34,8 @@ const ProfileScreen = ({ navigation }) => {
     currentOffering,
     loadingModalVisible,
     setLoadingModalVisible,
+    checkIfUserHasCredits,
+    user,
   } = useAuth();
   const { remainingCredits, accountType, hasFreeTrial, coins, streak } =
     userValues;
@@ -60,8 +62,10 @@ const ProfileScreen = ({ navigation }) => {
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
         setLoadingModalVisible(false);
+        checkIfUserHasCredits(user);
       })
       .catch((err) => {
+        console.log(err);
         if (!err.userCancelled && err.code != 15) {
           showMessage({
             message: "There was an error purchasing the subscription plan.",

@@ -30,6 +30,7 @@ const APIKeys = {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [streakObj, setStreakObj] = useState();
+  const [creditsObj, setCreditsObj] = useState();
   const [appInitialized, setAppInitialized] = useState(false);
   const [loadingModalVisible, setLoadingModalVisible] = useState(false);
   const [currentOffering, setCurrentOffering] = useState(null);
@@ -40,6 +41,11 @@ export const AuthProvider = ({ children }) => {
     useState(false);
 
   const navigation = useNavigation();
+
+  const customerInfoUpdated = async (purchaserInfo) => {
+    console.log(purchaserInfo);
+    setRevenueCatCustomerInfo(purchaserInfo);
+  };
 
   useEffect(() => {
     if (appInitialized) {
@@ -66,6 +72,8 @@ export const AuthProvider = ({ children }) => {
               .then((data) => {
                 setUserValues(data.userValues);
                 setStreakObj(data.streakObj);
+                checkIfUserHasCredits(user);
+
                 navigation.navigate("BottomTabBar");
               })
               .catch((err) => {
@@ -99,6 +107,7 @@ export const AuthProvider = ({ children }) => {
           Purchases.getOfferings()
             .then((offerings) => {
               setCurrentOffering(offerings.current);
+              Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
             })
             .catch((err) => {
               showMessage({
@@ -124,23 +133,15 @@ export const AuthProvider = ({ children }) => {
         }
       });
 
-      return unsubscribe;
+      return () => {
+        unsubscribe();
+        Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
+      };
     }
   }, [appInitialized]);
 
-  useEffect(() => {
-    const customerInfoUpdated = async (purchaserInfo) => {
-      console.log(purchaserInfo);
-      setRevenueCatCustomerInfo(purchaserInfo);
-    };
-
-    Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
-
-    return () =>
-      Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
-  }, [appInitialized]);
-
   const generateNewMeditation = (
+    user,
     userInput,
     meditationType,
     number,
@@ -179,7 +180,6 @@ export const AuthProvider = ({ children }) => {
           navigation.navigate("MeditationScreen", propsToPass);
         })
         .catch((err) => {
-          console.log(err);
           setLoadingClicked(false);
           showMessage({
             message: "There was an error creating your meditation.",
@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const saveStreak = () => {
+  const saveStreak = (user) => {
     setLoadingModalVisible(true);
     getIdToken(user).then((idToken) => {
       //post request
@@ -225,6 +225,40 @@ export const AuthProvider = ({ children }) => {
         })
         .catch((err) => {
           setLoadingModalVisible(false);
+        });
+    });
+  };
+
+  const checkIfUserHasCredits = (user) => {
+    getIdToken(user).then((idToken) => {
+      //post request
+      fetch(
+        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/updateCredits",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+          }),
+        }
+      )
+        .then((res) => {
+          if (res.ok) {
+            return res.json();
+          }
+        })
+        .then((data) => {
+          setUserValues(data.userValues);
+          setCreditsObj(data.modalDisplay);
+          console.log(data.modalDisplay);
+        })
+        .catch((err) => {
+          showMessage({
+            message: "There was an error trying to update your credits.",
+            type: "danger",
+          });
         });
     });
   };
@@ -414,6 +448,8 @@ export const AuthProvider = ({ children }) => {
       saveStreak,
       loadingModalVisible,
       setLoadingModalVisible,
+      creditsObj,
+      checkIfUserHasCredits,
     }),
     [
       user,
@@ -434,6 +470,8 @@ export const AuthProvider = ({ children }) => {
       saveStreak,
       loadingModalVisible,
       setLoadingModalVisible,
+      creditsObj,
+      checkIfUserHasCredits,
     ]
   );
 

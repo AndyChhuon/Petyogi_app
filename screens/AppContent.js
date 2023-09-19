@@ -20,6 +20,7 @@ import PurchaseScreen from "./displayScreens/purchaseScreen";
 import TermsAndConditions from "./displayScreens/termsAndConditions";
 import StreaksModal from "./modals/streaksModal";
 import LoadingModal from "./modals/loadingModal";
+import CreditsModal from "./modals/creditsModal";
 import { StatusBar } from "expo-status-bar";
 
 const Stack = createStackNavigator();
@@ -103,8 +104,9 @@ const AppContent = () => {
         )}
       </Stack.Navigator>
       <FlashMessage position="top" />
-      {appInitialized && <StreaksModal />}
+      {user && <StreaksModal />}
       {user && <LoadingModal />}
+      {user && <CreditsModal />}
       <StatusBar style="dark" />
     </>
   );

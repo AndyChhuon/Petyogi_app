@@ -12,7 +12,7 @@ import * as Haptics from "expo-haptics";
 const { width, height } = Dimensions.get("window");
 
 const streaksModal = () => {
-  const { streakObj, userValues, saveStreak } = useAuth();
+  const { streakObj, userValues, saveStreak, user } = useAuth();
   const [streaksLostImageIndex, setStreaksLostImageIndex] = useState(0);
   const [streaksSavedImageIndex, setStreakSavedImageIndex] = useState(0);
   const [notEnoughCoins, setNotEnoughCoins] = useState(false);
@@ -23,7 +23,6 @@ const streaksModal = () => {
   const streakDelay = 1000;
 
   useEffect(() => {
-    console.log(streakObj);
     const streakMsg = streakObj?.streakMsg
       ? streakObj.streakMsg
       : "noStreakMsg";
@@ -51,7 +50,7 @@ const streaksModal = () => {
   const handleSaveStreak = () => {
     if (streakObj?.coinsNeededToSaveStreak <= coins) {
       setStreakMsgState("noStreakMsg");
-      saveStreak();
+      saveStreak(user);
     } else {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setNotEnoughCoins(true);

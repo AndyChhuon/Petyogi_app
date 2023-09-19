@@ -253,7 +253,6 @@ const RegisterScreen = ({ navigation }) => {
             </TouchableOpacity>
             <TextInput
               ref={passInput}
-              value={password}
               onChangeText={(value) => updateState({ password: value })}
               placeholder="Enter Password"
               secureTextEntry={securePassword}
@@ -387,7 +386,6 @@ const RegisterScreen = ({ navigation }) => {
           </TouchableOpacity>
           <TextInput
             ref={input}
-            value={userEmail}
             onChangeText={(value) => updateState({ userEmail: value })}
             placeholder="Enter Email Address"
             placeholderTextColor={Colors.grayColor}

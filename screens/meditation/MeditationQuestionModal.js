@@ -32,7 +32,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const [isLastModal, setIsLastModal] = useState(false);
   const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
     useState(0);
-  const { generateNewMeditation } = useAuth();
+  const { generateNewMeditation, user } = useAuth();
 
   const {
     initMeditationQuestionsJson,
@@ -385,6 +385,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       // Generate new meditation
       else {
         generateNewMeditation(
+          user,
           meditationQuestionsJson,
           Object.values(meditationQuestionsJson)[1],
           number,
