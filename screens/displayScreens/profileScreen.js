@@ -56,7 +56,9 @@ const ProfileScreen = ({ navigation }) => {
     : accountType;
 
   const noCreditsLeft = remainingCredits == 0;
-  const subscriptionWithPrevDate = creditsObj.subscriptionWithPrevDate;
+  const subscriptionWithPrevDate = creditsObj?.subscriptionWithPrevDate
+    ? creditsObj?.subscriptionWithPrevDate
+    : ["noSubscription", new Date()];
   console.log(subscriptionWithPrevDate);
 
   const hoursIncrementBySubscriptionType = {

@@ -67,7 +67,7 @@ const TabNavigator = ({ route }) => {
               tabIconSort({
                 icon: require("../assets/images/icons/home.png"),
                 focused: focused,
-                size: 32,
+                color: color,
               }),
           }}
         />
@@ -78,9 +78,9 @@ const TabNavigator = ({ route }) => {
           options={{
             tabBarIcon: ({ color, focused }) =>
               tabIconSort({
-                icon: require("../assets/images/icons/turtle.png"),
+                icon: require("../assets/images/icons/user.png"),
                 focused: focused,
-                size: 38,
+                color: color,
               }),
           }}
         />
@@ -89,22 +89,23 @@ const TabNavigator = ({ route }) => {
     </>
   );
 
-  function tabIconSort({ icon, focused, size }) {
+  function tabIconSort({ icon, focused, color }) {
     return (
       <View
         style={{
-          backgroundColor: focused ? "#f7983a" : "#4935b7",
-          borderColor: focused ? Colors.goldColor : "#5760b5",
-          borderWidth: 1,
+          backgroundColor: focused ? "#f7983a" : "#5f94ae",
+          borderColor: Colors.goldColor,
+          borderWidth: focused ? 1 : 0,
           ...styles.bottomTabBarItemWrapStyle,
         }}
       >
         <Image
           source={icon}
           style={{
-            width: (size * width) / 414,
-            height: (size * width) / 414,
+            width: (24.0 * width) / 414,
+            height: (24.0 * width) / 414,
             resizeMode: "contain",
+            tintColor: color,
           }}
         />
       </View>
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
   bottomTabBarItemWrapStyle: {
     width: (40.0 * width) / 414,
     height: (40.0 * width) / 414,
-    borderRadius: 10,
+    borderRadius: (Sizes.fixPadding * width) / 414,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -147,9 +148,9 @@ const styles = StyleSheet.create({
     borderTopWidth: (2 * width) / 414,
     paddingTop: 15,
     paddingBottom: 20,
-    borderTopColor: "#7b8c95",
+    borderTopColor: "#82949d",
     elevation: (3.0 * width) / 414,
     shadowColor: Colors.primaryColor,
-    backgroundColor: "#120d28",
+    backgroundColor: Colors.bodyBackColor2,
   },
 });
