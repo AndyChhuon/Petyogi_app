@@ -299,8 +299,7 @@ export const purchaseScreenCTA = {
     background: require("../assets/images/purchaseScreen/silver_gradient.png"),
     borderColor: "#45a16c",
     backgroundDarker: "#62ada9",
-    noCreditsText:
-      "You have no credits left. Less than 2 hours before your next credit fill.",
+    noCreditsText: "You have no credits left.",
     noCreditsCTA: "UPGRADE",
   },
   turtle_plan: {
@@ -313,8 +312,7 @@ export const purchaseScreenCTA = {
     background: require("../assets/images/purchaseScreen/pink_gradient.png"),
     borderColor: "#a14592",
     backgroundDarker: "#ad62a1",
-    noCreditsText:
-      "You have no credits left. Less than 2 hours before your next credit fill.",
+    noCreditsText: "You have no credits left.",
     noCreditsCTA: "UPGRADE",
   },
   yogi_plan: {
@@ -327,8 +325,7 @@ export const purchaseScreenCTA = {
     background: require("../assets/images/purchaseScreen/pink_gradient.png"),
     borderColor: "#a14592",
     backgroundDarker: "#ad62a1",
-    noCreditsText:
-      "You have no credits left. Less than 2 hours before your next credit fill.",
+    noCreditsText: "You have no credits left.",
     noCreditsCTA: "",
   },
 };

@@ -11,17 +11,15 @@ import {
   Image,
   StyleSheet,
   Text,
-  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors, Sizes, Fonts } from "../../constants/styles";
+import { Colors, Fonts } from "../../constants/styles";
 import { purchaseScreenCTA } from "../../constants/constants";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
 import Purchases from "react-native-purchases";
 import { showMessage } from "react-native-flash-message";
-import Lottie from "lottie-react-native";
-import { meditationLotties } from "../../constants/constants";
+import { min } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
 
@@ -36,8 +34,11 @@ const ShopScreen = ({ navigation }) => {
     setLoadingModalVisible,
     checkIfUserHasCredits,
     user,
+    creditsObj,
   } = useAuth();
   const { remainingCredits, accountType, hasFreeTrial } = userValues;
+  const [hasCheckedIfUserHasCredits, setHasCheckedIfUserHasCredits] =
+    useState(false);
   const accountPlan = revenueCatCustomerInfo?.activeSubscriptions[0]
     ? revenueCatCustomerInfo?.activeSubscriptions[0]
     : accountType == "freeVerified"
@@ -47,12 +48,49 @@ const ShopScreen = ({ navigation }) => {
     : accountType;
 
   const noCreditsLeft = remainingCredits == 0;
+  const subscriptionWithPrevDate = creditsObj.subscriptionWithPrevDate;
+  console.log(subscriptionWithPrevDate);
 
   useEffect(() => {
     if (isWaitingOnEmailVerification) {
       reloadUser();
     }
   }, []);
+
+  const hoursIncrementBySubscriptionType = {
+    sloth_plan: 48,
+    turtle_plan: 24,
+    yogi_plan: 12,
+  };
+
+  const getTimeRemaining = (date, subscriptionType) => {
+    const nextDate = new Date(date);
+    console.log(nextDate);
+
+    nextDate.setHours(
+      nextDate.getHours() + hoursIncrementBySubscriptionType[subscriptionType]
+    );
+
+    const minutesLeft = (nextDate - new Date()) / 1000 / 60;
+
+    if (minutesLeft < 0 && !hasCheckedIfUserHasCredits) {
+      setHasCheckedIfUserHasCredits(true);
+      checkIfUserHasCredits(user);
+      return "0 minutes";
+    } else if (minutesLeft > 60) {
+      return Math.ceil(minutesLeft / 60) + " hours";
+    } else {
+      return Math.ceil(minutesLeft) + " minutes";
+    }
+  };
+
+  const timeRemaining =
+    subscriptionWithPrevDate[0] != "noSubscription"
+      ? getTimeRemaining(
+          subscriptionWithPrevDate[1],
+          subscriptionWithPrevDate[0]
+        )
+      : "";
 
   const handlePurchase = async (packageID) => {
     if (loadingModalVisible) return;
@@ -85,7 +123,6 @@ const ShopScreen = ({ navigation }) => {
     if (accountPlan == "free") {
       navigation.navigate("Verification");
     } else if (accountPlan == "freeVerifiedTrial") {
-      // free trial
       handlePurchase(
         currentOffering?.availablePackages.find(
           (item) => item.identifier === "Turtle Plan"
@@ -111,8 +148,8 @@ const ShopScreen = ({ navigation }) => {
 
   return (
     <Fragment>
-      <StatusBar translucent={false} backgroundColor="#5760b5" />
-      <SafeAreaView style={{ flex: 0, backgroundColor: "#5760b5" }} />
+      <StatusBar translucent={false} backgroundColor="#5f94ae" />
+      <SafeAreaView style={{ flex: 0, backgroundColor: "#5f94ae" }} />
       <SafeAreaView
         style={{
           flex: 1,
@@ -146,7 +183,7 @@ const ShopScreen = ({ navigation }) => {
             paddingBottom: (12 * height) / 850,
             borderBottomWidth: 2,
             borderBottomColor: "#121f24",
-            backgroundColor: "#5760b5",
+            backgroundColor: "#5f94ae",
           }}
         >
           <View
@@ -229,6 +266,8 @@ const ShopScreen = ({ navigation }) => {
                 style={[Fonts.purchaseScreenDescription, { fontSize: 16.5 }]}
               >
                 {purchaseScreenCTA[accountPlan].noCreditsText}
+                {subscriptionWithPrevDate[0] != "noSubscription" &&
+                  ` Less than ${timeRemaining} before your next credit fill.`}
               </Text>
               <TouchableOpacity
                 style={
@@ -792,7 +831,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#5760b5",
+    backgroundColor: "#5f94ae",
   },
   BackgroundImage: {
     flex: 1,

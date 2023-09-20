@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 
 import {
   SafeAreaView,
@@ -14,12 +14,27 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Sizes, Fonts } from "../../constants/styles";
-const { width, height } = Dimensions.get("window");
 import useAuth from "../../hooks/useAuth";
 
+const { width, height } = Dimensions.get("window");
+
 const StreakScreen = ({ navigation }) => {
-  const { reloadUser, isWaitingOnEmailVerification, userValues } = useAuth();
+  const {
+    reloadUser,
+    isWaitingOnEmailVerification,
+    userValues,
+    streakObj,
+    setStreakObj,
+    checkStreaks,
+  } = useAuth();
+
+  const [hasCheckedStreaksReload, setHasCheckedStreaksReload] = useState(false);
+
   const streak = userValues.streak;
+  const streakIsSaveable = streak == 0 && streakObj.shouldAllowStreakSave;
+  const todayStreakCompleted =
+    new Date(userValues.lastMeditationDate) >=
+    new Date(new Date().toISOString().slice(0, 10));
 
   useEffect(() => {
     if (isWaitingOnEmailVerification) {
@@ -27,6 +42,39 @@ const StreakScreen = ({ navigation }) => {
       reloadUser();
     }
   }, []);
+
+  const onCTAClick = () => {
+    if (streakIsSaveable) {
+      setStreakObj({ ...streakObj, streakMsg: "saveStreakMsg" });
+    } else {
+      navigation.navigate("Home");
+    }
+  };
+
+  const getTimeUntilStreakReset = () => {
+    const currentUTC = new Date();
+    const currentUTCString = currentUTC.toISOString().slice(0, 10);
+    const lastStreakChecked = streakObj.dateToday;
+    const midnightUTC = new Date(currentUTC);
+    midnightUTC.setDate(midnightUTC.getDate() + 1);
+    midnightUTC.setUTCHours(0, 0, 0, 0);
+
+    const minutesLeft = (midnightUTC - currentUTC) / 1000 / 60;
+    if (lastStreakChecked != currentUTCString && !hasCheckedStreaksReload) {
+      setHasCheckedStreaksReload(true);
+      checkStreaks();
+    }
+
+    if (minutesLeft < 0) {
+      return "0 minutes";
+    } else if (minutesLeft > 60) {
+      return Math.ceil(minutesLeft / 60) + " hours";
+    } else {
+      return Math.ceil(minutesLeft) + " minutes";
+    }
+  };
+
+  const timeUntilStreakReset = getTimeUntilStreakReset();
 
   return (
     <Fragment>
@@ -41,56 +89,64 @@ const StreakScreen = ({ navigation }) => {
           backgroundColor: Colors.bodyBackColor2,
         }}
       >
+        <View style={[styles.closeButtonStyle]}>
+          <Ionicons
+            name="close"
+            color={Colors.whiteDarker}
+            size={32}
+            onPress={() => navigation.pop()}
+          />
+          <Text
+            style={[Fonts.displayScreensText, { flex: 1, textAlign: "center" }]}
+          >
+            Streak
+          </Text>
+          <Ionicons
+            name="share-outline"
+            color={Colors.whiteDarker}
+            size={32}
+            style={{ opacity: 0 }}
+          />
+        </View>
         <View
           style={{
             backgroundColor: "#feaa34",
-            paddingBottom: 28,
+            paddingBottom: (8 * height) / 850,
             borderBottomWidth: 2,
             borderBottomColor: "#121f24",
           }}
         >
-          <View style={[styles.closeButtonStyle]}>
-            <Ionicons
-              name="close"
-              color={Colors.whiteDarker}
-              size={32}
-              onPress={() => navigation.pop()}
-            />
-            <Text
-              style={[
-                Fonts.displayScreensText,
-                { flex: 1, textAlign: "center" },
-              ]}
-            >
-              Streak
-            </Text>
-            <Ionicons
-              name="share-outline"
-              color={Colors.whiteDarker}
-              size={32}
-              style={{ opacity: 0 }}
-            />
-          </View>
-          <View style={{ flexDirection: "row", marginTop: 10 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              paddingBottom: (7 * height) / 850,
+            }}
+          >
             <View
               style={{
-                flex: 1,
+                flex: 6,
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
               <Text style={Fonts.streakNumberText}>{streak}</Text>
-              <Text style={Fonts.streakSecondaryText}>day streak!</Text>
+              <Text style={[Fonts.streakSecondaryText, { fontSize: 27 }]}>
+                day streak!
+              </Text>
             </View>
             <View
               style={{
-                flex: 1,
+                flex: 5,
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
               <Image
-                source={require("../../assets/images/icons/streak.png")}
+                source={
+                  todayStreakCompleted
+                    ? require("../../assets/images/icons/streak.png")
+                    : require("../../assets/images/icons/streak_grey.png")
+                }
                 style={{
                   width: (150.0 * width) / 414,
                   height: (150.0 * width) / 414,
@@ -98,6 +154,66 @@ const StreakScreen = ({ navigation }) => {
                   //grey out
                 }}
               />
+            </View>
+          </View>
+
+          <View
+            style={
+              !todayStreakCompleted || streakIsSaveable
+                ? {
+                    backgroundColor: Colors.bodyBackColor2,
+                    flexDirection: "row",
+                    marginHorizontal: 10,
+                    paddingLeft: 8,
+                    paddingRight: 15,
+                    paddingVertical: 15,
+                    marginTop: 15,
+                    marginBottom: 3,
+                    borderRadius: 7,
+                  }
+                : { display: "none" }
+            }
+          >
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                paddingRight: 2,
+              }}
+            >
+              <Image
+                source={require("../../assets/images/icons/clock.png")}
+                style={{
+                  width: (42.0 * width) / 414,
+                  height: (42.0 * width) / 414,
+                  resizeMode: "contain",
+                }}
+              />
+            </View>
+            <View style={{ flex: 6 }}>
+              <Text
+                style={[Fonts.purchaseScreenDescription, { fontSize: 16.5 }]}
+              >
+                {streakIsSaveable
+                  ? `You are about to lose your streak. It is not too late to save it! You have less than ${timeUntilStreakReset}.`
+                  : streak == 0
+                  ? `Complete your first meditation to begin a new streak! You have less than ${timeUntilStreakReset}.`
+                  : `Complete your meditation to extend your streak! You have less than ${timeUntilStreakReset}.`}
+              </Text>
+              <TouchableOpacity onPress={() => onCTAClick()}>
+                <Text
+                  style={[
+                    Fonts.purchaseScreenTitle,
+                    { fontSize: 17, color: "#42c2fa", marginTop: 9 },
+                  ]}
+                >
+                  {streakIsSaveable
+                    ? "Save streak"
+                    : streak == 0
+                    ? "Start Streak"
+                    : "Extend Streak"}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -120,11 +236,14 @@ const StreakScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   closeButtonStyle: {
-    margin: (20.0 * width) / 414,
+    paddingHorizontal: (20.0 * width) / 414,
+    paddingTop: (5.0 * width) / 414,
+    paddingBottom: (12 * height) / 850,
     zIndex: 4,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#feaa34",
   },
 });
 

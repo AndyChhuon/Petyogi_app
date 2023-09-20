@@ -32,12 +32,9 @@ const HomeScreen = ({ navigation }) => {
 
   const { userValues } = useAuth();
 
-  // const userValues = {
-  //   numMeditations: 11,
-  //   streak: 3,
-  //   remainingCredits: 2,
-  //   coins: 100,
-  // };
+  const todayStreakCompleted =
+    new Date(userValues.lastMeditationDate) >=
+    new Date(new Date().toISOString().slice(0, 10));
 
   const currentMeditation = userValues.numMeditations + 1;
 
@@ -297,10 +294,14 @@ const HomeScreen = ({ navigation }) => {
                 }}
               >
                 <Image
-                  source={require("../../assets/images/icons/streak.png")}
+                  source={
+                    todayStreakCompleted
+                      ? require("../../assets/images/icons/streak.png")
+                      : require("../../assets/images/icons/streak_grey.png")
+                  }
                   style={{
-                    width: (20.0 * width) / 414,
-                    height: (20.0 * width) / 414,
+                    width: (22.0 * width) / 414,
+                    height: (22.0 * width) / 414,
                     resizeMode: "contain",
                   }}
                 />

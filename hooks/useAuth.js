@@ -189,6 +189,36 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const checkStreaks = () => {
+    getIdToken(user).then((idToken) => {
+      //post request
+      fetch(
+        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+          }),
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setUserValues(data.userValues);
+          setStreakObj(data.streakObj);
+        })
+        .catch((err) => {
+          console.log(err);
+          showMessage({
+            message: "There was an error fetching your data.",
+            type: "danger",
+          });
+        });
+    });
+  };
+
   const saveStreak = (user) => {
     setLoadingModalVisible(true);
     getIdToken(user).then((idToken) => {
@@ -444,12 +474,14 @@ export const AuthProvider = ({ children }) => {
       currentOffering,
       revenueCatCustomerInfo,
       streakObj,
+      setStreakObj,
       appInitialized,
       saveStreak,
       loadingModalVisible,
       setLoadingModalVisible,
       creditsObj,
       checkIfUserHasCredits,
+      checkStreaks,
     }),
     [
       user,
@@ -466,12 +498,14 @@ export const AuthProvider = ({ children }) => {
       currentOffering,
       revenueCatCustomerInfo,
       streakObj,
+      setStreakObj,
       appInitialized,
       saveStreak,
       loadingModalVisible,
       setLoadingModalVisible,
       creditsObj,
       checkIfUserHasCredits,
+      checkStreaks,
     ]
   );
 

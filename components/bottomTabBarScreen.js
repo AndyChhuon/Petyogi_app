@@ -93,7 +93,7 @@ const TabNavigator = ({ route }) => {
     return (
       <View
         style={{
-          backgroundColor: focused ? "#f7983a" : "#535cb3",
+          backgroundColor: focused ? "#f7983a" : "#5f94ae",
           borderColor: Colors.goldColor,
           borderWidth: focused ? 1 : 0,
           ...styles.bottomTabBarItemWrapStyle,
@@ -148,9 +148,9 @@ const styles = StyleSheet.create({
     borderTopWidth: (2 * width) / 414,
     paddingTop: 15,
     paddingBottom: 20,
-    borderTopColor: "#2c383d",
+    borderTopColor: "#82949d",
     elevation: (3.0 * width) / 414,
     shadowColor: Colors.primaryColor,
-    backgroundColor: "#132025",
+    backgroundColor: Colors.bodyBackColor2,
   },
 });

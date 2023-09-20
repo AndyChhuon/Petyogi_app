@@ -36,9 +36,17 @@ const ProfileScreen = ({ navigation }) => {
     setLoadingModalVisible,
     checkIfUserHasCredits,
     user,
+    creditsObj,
   } = useAuth();
+
+  const todayStreakCompleted =
+    new Date(userValues.lastMeditationDate) >=
+    new Date(new Date().toISOString().slice(0, 10));
+
   const { remainingCredits, accountType, hasFreeTrial, coins, streak } =
     userValues;
+  const [hasCheckedIfUserHasCredits, setHasCheckedIfUserHasCredits] =
+    useState(false);
   const accountPlan = revenueCatCustomerInfo?.activeSubscriptions[0]
     ? revenueCatCustomerInfo?.activeSubscriptions[0]
     : accountType == "freeVerified"
@@ -48,6 +56,43 @@ const ProfileScreen = ({ navigation }) => {
     : accountType;
 
   const noCreditsLeft = remainingCredits == 0;
+  const subscriptionWithPrevDate = creditsObj.subscriptionWithPrevDate;
+  console.log(subscriptionWithPrevDate);
+
+  const hoursIncrementBySubscriptionType = {
+    sloth_plan: 48,
+    turtle_plan: 24,
+    yogi_plan: 12,
+  };
+
+  const getTimeRemaining = (date, subscriptionType) => {
+    const nextDate = new Date(date);
+    console.log(nextDate);
+
+    nextDate.setHours(
+      nextDate.getHours() + hoursIncrementBySubscriptionType[subscriptionType]
+    );
+
+    const minutesLeft = (nextDate - new Date()) / 1000 / 60;
+
+    if (minutesLeft < 0 && !hasCheckedIfUserHasCredits) {
+      setHasCheckedIfUserHasCredits(true);
+      checkIfUserHasCredits(user);
+      return "0 minutes";
+    } else if (minutesLeft > 60) {
+      return Math.ceil(minutesLeft / 60) + " hours";
+    } else {
+      return Math.ceil(minutesLeft) + " minutes";
+    }
+  };
+
+  const timeRemaining =
+    subscriptionWithPrevDate[0] != "noSubscription"
+      ? getTimeRemaining(
+          subscriptionWithPrevDate[1],
+          subscriptionWithPrevDate[0]
+        )
+      : "";
 
   useEffect(() => {
     if (isWaitingOnEmailVerification) {
@@ -182,7 +227,7 @@ const ProfileScreen = ({ navigation }) => {
                   paddingVertical: (12 * height) / 850,
                   borderBottomWidth: 2,
                   borderBottomColor: "#121f24",
-                  backgroundColor: "#5760b5",
+                  backgroundColor: "#62a999",
                   borderRadius: 10,
                   borderWidth: 2,
                   borderColor: "#39474f",
@@ -274,6 +319,8 @@ const ProfileScreen = ({ navigation }) => {
                       ]}
                     >
                       {purchaseScreenCTA[accountPlan].noCreditsText}
+                      {subscriptionWithPrevDate[0] != "noSubscription" &&
+                        ` Less than ${timeRemaining} before your next credit fill.`}
                     </Text>
                     <TouchableOpacity
                       style={
@@ -345,7 +392,11 @@ const ProfileScreen = ({ navigation }) => {
                     }}
                   >
                     <Image
-                      source={require("../../assets/images/icons/streak.png")}
+                      source={
+                        todayStreakCompleted
+                          ? require("../../assets/images/icons/streak.png")
+                          : require("../../assets/images/icons/streak_grey.png")
+                      }
                       style={{
                         width: (115.0 * width) / 414,
                         height: (115.0 * width) / 414,
