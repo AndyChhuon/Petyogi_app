@@ -9,6 +9,8 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Colors, Fonts } from "../constants/styles";
+import { initMeditationQuestionsJson } from "../constants/constants";
+
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -121,16 +123,7 @@ function Button(props) {
         }
 
         const propsToPass = {
-          initMeditationQuestionsJson: {
-            "How are you feeling?": [],
-            "Choose today's meditation:": "",
-            "What is on top of your mind right now?": "",
-            "Why is it on your mind?": "",
-            "Describe what you would like to visualize throughout the meditation.":
-              "",
-            "In what setting would you like this visualization to take place?":
-              "",
-          },
+          initMeditationQuestionsJson: initMeditationQuestionsJson,
           phrases: null,
           meditationUrls: null,
           finishedGenerating: null,

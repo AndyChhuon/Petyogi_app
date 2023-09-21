@@ -12,7 +12,7 @@ import * as Haptics from "expo-haptics";
 const { width, height } = Dimensions.get("window");
 
 const streaksModal = () => {
-  const { streakObj, userValues, saveStreak, user } = useAuth();
+  const { streakObj, setStreakObj, userValues, saveStreak, user } = useAuth();
   const [streaksLostImageIndex, setStreaksLostImageIndex] = useState(0);
   const [streaksSavedImageIndex, setStreakSavedImageIndex] = useState(0);
   const [notEnoughCoins, setNotEnoughCoins] = useState(false);
@@ -49,7 +49,10 @@ const streaksModal = () => {
 
   const handleSaveStreak = () => {
     if (streakObj?.coinsNeededToSaveStreak <= coins) {
-      setStreakMsgState("noStreakMsg");
+      // changed
+      // setStreakMsgState("noStreakMsg");
+      setNotEnoughCoins(false);
+      setStreakObj({ ...streakObj, streakMsg: "noStreakMsg" });
       saveStreak(user);
     } else {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -145,7 +148,8 @@ const streaksModal = () => {
               backgroundDarker="#a26208"
               onPressOut={() => {
                 setNotEnoughCoins(false);
-                setStreakMsgState("noStreakMsg");
+                // setStreakMsgState("noStreakMsg");
+                setStreakObj({ ...streakObj, streakMsg: "noStreakMsg" });
               }}
             >
               <Ionicons name="close" color={Colors.whiteDarker} size={25} />

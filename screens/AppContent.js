@@ -21,12 +21,14 @@ import TermsAndConditions from "./displayScreens/termsAndConditions";
 import StreaksModal from "./modals/streaksModal";
 import LoadingModal from "./modals/loadingModal";
 import CreditsModal from "./modals/creditsModal";
+import VerificationModal from "./modals/verificationModal";
+import SplashScreenModal from "./modals/splashScreenModal";
 import { StatusBar } from "expo-status-bar";
 
 const Stack = createStackNavigator();
 
 const AppContent = () => {
-  const { user, appInitialized } = useAuth();
+  const { user } = useAuth();
 
   return (
     <>
@@ -107,6 +109,8 @@ const AppContent = () => {
       {user && <StreaksModal />}
       {user && <LoadingModal />}
       {user && <CreditsModal />}
+      {user && <VerificationModal />}
+      <SplashScreenModal />
       <StatusBar style="dark" />
     </>
   );

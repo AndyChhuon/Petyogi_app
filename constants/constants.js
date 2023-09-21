@@ -329,3 +329,12 @@ export const purchaseScreenCTA = {
     noCreditsCTA: "",
   },
 };
+
+export const initMeditationQuestionsJson = {
+  "How are you feeling?": [],
+  "Choose today's meditation:": "",
+  "What is on top of your mind right now?": "",
+  "Why is it on your mind?": "",
+  "Describe what you would like to visualize throughout the meditation.": "",
+  "In what setting would you like this visualization to take place?": "",
+};

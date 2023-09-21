@@ -1,34 +1,67 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 
-import { View, Dimensions, Image, Text } from "react-native";
+import {
+  SafeAreaView,
+  View,
+  StatusBar,
+  Dimensions,
+  ImageBackground,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  StyleSheet,
+  Text,
+  FlatList,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Fonts } from "../../constants/styles";
-import { streaksSavedImage } from "../../constants/constants";
+import { purchaseScreenCTA } from "../../constants/constants";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
+import Purchases from "react-native-purchases";
+import { showMessage } from "react-native-flash-message";
+import Lottie from "lottie-react-native";
+import { meditationLotties } from "../../constants/constants";
 import ScaleInOut from "../../Animations/ScaleInOut";
 import * as Haptics from "expo-haptics";
+import {
+  streaksSavedImage,
+  initMeditationQuestionsJson,
+} from "../../constants/constants";
+import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
-const creditsModal = () => {
-  const { creditsObj, setCreditsObj } = useAuth();
+const VerificationModal = () => {
+  const { verificationModalVisible, setVerificationModalVisible, userValues } =
+    useAuth();
+
+  const navigation = useNavigation();
 
   const [creditsObtainedImageIndex, setcreditsObtainedImageIndex] = useState(0);
-  const [creditsMsgState, setcreditsMsgState] = useState("nocreditsMsg");
 
   const creditsDelay = 1000;
 
+  const onMeditationClick = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setVerificationModalVisible(false);
+    if (userValues.remainingCredits == 0) {
+      navigation.navigate("PurchaseScreen");
+    } else {
+      const propsToPass = {
+        initMeditationQuestionsJson: initMeditationQuestionsJson,
+        phrases: null,
+        meditationUrls: null,
+        finishedGenerating: null,
+        number: userValues.numMeditations + 1,
+        readOnly: false,
+      };
+      navigation.navigate("Meditation", propsToPass);
+    }
+  };
+
   useEffect(() => {
-    const creditsMsg = creditsObj?.isNewSub
-      ? "newSubMsg"
-      : creditsObj?.nbCreditsGiven && creditsObj.nbCreditsGiven > 0
-      ? "creditsMsg"
-      : "nocreditsMsg";
-
-    console.log(creditsMsg);
-
-    if (creditsMsgState != "nocreditsMsg") {
+    if (verificationModalVisible) {
       setcreditsObtainedImageIndex(
         Math.floor(Math.random() * streaksSavedImage.length)
       );
@@ -36,19 +69,12 @@ const creditsModal = () => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }, creditsDelay);
     }
-
-    setcreditsMsgState(creditsMsg);
-  }, [creditsObj]);
-
-  const creditsBottomText = {
-    creditsMsg: "Let's get meditating!",
-    newSubMsg: "New subscription, new habits!",
-  };
+  }, [verificationModalVisible]);
 
   return (
-    creditsMsgState != "nocreditsMsg" && (
+    verificationModalVisible && (
       <ScaleInOut
-        visible={creditsMsgState != "nocreditsMsg"}
+        visible={verificationModalVisible != "nocreditsMsg"}
         delayIn={creditsDelay}
         style={{
           display: "flex",
@@ -76,7 +102,7 @@ const creditsModal = () => {
           }}
         >
           <Text style={[Fonts.streakModalTitle, { textAlign: "center" }]}>
-            You obtained new credits!
+            Your account has been verified!
           </Text>
           <View style={{ position: "absolute", top: -15, right: -10 }}>
             <AwesomeButton
@@ -87,8 +113,7 @@ const creditsModal = () => {
               backgroundColor="#eb910a"
               backgroundDarker="#a26208"
               onPressOut={() => {
-                // setcreditsMsgState("nocreditsMsg");
-                setCreditsObj({ ...creditsObj, nbCreditsGiven: 0 });
+                setVerificationModalVisible(false);
               }}
             >
               <Ionicons name="close" color={Colors.whiteDarker} size={25} />
@@ -143,20 +168,48 @@ const creditsModal = () => {
                   //grey out
                 }}
               />
-              : {creditsObj?.nbCreditsGiven}
+              : 2
             </Text>
           </View>
           <View style={{ paddingTop: 5, justifyContent: "center" }}>
             <Text
               style={[Fonts.streakSavecreditsText, { textAlign: "center" }]}
             >
-              {creditsBottomText[creditsMsgState]}
+              Let's get meditating!
             </Text>
           </View>
+        </View>
+        <View style={{ marginTop: 10 }}>
+          <AwesomeButton
+            paddingHorizontal={2}
+            width={(110 * width) / 414}
+            height={45}
+            backgroundColor="#67bcff"
+            backgroundDarker="#2383ff"
+            backgroundShadow="#173746"
+            raiseLevel={5}
+            borderWidth={1}
+            borderColor="#005aae"
+            borderRadius={8}
+            onPressOut={() => {
+              onMeditationClick();
+            }}
+          >
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <Text style={Fonts.streakModalButton}>Begin</Text>
+              <Text style={Fonts.streakModalButton}>Meditation</Text>
+            </View>
+          </AwesomeButton>
         </View>
       </ScaleInOut>
     )
   );
 };
 
-export default creditsModal;
+export default VerificationModal;

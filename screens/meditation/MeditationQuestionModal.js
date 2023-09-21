@@ -43,6 +43,8 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     number,
   } = route.params;
 
+  console.log(number);
+
   const [loadingClicked, setLoadingClicked] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [meditationQuestionsJson, setMeditationQuestionsJson] = useState(

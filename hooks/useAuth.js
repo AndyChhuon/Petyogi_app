@@ -32,6 +32,8 @@ export const AuthProvider = ({ children }) => {
   const [streakObj, setStreakObj] = useState();
   const [creditsObj, setCreditsObj] = useState();
   const [appInitialized, setAppInitialized] = useState(false);
+  const [verificationModalVisible, setVerificationModalVisible] =
+    useState(true);
   const [loadingModalVisible, setLoadingModalVisible] = useState(false);
   const [currentOffering, setCurrentOffering] = useState(null);
   const [revenueCatCustomerInfo, setRevenueCatCustomerInfo] = useState(null);
@@ -72,6 +74,12 @@ export const AuthProvider = ({ children }) => {
               .then((data) => {
                 setUserValues(data.userValues);
                 setStreakObj(data.streakObj);
+
+                const isNewlyVerified = data.isNewlyVerified;
+                if (isNewlyVerified) {
+                  setVerificationModalVisible(true);
+                }
+
                 checkIfUserHasCredits(user);
 
                 navigation.navigate("BottomTabBar");
@@ -208,6 +216,10 @@ export const AuthProvider = ({ children }) => {
         .then((data) => {
           setUserValues(data.userValues);
           setStreakObj(data.streakObj);
+          const isNewlyVerified = data.isNewlyVerified;
+          if (isNewlyVerified) {
+            setVerificationModalVisible(true);
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -317,6 +329,11 @@ export const AuthProvider = ({ children }) => {
               setUserValues(data.userValues);
               setStreakObj(data.streakObj);
               setIsWaitingOnEmailVerification(false);
+
+              const isNewlyVerified = data.isNewlyVerified;
+              if (isNewlyVerified) {
+                setVerificationModalVisible(true);
+              }
             })
             .catch((err) => {
               showMessage({
@@ -480,8 +497,11 @@ export const AuthProvider = ({ children }) => {
       loadingModalVisible,
       setLoadingModalVisible,
       creditsObj,
+      setCreditsObj,
       checkIfUserHasCredits,
       checkStreaks,
+      verificationModalVisible,
+      setVerificationModalVisible,
     }),
     [
       user,
@@ -504,8 +524,11 @@ export const AuthProvider = ({ children }) => {
       loadingModalVisible,
       setLoadingModalVisible,
       creditsObj,
+      setCreditsObj,
       checkIfUserHasCredits,
       checkStreaks,
+      verificationModalVisible,
+      setVerificationModalVisible,
     ]
   );
 

@@ -21,9 +21,7 @@ const LoadingScreen = ({ navigation }) => {
         Inter_Black: require("../assets/fonts/Inter-Black.ttf"),
       });
 
-      setTimeout(() => {
-        setAppInitialized(true);
-      }, 1000);
+      setAppInitialized(true);
 
       // const propsToPass = {
       //   shouldListenRealTime: true,
