@@ -18,6 +18,7 @@ const splashScreenModal = () => {
           height: "100%",
           width: "100%",
           resizeMode: "cover",
+          zIndex: 999999,
         }}
         source={require("../../assets/images/splash-screen.png")}
       />

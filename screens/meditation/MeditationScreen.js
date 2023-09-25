@@ -22,6 +22,7 @@ import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import ScaleInOut from "../../Animations/ScaleInOut";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
+import FloatingAnimation from "../../Animations/FloatingAnimation";
 import useAuth from "../../hooks/useAuth";
 
 const { width, height } = Dimensions.get("window");
@@ -39,7 +40,11 @@ const MeditationScreen = ({ navigation, route }) => {
   const [musicSound, setMusicSound] = useState(null);
   const [initialVolume, setInitialVolume] = useState(0.3);
   const [musicVolume, setMusicVolume] = useState(initialVolume);
-  const { listenMeditationUpdate } = useAuth();
+  const {
+    listenMeditationUpdate,
+    setUpdateTutorialModalVisible,
+    updateTutorialModalVisible,
+  } = useAuth();
 
   const [lottieBackground, setLottieBackground] = useState({
     id: "7",
@@ -54,9 +59,11 @@ const MeditationScreen = ({ navigation, route }) => {
   });
 
   const [musicMeditation, setMusicMeditation] = useState({
-    id: "1",
-    image: null,
-    title: "No music",
+    id: "4",
+    image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
+    title: "Peaceful Thoughts",
+    sound:
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/peaceful_thoughts.mp3",
   });
 
   const [meditationInfo, setMeditationInfo] = useState(route.params);
@@ -67,6 +74,10 @@ const MeditationScreen = ({ navigation, route }) => {
   const [showMenu, setShowMenu] = useState(false);
 
   const timeBetweenPhrases = 2500;
+
+  // const tutorialShouldShow = meditationInfo.tutorialShouldShow ? true : false;
+
+  const tutorialShouldShow = true;
 
   const maxNumPhrases = meditationInfo.meditationUrls
     ? meditationInfo.meditationUrls.count
@@ -161,7 +172,22 @@ const MeditationScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     configureAudioSession();
+    if (tutorialShouldShow && !updateTutorialModalVisible) {
+      setUpdateTutorialModalVisible("meditationLoading");
+    }
+
+    setTimeout(() => {
+      if (!playing) {
+        setPlaying(true);
+      }
+    }, 1000);
   }, []);
+
+  useEffect(() => {
+    if (updateTutorialModalVisible == "meditationTutorialIcons") {
+      console.log("tst");
+    }
+  }, [updateTutorialModalVisible]);
 
   useEffect(() => {
     let unsubscribe;
@@ -432,7 +458,7 @@ const MeditationScreen = ({ navigation, route }) => {
                   position: "relative",
                   top: 0,
                 }}
-                speed={lottieMeditation?.id == "8" ? 0.5 : 0.6}
+                speed={lottieMeditation?.speed ? lottieMeditation?.speed : 0.6}
                 ref={lottieRef}
                 loop
               ></Lottie>
@@ -561,6 +587,9 @@ const MeditationScreen = ({ navigation, route }) => {
             if (sound) sound.unloadAsync();
             if (musicSound) musicSound.unloadAsync();
             if (pauseInterval) clearTimeout(pauseInterval);
+            if (tutorialShouldShow) {
+              setUpdateTutorialModalVisible("none");
+            }
             navigation.navigate("BottomTabBar");
           }}
         />
@@ -652,6 +681,40 @@ const MeditationScreen = ({ navigation, route }) => {
             />
           </TouchableOpacity>
         </View>
+        {updateTutorialModalVisible == "meditationTutorialIcons" && (
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => {
+              showMenu == "meditation"
+                ? setShowMenu(false)
+                : setShowMenu("meditation");
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
+            style={{
+              position: "absolute",
+              alignItems: "center",
+              justifyContent: "center",
+              bottom: (40.0 * width) / 414,
+              paddingLeft: (28.0 * width) / 414,
+              zIndex: 5,
+            }}
+          >
+            <FloatingAnimation duration={1200}>
+              <Lottie
+                source={require("../../assets/Lottie/click.json")}
+                style={{
+                  position: "relative",
+                  width: (60.0 * width) / 414,
+                  height: (60.0 * width) / 414,
+                  resizeMode: "contain",
+                }}
+                speed={0.5}
+                autoPlay
+                loop
+              />
+            </FloatingAnimation>
+          </TouchableOpacity>
+        )}
         <View
           style={{
             paddingTop: (5.0 * width) / 414,
@@ -877,11 +940,13 @@ const MeditationScreen = ({ navigation, route }) => {
           id: "8",
           image: require("../../assets/Meditation/meditation_ring_1.png"),
           lottie: require("../../assets/Meditation/meditation_ring_1.json"),
+          speed: 1,
         },
         {
           id: "8",
           image: require("../../assets/Meditation/rabbit.png"),
           lottie: require("../../assets/Meditation/rabbit.json"),
+          speed: 0.5,
         },
       ],
     };

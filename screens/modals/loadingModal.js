@@ -45,7 +45,7 @@ const loadingModal = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 30,
+          zIndex: 40,
           paddingBottom: "15%",
         }}
       >

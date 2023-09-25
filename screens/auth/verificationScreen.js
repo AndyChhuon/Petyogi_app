@@ -20,16 +20,8 @@ const VerificationScreen = ({ navigation }) => {
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
-  const { emailVerification, user, reloadUser, isWaitingOnEmailVerification } =
-    useAuth();
+  const { emailVerification, user, reloadUser } = useAuth();
   const email = user.email;
-
-  useEffect(() => {
-    if (isWaitingOnEmailVerification) {
-      console.log("reloading");
-      reloadUser();
-    }
-  }, []);
 
   useEffect(() => {
     if (error) {
@@ -101,6 +93,7 @@ const VerificationScreen = ({ navigation }) => {
           if (!successMsg && !user.emailVerified) {
             verifyEmail();
           } else if (user.emailVerified) {
+            reloadUser();
             setErrorMsg("Email already verified.");
           }
         }}
@@ -162,7 +155,7 @@ const VerificationScreen = ({ navigation }) => {
         >
           {successMsg
             ? `PetYogi has sent a verification link to: \n${email}.`
-            : `Please click to verify the following email address:  \n${email}.`}
+            : `Click "Send" to verify the following email address:  \n${email}.`}
         </Text>
       </View>
     );

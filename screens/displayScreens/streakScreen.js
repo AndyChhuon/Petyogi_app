@@ -19,14 +19,7 @@ import useAuth from "../../hooks/useAuth";
 const { width, height } = Dimensions.get("window");
 
 const StreakScreen = ({ navigation }) => {
-  const {
-    reloadUser,
-    isWaitingOnEmailVerification,
-    userValues,
-    streakObj,
-    setStreakObj,
-    checkStreaks,
-  } = useAuth();
+  const { userValues, streakObj, setStreakObj, checkStreaks } = useAuth();
 
   const [hasCheckedStreaksReload, setHasCheckedStreaksReload] = useState(false);
 
@@ -35,13 +28,6 @@ const StreakScreen = ({ navigation }) => {
   const todayStreakCompleted =
     new Date(userValues.lastMeditationDate) >=
     new Date(new Date().toISOString().slice(0, 10));
-
-  useEffect(() => {
-    if (isWaitingOnEmailVerification) {
-      console.log("reloading");
-      reloadUser();
-    }
-  }, []);
 
   const onCTAClick = () => {
     if (streakIsSaveable) {
@@ -94,7 +80,9 @@ const StreakScreen = ({ navigation }) => {
             name="close"
             color={Colors.whiteDarker}
             size={32}
-            onPress={() => navigation.pop()}
+            onPress={() => {
+              navigation.pop();
+            }}
           />
           <Text
             style={[Fonts.displayScreensText, { flex: 1, textAlign: "center" }]}

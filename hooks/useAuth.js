@@ -33,7 +33,9 @@ export const AuthProvider = ({ children }) => {
   const [creditsObj, setCreditsObj] = useState();
   const [appInitialized, setAppInitialized] = useState(false);
   const [verificationModalVisible, setVerificationModalVisible] =
-    useState(true);
+    useState(false);
+  const [updateTutorialModalVisible, setUpdateTutorialModalVisible] =
+    useState(false);
   const [loadingModalVisible, setLoadingModalVisible] = useState(false);
   const [currentOffering, setCurrentOffering] = useState(null);
   const [revenueCatCustomerInfo, setRevenueCatCustomerInfo] = useState(null);
@@ -502,6 +504,8 @@ export const AuthProvider = ({ children }) => {
       checkStreaks,
       verificationModalVisible,
       setVerificationModalVisible,
+      updateTutorialModalVisible,
+      setUpdateTutorialModalVisible,
     }),
     [
       user,
@@ -529,6 +533,8 @@ export const AuthProvider = ({ children }) => {
       checkStreaks,
       verificationModalVisible,
       setVerificationModalVisible,
+      updateTutorialModalVisible,
+      setUpdateTutorialModalVisible,
     ]
   );
 

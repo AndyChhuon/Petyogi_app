@@ -18,15 +18,8 @@ const { width, height } = Dimensions.get("window");
 import useAuth from "../../hooks/useAuth";
 
 const ShopScreen = ({ navigation }) => {
-  const { userValues, reloadUser, isWaitingOnEmailVerification } = useAuth();
+  const { userValues } = useAuth();
   const nbGems = userValues.coins;
-
-  useEffect(() => {
-    if (isWaitingOnEmailVerification) {
-      console.log("reloading");
-      reloadUser();
-    }
-  }, []);
 
   return (
     <Fragment>
@@ -54,7 +47,9 @@ const ShopScreen = ({ navigation }) => {
               name="close"
               color={Colors.whiteDarker}
               size={32}
-              onPress={() => navigation.pop()}
+              onPress={() => {
+                navigation.pop();
+              }}
             />
             <Text
               style={[

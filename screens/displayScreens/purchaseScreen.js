@@ -20,13 +20,14 @@ import useAuth from "../../hooks/useAuth";
 import Purchases from "react-native-purchases";
 import { showMessage } from "react-native-flash-message";
 import { min } from "react-native-reanimated";
+import FloatingAnimation from "../../Animations/FloatingAnimation";
+import Lottie from "lottie-react-native";
 
 const { width, height } = Dimensions.get("window");
 
 const ShopScreen = ({ navigation }) => {
   const {
     userValues,
-    reloadUser,
     isWaitingOnEmailVerification,
     revenueCatCustomerInfo,
     currentOffering,
@@ -47,15 +48,14 @@ const ShopScreen = ({ navigation }) => {
       : "freeVerifiedNoTrial"
     : accountType;
 
+  const tutorialShouldShow =
+    userValues.numMeditations === 0 &&
+    userValues.remainingCredits == 0 &&
+    !isWaitingOnEmailVerification;
+
   const noCreditsLeft = remainingCredits == 0;
   const subscriptionWithPrevDate = creditsObj.subscriptionWithPrevDate;
   console.log(subscriptionWithPrevDate);
-
-  useEffect(() => {
-    if (isWaitingOnEmailVerification) {
-      reloadUser();
-    }
-  }, []);
 
   const hoursIncrementBySubscriptionType = {
     sloth_plan: 48,
@@ -164,7 +164,9 @@ const ShopScreen = ({ navigation }) => {
             name="close"
             color={Colors.whiteDarker}
             size={32}
-            onPress={() => navigation.pop()}
+            onPress={() => {
+              navigation.pop();
+            }}
           />
           <Text
             style={[Fonts.displayScreensText, { flex: 1, textAlign: "center" }]}
@@ -285,6 +287,31 @@ const ShopScreen = ({ navigation }) => {
                 >
                   {purchaseScreenCTA[accountPlan].noCreditsCTA}
                 </Text>
+                {tutorialShouldShow && (
+                  <FloatingAnimation
+                    style={{
+                      position: "absolute",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      bottom: -(30.0 * width) / 414,
+                      paddingLeft: (28.0 * width) / 414,
+                    }}
+                    duration={1200}
+                  >
+                    <Lottie
+                      source={require("../../assets/Lottie/click.json")}
+                      style={{
+                        position: "relative",
+                        width: (60.0 * width) / 414,
+                        height: (60.0 * width) / 414,
+                        resizeMode: "contain",
+                      }}
+                      speed={0.5}
+                      autoPlay
+                      loop
+                    />
+                  </FloatingAnimation>
+                )}
               </TouchableOpacity>
             </View>
           </View>

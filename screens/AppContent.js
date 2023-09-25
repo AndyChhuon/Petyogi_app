@@ -23,12 +23,15 @@ import LoadingModal from "./modals/loadingModal";
 import CreditsModal from "./modals/creditsModal";
 import VerificationModal from "./modals/verificationModal";
 import SplashScreenModal from "./modals/splashScreenModal";
+import TutorialModal from "./modals/tutorialModal";
 import { StatusBar } from "expo-status-bar";
+import { initializeApp } from "firebase/app";
+import app from "../config/firebaseConfig";
 
 const Stack = createStackNavigator();
 
 const AppContent = () => {
-  const { user } = useAuth();
+  const { user, userValues } = useAuth();
 
   return (
     <>
@@ -110,6 +113,7 @@ const AppContent = () => {
       {user && <LoadingModal />}
       {user && <CreditsModal />}
       {user && <VerificationModal />}
+      {user && <TutorialModal />}
       <SplashScreenModal />
       <StatusBar style="dark" />
     </>

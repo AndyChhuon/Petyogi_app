@@ -58,7 +58,7 @@ const creditsModal = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 20,
+          zIndex: 40,
           paddingBottom: "15%",
         }}
       >

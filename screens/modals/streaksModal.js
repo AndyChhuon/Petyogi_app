@@ -100,7 +100,7 @@ const streaksModal = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 20,
+          zIndex: 30,
           paddingBottom: "15%",
         }}
       >

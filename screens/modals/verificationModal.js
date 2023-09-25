@@ -84,7 +84,7 @@ const VerificationModal = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 20,
+          zIndex: 38,
           paddingBottom: "15%",
         }}
       >

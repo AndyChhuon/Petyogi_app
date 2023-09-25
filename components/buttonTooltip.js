@@ -5,6 +5,7 @@ import {
   Dimensions,
   StyleSheet,
   Text,
+  TouchableOpacity,
   Image,
   TouchableWithoutFeedback,
 } from "react-native";
@@ -20,38 +21,18 @@ import Animated, {
 } from "react-native-reanimated";
 import useAuth from "../hooks/useAuth";
 import ScaleInOut from "../Animations/ScaleInOut";
+import FloatingAnimation from "../Animations/FloatingAnimation";
 import * as Haptics from "expo-haptics";
-
-const FloatingAnimation = ({ children, style }) => {
-  const translateY = useSharedValue(0);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
-  });
-
-  useEffect(() => {
-    translateY.value = withRepeat(
-      withTiming(10, {
-        duration: 1500,
-        easing: Easing.inOut(Easing.ease),
-      }),
-      -1,
-      true
-    );
-  }, []);
-
-  return (
-    <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>
-  );
-};
+import Lottie from "lottie-react-native";
 
 const { width } = Dimensions.get("window");
 
 function Button(props) {
   const [meditateButtonIsPressed, setMeditateButtonIsPressed] = useState(false);
   const { getPastMeditationJson, userValues } = useAuth();
+
+  const tutorialMeditationShouldShow =
+    userValues.numMeditations === 0 && userValues.remainingCredits > 0;
 
   const {
     number,
@@ -257,8 +238,37 @@ function Button(props) {
                 borderBottomColor: tooltipBackgroundColor,
               }}
             ></ScaleInOut>
+            {tutorialMeditationShouldShow && !showTooltip && (
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bottom: 0,
+                  width: "100%",
+                  paddingLeft: (28.0 * width) / 414,
+                }}
+                onPress={onPress}
+              >
+                <FloatingAnimation duration={1200}>
+                  <Lottie
+                    source={require("../assets/Lottie/click.json")}
+                    style={{
+                      position: "relative",
+                      width: (60.0 * width) / 414,
+                      height: (60.0 * width) / 414,
+                      resizeMode: "contain",
+                    }}
+                    speed={0.5}
+                    autoPlay
+                    loop
+                  />
+                </FloatingAnimation>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
+
         <ScaleInOut
           visible={showTooltip}
           style={
@@ -341,6 +351,33 @@ function Button(props) {
                   )}
                 </Text>
               </AwesomeButton>
+              {tutorialMeditationShouldShow && (
+                <TouchableOpacity
+                  style={{
+                    position: "absolute",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bottom: 0,
+                    paddingLeft: "50%",
+                  }}
+                  onPress={onMeditateButtonPress}
+                >
+                  <FloatingAnimation duration={1200}>
+                    <Lottie
+                      source={require("../assets/Lottie/click.json")}
+                      style={{
+                        position: "relative",
+                        width: (60.0 * width) / 414,
+                        height: (60.0 * width) / 414,
+                        resizeMode: "contain",
+                      }}
+                      speed={0.5}
+                      autoPlay
+                      loop
+                    />
+                  </FloatingAnimation>
+                </TouchableOpacity>
+              )}
             </View>
           </TouchableWithoutFeedback>
         </ScaleInOut>

@@ -18,6 +18,8 @@ import * as Haptics from "expo-haptics";
 import ButtonTooltip from "../../components/buttonTooltip";
 import useAuth from "../../hooks/useAuth";
 import AwesomeButton from "react-native-really-awesome-button";
+import FloatingAnimation from "../../Animations/FloatingAnimation";
+import Lottie from "lottie-react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -30,11 +32,16 @@ const HomeScreen = ({ navigation }) => {
 
   const [pressedButton, setPressedButton] = useState(null);
 
-  const { userValues } = useAuth();
+  const { userValues, isWaitingOnEmailVerification } = useAuth();
 
   const todayStreakCompleted =
     new Date(userValues.lastMeditationDate) >=
     new Date(new Date().toISOString().slice(0, 10));
+
+  const tutorialCreditsShouldShow =
+    userValues.numMeditations === 0 &&
+    userValues.remainingCredits == 0 &&
+    !isWaitingOnEmailVerification;
 
   const currentMeditation = userValues.numMeditations + 1;
 
@@ -352,30 +359,57 @@ const HomeScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate("PurchaseScreen")}
                 style={{
                   flex: 1,
-                  flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "center",
                   paddingTop: 3,
                   paddingBottom: (Sizes.fixPadding * 1.5 * width) / 414,
                 }}
               >
-                <Image
-                  source={require("../../assets/images/icons/meditation.png")}
-                  style={{
-                    width: (28.0 * width) / 414,
-                    height: (28.0 * width) / 414,
-                    resizeMode: "contain",
-                  }}
-                />
-                <Text
-                  style={{
-                    marginLeft: ((Sizes.fixPadding - 5.0) * width) / 414,
-                    ...Fonts.whiteColor20Bold,
-                    fontSize: (20.0 * width) / 414,
-                  }}
-                >
-                  {userValues.remainingCredits}
-                </Text>
+                <View style={{ flexDirection: "row" }}>
+                  <Image
+                    source={require("../../assets/images/icons/meditation.png")}
+                    style={{
+                      width: (28.0 * width) / 414,
+                      height: (28.0 * width) / 414,
+                      resizeMode: "contain",
+                    }}
+                  />
+                  <Text
+                    style={{
+                      marginLeft: ((Sizes.fixPadding - 5.0) * width) / 414,
+                      ...Fonts.whiteColor20Bold,
+                      fontSize: (20.0 * width) / 414,
+                    }}
+                  >
+                    {userValues.remainingCredits}
+                  </Text>
+                </View>
+                {tutorialCreditsShouldShow && (
+                  <FloatingAnimation
+                    style={{
+                      position: "absolute",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      bottom: -(10.0 * width) / 414,
+                      width: "100%",
+                      paddingLeft: (28.0 * width) / 414,
+                    }}
+                    duration={1200}
+                  >
+                    <Lottie
+                      source={require("../../assets/Lottie/click.json")}
+                      style={{
+                        position: "relative",
+                        width: (60.0 * width) / 414,
+                        height: (60.0 * width) / 414,
+                        resizeMode: "contain",
+                      }}
+                      speed={0.5}
+                      autoPlay
+                      loop
+                    />
+                  </FloatingAnimation>
+                )}
               </TouchableOpacity>
 
               <TouchableOpacity

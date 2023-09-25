@@ -26,6 +26,7 @@ import { Bar as ProgressBar } from "react-native-progress";
 import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
 import useAuth from "../../hooks/useAuth";
+import { set } from "firebase/database";
 
 const MeditationQuestionModal = ({ navigation, route }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
@@ -43,13 +44,26 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     number,
   } = route.params;
 
-  console.log(number);
-
   const [loadingClicked, setLoadingClicked] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [meditationQuestionsJson, setMeditationQuestionsJson] = useState(
     initMeditationQuestionsJson
   );
+
+  useEffect(() => {
+    let timeoutId;
+    if (flatListRef?.current && currentQuestionIndex <= 1) {
+      timeoutId = setTimeout(() => {
+        flatListRef?.current?.scrollToEnd({ animated: true });
+      }, 800);
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [currentQuestionIndex]);
+
+  const flatListRef = useRef();
 
   const meditationQuestion = Object.keys(meditationQuestionsJson)[
     currentQuestionIndex
@@ -509,6 +523,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             // Emotions buttons
             <View style={[styles.textBoxContainer]}>
               <FlatList
+                ref={flatListRef}
                 data={initButtons}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
@@ -518,6 +533,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           ) : currentQuestionIndex == 1 ? (
             <View style={[styles.meditationBoxContainer]}>
               <FlatList
+                ref={flatListRef}
                 data={initMeditationTypeButtons}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}

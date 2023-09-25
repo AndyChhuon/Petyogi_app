@@ -53,7 +53,7 @@ export const multipleChoiceButtons = [
 
   {
     id: "12",
-    text: "Anhedonic",
+    text: "Apathetic",
     lottie: require("../assets/emotions/depressed_lottie.json"),
   },
   {

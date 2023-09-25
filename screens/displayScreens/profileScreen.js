@@ -21,14 +21,13 @@ import Purchases from "react-native-purchases";
 import { showMessage } from "react-native-flash-message";
 import Lottie from "lottie-react-native";
 import { meditationLotties } from "../../constants/constants";
-
+import FloatingAnimation from "../../Animations/FloatingAnimation";
 const { width, height } = Dimensions.get("window");
 
 const ProfileScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
   const {
     userValues,
-    reloadUser,
     isWaitingOnEmailVerification,
     revenueCatCustomerInfo,
     currentOffering,
@@ -54,6 +53,11 @@ const ProfileScreen = ({ navigation }) => {
       ? "freeVerifiedTrial"
       : "freeVerifiedNoTrial"
     : accountType;
+
+  const tutorialShouldShow =
+    userValues.numMeditations === 0 &&
+    userValues.remainingCredits == 0 &&
+    !isWaitingOnEmailVerification;
 
   const noCreditsLeft = remainingCredits == 0;
   const subscriptionWithPrevDate = creditsObj?.subscriptionWithPrevDate
@@ -95,12 +99,6 @@ const ProfileScreen = ({ navigation }) => {
           subscriptionWithPrevDate[0]
         )
       : "";
-
-  useEffect(() => {
-    if (isWaitingOnEmailVerification) {
-      reloadUser();
-    }
-  }, []);
 
   const handlePurchase = async (packageID) => {
     if (loadingModalVisible) return;
@@ -340,6 +338,31 @@ const ProfileScreen = ({ navigation }) => {
                       >
                         {purchaseScreenCTA[accountPlan].noCreditsCTA}
                       </Text>
+                      {tutorialShouldShow && (
+                        <FloatingAnimation
+                          style={{
+                            position: "absolute",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bottom: -(30.0 * width) / 414,
+                            paddingLeft: (28.0 * width) / 414,
+                          }}
+                          duration={1200}
+                        >
+                          <Lottie
+                            source={require("../../assets/Lottie/click.json")}
+                            style={{
+                              position: "relative",
+                              width: (60.0 * width) / 414,
+                              height: (60.0 * width) / 414,
+                              resizeMode: "contain",
+                            }}
+                            speed={0.5}
+                            autoPlay
+                            loop
+                          />
+                        </FloatingAnimation>
+                      )}
                     </TouchableOpacity>
                   </View>
                 </TouchableOpacity>

@@ -26,7 +26,6 @@ const TabNavigator = ({ route }) => {
 
   useEffect(() => {
     if (route.params?.isExternal && isWaitingOnEmailVerification) {
-      console.log("reload");
       reloadUser();
     }
   }, [route.params]);
