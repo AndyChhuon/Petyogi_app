@@ -65,14 +65,12 @@ const MeditationQuestionModal = ({ navigation, route }) => {
 
   const flatListRef = useRef();
 
-  const meditationQuestion = Object.keys(meditationQuestionsJson)[
-    currentQuestionIndex
-  ];
-  const meditationAnswer = Object.values(meditationQuestionsJson)[
-    currentQuestionIndex
-  ];
+  const meditationQuestion =
+    meditationQuestionsJson[currentQuestionIndex].Question;
+  const meditationAnswer = meditationQuestionsJson[currentQuestionIndex].Answer;
   const progress =
     (currentQuestionIndex + 1) / Object.keys(meditationQuestionsJson).length;
+  const meditationTypeQuestionIndex = 1;
 
   const handleTextBoxFocus = () => {
     setIsTextBoxFocused(true);
@@ -91,7 +89,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const handleTextChange = (inputText) => {
     setMeditationQuestionsJson({
       ...meditationQuestionsJson,
-      [meditationQuestion]: inputText,
+      [currentQuestionIndex]: {
+        Question: meditationQuestion,
+        Answer: inputText,
+      },
     });
   };
 
@@ -110,56 +111,70 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     );
   }, []);
 
-  const onButtonPress = (text, isChosen) => {
+  const onButtonPress = (text, isChosen, currentQuestionIndex) => {
     if (isChosen) {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
-        const chosenButtons = meditationQuestionsJson[meditationQuestion];
-
+        const chosenButtons =
+          meditationQuestionsJson[currentQuestionIndex].Answer;
+        const questionMeditation =
+          meditationQuestionsJson[currentQuestionIndex].Question;
         return {
           ...meditationQuestionsJson,
-          [meditationQuestion]: chosenButtons.filter(
-            (button) => button !== text
-          ),
+          [currentQuestionIndex]: {
+            Question: questionMeditation,
+            Answer: chosenButtons.filter((button) => button !== text),
+          },
         };
       });
     } else {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
-        const chosenButtons = meditationQuestionsJson[meditationQuestion];
+        const chosenButtons =
+          meditationQuestionsJson[currentQuestionIndex].Answer;
+        const questionMeditation =
+          meditationQuestionsJson[currentQuestionIndex].Question;
 
         return {
           ...meditationQuestionsJson,
-          [meditationQuestion]: [...chosenButtons, text],
+          [currentQuestionIndex]: {
+            Question: questionMeditation,
+            Answer: [...chosenButtons, text],
+          },
         };
       });
     }
   };
 
-  const onMeditateButtonPress = (text, isChosen, meditationQuestion) => {
+  const onMeditateButtonPress = (text, isChosen, currentQuestionIndex) => {
     if (isChosen) {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
-        const firstQuestion = Object.keys(meditationQuestionsJson)[0];
-        const firstAnswer = Object.values(meditationQuestionsJson)[0];
-
         return {
-          [firstQuestion]: firstAnswer,
-          [meditationQuestion]: "",
+          ...meditationQuestionsJson,
+          [currentQuestionIndex]: {
+            Question: meditationQuestionsJson[currentQuestionIndex].Question,
+            Answer: "",
+          },
           ...meditationQuestionsByType[text],
         };
       });
     } else {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
-        const firstQuestion = Object.keys(meditationQuestionsJson)[0];
-        const firstAnswer = Object.values(meditationQuestionsJson)[0];
         return {
-          [firstQuestion]: firstAnswer,
-          [meditationQuestion]: text,
+          ...meditationQuestionsJson,
+          [currentQuestionIndex]: {
+            Question: meditationQuestionsJson[currentQuestionIndex].Question,
+            Answer: text,
+          },
           ...meditationQuestionsByType[text],
         };
       });
     }
   };
 
-  const RenderMeditationButtons = ({ item, isChosen, meditationQuestion }) => {
+  const RenderMeditationButtons = ({
+    item,
+    isChosen,
+    currentQuestionIndex,
+  }) => {
     const lottieRef = useRef(null);
     useEffect(() => {
       if (isChosen) {
@@ -191,7 +206,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           onPressOut={() => {
             if (!readOnly) {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              onMeditateButtonPress(item.text, isChosen, meditationQuestion);
+              onMeditateButtonPress(item.text, isChosen, currentQuestionIndex);
             }
           }}
         >
@@ -263,7 +278,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             if (!readOnly) {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setIsChosen(!isChosen);
-              onButtonPress(item.text, isChosen);
+              onButtonPress(item.text, isChosen, currentQuestionIndex);
             }
           }}
         >
@@ -310,9 +325,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         <RenderMultipleChoiceButtons
           item={item}
           key={item.id}
-          initIsChosen={meditationQuestionsJson[meditationQuestion].includes(
-            item.text
-          )}
+          initIsChosen={meditationQuestionsJson[currentQuestionIndex][
+            "Answer"
+          ].includes(item.text)}
+          currentQuestionIndex={currentQuestionIndex}
         />
       ),
     }));
@@ -325,13 +341,16 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         <RenderMeditationButtons
           item={item}
           key={item.id}
-          isChosen={meditationQuestionsJson[meditationQuestion] === item.text}
-          meditationQuestion={meditationQuestion}
+          isChosen={
+            meditationQuestionsJson[currentQuestionIndex]["Answer"] ===
+            item.text
+          }
+          currentQuestionIndex={currentQuestionIndex}
         />
       );
     }, [
-      meditationQuestionsJson[meditationQuestion] === item.text,
-      meditationQuestion,
+      meditationQuestionsJson[currentQuestionIndex]["Answer"] === item.text,
+      currentQuestionIndex,
     ]),
   }));
 
@@ -403,7 +422,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         generateNewMeditation(
           user,
           meditationQuestionsJson,
-          Object.values(meditationQuestionsJson)[1],
+          meditationQuestionsJson[meditationTypeQuestionIndex].Answer,
           number,
           setLoadingClicked
         );

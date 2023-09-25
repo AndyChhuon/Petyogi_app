@@ -75,9 +75,7 @@ const MeditationScreen = ({ navigation, route }) => {
 
   const timeBetweenPhrases = 2500;
 
-  // const tutorialShouldShow = meditationInfo.tutorialShouldShow ? true : false;
-
-  const tutorialShouldShow = true;
+  const tutorialShouldShow = meditationInfo.tutorialShouldShow ? true : false;
 
   const maxNumPhrases = meditationInfo.meditationUrls
     ? meditationInfo.meditationUrls.count

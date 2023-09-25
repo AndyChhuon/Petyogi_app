@@ -167,36 +167,92 @@ export const meditationLotties = [
 
 export const meditationQuestionsByType = {
   Visualization: {
-    "What is on top of your mind right now?": "",
-    "Why is it on your mind?": "",
-    "Describe what you would like to visualize throughout the meditation": "",
-    "In what setting would you like this visualization to take place?": "",
+    3: { Question: "What is on top of your mind right now?", Answer: "" },
+    4: { Question: "Why is it on your mind?", Answer: "" },
+    5: {
+      Question:
+        "Describe what you would like to visualize throughout the meditation.",
+      Answer: "",
+    },
+    6: {
+      Question:
+        "In what setting would you like this visualization to take place?",
+      Answer: "",
+    },
   },
   "Body Scan": {
-    "What is on top of your mind right now?": "",
-    "Why is it on your mind?": "",
-    "Where in your body do you feel most tense?": "",
-    "Describe the environment in which you will be meditating, are you seated or laying down?":
-      "",
+    3: {
+      Question: "What is on top of your mind right now?",
+      Answer: "",
+    },
+    4: {
+      Question: "Why is it on your mind?",
+      Answer: "",
+    },
+    5: {
+      Question: "Where in your body do you feel most tense?",
+      Answer: "",
+    },
+    6: {
+      Question:
+        "Describe the environment in which you will be meditating, are you seated or laying down?",
+      Answer: "",
+    },
   },
   "Focused Attention": {
-    "What is on top of your mind right now?": "",
-    "Why is it on your mind?": "",
-    "What can I do to help you?": "",
-    "What specific anchor would you like to focus on (breath, sound, item, etc)?":
-      "",
+    3: {
+      Question: "What is on top of your mind right now?",
+      Answer: "",
+    },
+    4: {
+      Question: "Why is it on your mind?",
+      Answer: "",
+    },
+    5: {
+      Question: "What can I do to help you?",
+      Answer: "",
+    },
+    6: {
+      Question:
+        "What specific anchor would you like to focus on (breath, sound, item, etc)?",
+      Answer: "",
+    },
   },
   "Loving Kindness": {
-    "What is on top of your mind right now?": "",
-    "Why is it on your mind?": "",
-    "Who would you like to share loving kindness to?": "",
-    "Is there something in particular you would like to visualize?": "",
+    3: {
+      Question: "What is on top of your mind right now?",
+      Answer: "",
+    },
+    4: {
+      Question: "Why is it on your mind?",
+      Answer: "",
+    },
+    5: {
+      Question: "Who would you like to share loving kindness to?",
+      Answer: "",
+    },
+    6: {
+      Question: "Is there something in particular you would like to visualize?",
+      Answer: "",
+    },
   },
   "God's presence": {
-    "What is on top of your mind right now?": "",
-    "Why is it on your mind?": "",
-    "How does God play into your previous answers?": "",
-    "How can I help this conversation with God?": "",
+    3: {
+      Question: "What is on top of your mind right now?",
+      Answer: "",
+    },
+    4: {
+      Question: "Why is it on your mind?",
+      Answer: "",
+    },
+    5: {
+      Question: "How does God play into your previous answers?",
+      Answer: "",
+    },
+    6: {
+      Question: "How can I help this conversation with God?",
+      Answer: "",
+    },
   },
 };
 
@@ -331,10 +387,18 @@ export const purchaseScreenCTA = {
 };
 
 export const initMeditationQuestionsJson = {
-  "How are you feeling?": [],
-  "Choose today's meditation:": "",
-  "What is on top of your mind right now?": "",
-  "Why is it on your mind?": "",
-  "Describe what you would like to visualize throughout the meditation.": "",
-  "In what setting would you like this visualization to take place?": "",
+  0: { Question: "How are you feeling?", Answer: [] },
+  1: { Question: "Choose today's meditation:", Answer: "" },
+  2: { Question: "What is on top of your mind right now?", Answer: "" },
+  3: { Question: "Why is it on your mind?", Answer: "" },
+  4: {
+    Question:
+      "Describe what you would like to visualize throughout the meditation.",
+    Answer: "",
+  },
+  5: {
+    Question:
+      "In what setting would you like this visualization to take place?",
+    Answer: "",
+  },
 };

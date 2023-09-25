@@ -180,8 +180,12 @@ export const AuthProvider = ({ children }) => {
         })
         .then((data) => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+          const tutorialShouldShow = number == 1;
+
           const propsToPass = {
             shouldListenRealTime: true,
+            tutorialShouldShow: tutorialShouldShow,
             number: number,
           };
           setUserValues(data.userValues);
