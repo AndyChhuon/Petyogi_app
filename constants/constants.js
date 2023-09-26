@@ -167,17 +167,20 @@ export const meditationLotties = [
 
 export const meditationQuestionsByType = {
   Visualization: {
-    3: { Question: "What is on top of your mind right now?", Answer: "" },
-    4: { Question: "Why is it on your mind?", Answer: "" },
-    5: {
-      Question:
-        "Describe what you would like to visualize throughout the meditation.",
+    3: { Question: "Describe your thoughts and emotions.", Answer: "" },
+    4: {
+      Question: "What would you like to visualize throughout this meditation?",
       Answer: "",
     },
-    6: {
-      Question:
-        "In what setting would you like this visualization to take place?",
+    5: {
+      Question: "Is there a specific setting you would like to visualize?",
       Answer: "",
+      maxChars: 200,
+    },
+    6: {
+      Question: "Any other requests for this meditation?",
+      Answer: "",
+      maxChars: 200,
     },
   },
   "Body Scan": {
@@ -389,7 +392,7 @@ export const purchaseScreenCTA = {
 export const initMeditationQuestionsJson = {
   0: { Question: "How are you feeling?", Answer: [] },
   1: { Question: "Choose today's meditation:", Answer: "" },
-  2: { Question: "What is on top of your mind right now?", Answer: "" },
+  2: { Question: "Why are you feeling ", Answer: "" },
   3: { Question: "Why is it on your mind?", Answer: "" },
   4: {
     Question:

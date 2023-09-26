@@ -120,247 +120,136 @@ function Button(props) {
   };
 
   return (
-    <>
-      {showTopTooltip ? (
-        <FloatingAnimation
+    currentMeditation < number + 40 && (
+      <>
+        {showTopTooltip ? (
+          <FloatingAnimation
+            style={{
+              zIndex: 9999,
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              top: 9,
+            }}
+          >
+            <TouchableWithoutFeedback onPress={onPress}>
+              <View style={{ width: (45 * width) / 100 }}>
+                <View
+                  width={width / 15}
+                  style={{
+                    ...styles.buttonContainerStyle,
+                    marginLeft: `${leftMargin}%`,
+                  }}
+                >
+                  <ScaleInOut
+                    visible={showTopTooltip}
+                    style={
+                      showTopTooltip
+                        ? {
+                            ...styles.topTooltipDisplay,
+                            backgroundColor: dayMode
+                              ? "#fe6435"
+                              : Colors.bodyBackColor,
+                            marginLeft: (45 * width) / 414,
+                            borderColor: dayMode ? "#fbb855" : "#fbb855",
+                          }
+                        : { ...styles.topTooltipDisplay, display: "none" }
+                    }
+                  >
+                    <Text
+                      style={{
+                        ...Fonts.blackTooltipTextVerySmall,
+                        color: dayMode ? Colors.goldColor : "#fbb855",
+                      }}
+                    >
+                      START
+                    </Text>
+                  </ScaleInOut>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </FloatingAnimation>
+        ) : null}
+        <View
           style={{
-            zIndex: 9999,
             position: "relative",
+            zIndex: 90 - number,
             display: "flex",
             alignItems: "center",
-            top: 9,
           }}
         >
-          <TouchableWithoutFeedback onPress={onPress}>
-            <View style={{ width: (45 * width) / 100 }}>
-              <View
-                width={width / 15}
-                style={{
-                  ...styles.buttonContainerStyle,
-                  marginLeft: `${leftMargin}%`,
-                }}
+          <View style={styles.buttonMarginStyle}>
+            <View
+              width={width / 6}
+              style={{
+                ...styles.buttonContainerStyle,
+                marginLeft: `${leftMargin}%`,
+              }}
+            >
+              {showTopTooltip ? (
+                <FloatingAnimation style={{ zIndex: 2, position: "relative" }}>
+                  <ScaleInOut
+                    delayIn={150}
+                    visible={showTopTooltip}
+                    style={{
+                      ...styles.topTooltipTip,
+                      borderTopColor: dayMode ? "#fbb855" : "black",
+                      borderBottomColor: dayMode ? "#fbb855" : "black",
+                    }}
+                  ></ScaleInOut>
+                </FloatingAnimation>
+              ) : null}
+
+              <AwesomeButton
+                backgroundColor={buttonBackgroundColor}
+                borderRadius={100}
+                raiseLevel={(8 * width) / 414}
+                width={width / 6}
+                height={width / 6}
+                onPressedIn={onPress}
+                style={{ marginBottom: 10 }}
               >
-                <ScaleInOut
-                  visible={showTopTooltip}
-                  style={
-                    showTopTooltip
-                      ? {
-                          ...styles.topTooltipDisplay,
-                          backgroundColor: dayMode
-                            ? "#fe6435"
-                            : Colors.bodyBackColor,
-                          marginLeft: (45 * width) / 414,
-                          borderColor: dayMode ? "#fbb855" : "#fbb855",
-                        }
-                      : { ...styles.topTooltipDisplay, display: "none" }
-                  }
-                >
+                {currentMeditation > number ? (
+                  <Image
+                    source={require("../assets/images/icons/checkmark.png")}
+                    style={{
+                      width: width / 12,
+                      height: width / 12,
+                      resizeMode: "contain",
+                      tintColor: dayMode ? Colors.bodyBackColor : "#fffefe",
+                    }}
+                  />
+                ) : (
                   <Text
                     style={{
-                      ...Fonts.blackTooltipTextVerySmall,
-                      color: dayMode ? Colors.goldColor : "#fbb855",
+                      ...Fonts.blackMicroma,
+                      color: dayMode ? "#fffefe" : "#B99B92",
+                      fontSize: (25 * width) / 414,
                     }}
                   >
-                    START
+                    {number}
                   </Text>
-                </ScaleInOut>
-              </View>
-            </View>
-          </TouchableWithoutFeedback>
-        </FloatingAnimation>
-      ) : null}
-      <View
-        style={{
-          position: "relative",
-          zIndex: 90 - number,
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <View style={styles.buttonMarginStyle}>
-          <View
-            width={width / 6}
-            style={{
-              ...styles.buttonContainerStyle,
-              marginLeft: `${leftMargin}%`,
-            }}
-          >
-            {showTopTooltip ? (
-              <FloatingAnimation style={{ zIndex: 2, position: "relative" }}>
-                <ScaleInOut
-                  delayIn={150}
-                  visible={showTopTooltip}
-                  style={{
-                    ...styles.topTooltipTip,
-                    borderTopColor: dayMode ? "#fbb855" : "black",
-                    borderBottomColor: dayMode ? "#fbb855" : "black",
-                  }}
-                ></ScaleInOut>
-              </FloatingAnimation>
-            ) : null}
-
-            <AwesomeButton
-              backgroundColor={buttonBackgroundColor}
-              borderRadius={100}
-              raiseLevel={(8 * width) / 414}
-              width={width / 6}
-              height={width / 6}
-              onPressedIn={onPress}
-              style={{ marginBottom: 10 }}
-            >
-              {currentMeditation > number ? (
-                <Image
-                  source={require("../assets/images/icons/checkmark.png")}
-                  style={{
-                    width: width / 12,
-                    height: width / 12,
-                    resizeMode: "contain",
-                    tintColor: dayMode ? Colors.bodyBackColor : "#fffefe",
-                  }}
-                />
-              ) : (
-                <Text
-                  style={{
-                    ...Fonts.blackMicroma,
-                    color: dayMode ? "#fffefe" : "#B99B92",
-                    fontSize: (25 * width) / 414,
-                  }}
-                >
-                  {number}
-                </Text>
-              )}
-            </AwesomeButton>
-            <ScaleInOut
-              delayIn={150}
-              visible={showTooltip}
-              style={{
-                ...styles.tooltipTip,
-                borderBottomColor: tooltipBackgroundColor,
-              }}
-            ></ScaleInOut>
-            {tutorialMeditationShouldShow && !showTooltip && (
-              <TouchableOpacity
-                style={{
-                  position: "absolute",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  bottom: 0,
-                  width: "100%",
-                  paddingLeft: (28.0 * width) / 414,
-                }}
-                onPress={onPress}
-              >
-                <FloatingAnimation duration={1200}>
-                  <Lottie
-                    source={require("../assets/Lottie/click.json")}
-                    style={{
-                      position: "relative",
-                      width: (60.0 * width) / 414,
-                      height: (60.0 * width) / 414,
-                      resizeMode: "contain",
-                    }}
-                    speed={0.5}
-                    autoPlay
-                    loop
-                  />
-                </FloatingAnimation>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        <ScaleInOut
-          visible={showTooltip}
-          style={
-            showTooltip
-              ? {
-                  ...styles.tooltipDisplay,
-                  backgroundColor: tooltipBackgroundColor,
-                  top: width / 6 + 12,
-                }
-              : { ...styles.tooltipDisplay, display: "none" }
-          }
-        >
-          <TouchableWithoutFeedback
-            style={styles.touchableStyling}
-            onPress={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <View style={styles.tooltipText}>
-              <Text
-                ref={buttonRef}
-                style={{
-                  ...Fonts.blackTooltipText,
-                  color: dayMode
-                    ? currentMeditation > number
-                      ? "#ffc800"
-                      : "#fffefe"
-                    : currentMeditation > number
-                    ? "#fffefe"
-                    : "#cd7900",
-                }}
-              >
-                Meditation #{number}
-              </Text>
-              <AwesomeButton
-                style={styles.startButtonStyle}
-                width="auto"
-                backgroundColor={
-                  dayMode
-                    ? currentMeditation > number
-                      ? "#ffffff"
-                      : Colors.secondaryGoldColor
-                    : currentMeditation > number
-                    ? Colors.secondaryGoldColor
-                    : "#ffffff"
-                }
-                onPressIn={onMeditateButtonPress}
-                raiseLevel={3}
-                borderRadius={20}
-                backgroundShadow={Colors.grayColor}
-              >
-                <Text
-                  style={{
-                    ...Fonts.blackTooltipTextSmall,
-                    width: "100%",
-                    textAlign: "center",
-                    color: dayMode
-                      ? currentMeditation > number
-                        ? Colors.secondaryGoldColor
-                        : Colors.bodyBackColor
-                      : currentMeditation > number
-                      ? "#fffefe"
-                      : "#ffcf1f",
-                  }}
-                >
-                  {currentMeditation > number ? "Revisit" : "Start +100 "}
-                  {currentMeditation > number ? null : (
-                    <View>
-                      <Image
-                        source={require("../assets/images/icons/gem.png")}
-                        style={{
-                          position: "relative",
-                          top: 2,
-                          width: (20.0 * width) / 414,
-                          height: (20.0 * width) / 414,
-                          resizeMode: "contain",
-                        }}
-                      />
-                    </View>
-                  )}
-                </Text>
+                )}
               </AwesomeButton>
-              {tutorialMeditationShouldShow && (
+              <ScaleInOut
+                delayIn={150}
+                visible={showTooltip}
+                style={{
+                  ...styles.tooltipTip,
+                  borderBottomColor: tooltipBackgroundColor,
+                }}
+              ></ScaleInOut>
+              {tutorialMeditationShouldShow && !showTooltip && (
                 <TouchableOpacity
                   style={{
                     position: "absolute",
                     alignItems: "center",
                     justifyContent: "center",
                     bottom: 0,
-                    paddingLeft: "50%",
+                    width: "100%",
+                    paddingLeft: (28.0 * width) / 414,
                   }}
-                  onPress={onMeditateButtonPress}
+                  onPress={onPress}
                 >
                   <FloatingAnimation duration={1200}>
                     <Lottie
@@ -379,10 +268,123 @@ function Button(props) {
                 </TouchableOpacity>
               )}
             </View>
-          </TouchableWithoutFeedback>
-        </ScaleInOut>
-      </View>
-    </>
+          </View>
+
+          <ScaleInOut
+            visible={showTooltip}
+            style={
+              showTooltip
+                ? {
+                    ...styles.tooltipDisplay,
+                    backgroundColor: tooltipBackgroundColor,
+                    top: width / 6 + 12,
+                  }
+                : { ...styles.tooltipDisplay, display: "none" }
+            }
+          >
+            <TouchableWithoutFeedback
+              style={styles.touchableStyling}
+              onPress={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <View style={styles.tooltipText}>
+                <Text
+                  ref={buttonRef}
+                  style={{
+                    ...Fonts.blackTooltipText,
+                    color: dayMode
+                      ? currentMeditation > number
+                        ? "#ffc800"
+                        : "#fffefe"
+                      : currentMeditation > number
+                      ? "#fffefe"
+                      : "#cd7900",
+                  }}
+                >
+                  Meditation #{number}
+                </Text>
+                <AwesomeButton
+                  style={styles.startButtonStyle}
+                  width="auto"
+                  backgroundColor={
+                    dayMode
+                      ? currentMeditation > number
+                        ? "#ffffff"
+                        : Colors.secondaryGoldColor
+                      : currentMeditation > number
+                      ? Colors.secondaryGoldColor
+                      : "#ffffff"
+                  }
+                  onPressIn={onMeditateButtonPress}
+                  raiseLevel={3}
+                  borderRadius={20}
+                  backgroundShadow={Colors.grayColor}
+                >
+                  <Text
+                    style={{
+                      ...Fonts.blackTooltipTextSmall,
+                      width: "100%",
+                      textAlign: "center",
+                      color: dayMode
+                        ? currentMeditation > number
+                          ? Colors.secondaryGoldColor
+                          : Colors.bodyBackColor
+                        : currentMeditation > number
+                        ? "#fffefe"
+                        : "#ffcf1f",
+                    }}
+                  >
+                    {currentMeditation > number ? "Revisit" : "Start +100 "}
+                    {currentMeditation > number ? null : (
+                      <View>
+                        <Image
+                          source={require("../assets/images/icons/gem.png")}
+                          style={{
+                            position: "relative",
+                            top: 2,
+                            width: (20.0 * width) / 414,
+                            height: (20.0 * width) / 414,
+                            resizeMode: "contain",
+                          }}
+                        />
+                      </View>
+                    )}
+                  </Text>
+                </AwesomeButton>
+                {tutorialMeditationShouldShow && (
+                  <TouchableOpacity
+                    style={{
+                      position: "absolute",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      bottom: 0,
+                      paddingLeft: "50%",
+                    }}
+                    onPress={onMeditateButtonPress}
+                  >
+                    <FloatingAnimation duration={1200}>
+                      <Lottie
+                        source={require("../assets/Lottie/click.json")}
+                        style={{
+                          position: "relative",
+                          width: (60.0 * width) / 414,
+                          height: (60.0 * width) / 414,
+                          resizeMode: "contain",
+                        }}
+                        speed={0.5}
+                        autoPlay
+                        loop
+                      />
+                    </FloatingAnimation>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </TouchableWithoutFeedback>
+          </ScaleInOut>
+        </View>
+      </>
+    )
   );
 }
 

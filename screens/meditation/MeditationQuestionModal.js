@@ -50,6 +50,8 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     initMeditationQuestionsJson
   );
 
+  console.log(meditationQuestionsJson);
+
   useEffect(() => {
     let timeoutId;
     if (flatListRef?.current && currentQuestionIndex <= 1) {
@@ -71,6 +73,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const progress =
     (currentQuestionIndex + 1) / Object.keys(meditationQuestionsJson).length;
   const meditationTypeQuestionIndex = 1;
+  const emotionsQuestion = initMeditationQuestionsJson[2].Question;
 
   const handleTextBoxFocus = () => {
     setIsTextBoxFocused(true);
@@ -87,17 +90,23 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const { width, height } = Dimensions.get("window");
 
   const handleTextChange = (inputText) => {
-    setMeditationQuestionsJson({
-      ...meditationQuestionsJson,
-      [currentQuestionIndex]: {
-        Question: meditationQuestion,
-        Answer: inputText,
-      },
+    setMeditationQuestionsJson((meditationQuestionsJson) => {
+      return {
+        ...meditationQuestionsJson,
+        [currentQuestionIndex]: {
+          ...meditationQuestionsJson[currentQuestionIndex],
+          Question: meditationQuestion,
+          Answer: inputText,
+        },
+      };
     });
   };
 
   const charCount = meditationAnswer.length;
-  const maxChars = 600;
+  console.log(meditationQuestionsJson[currentQuestionIndex]);
+  const maxChars = meditationQuestionsJson[currentQuestionIndex].maxChars
+    ? meditationQuestionsJson[currentQuestionIndex].maxChars
+    : 600;
   const tooManyChars = charCount > maxChars;
   const noteEnoughChars = charCount < 1;
 
@@ -118,11 +127,24 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           meditationQuestionsJson[currentQuestionIndex].Answer;
         const questionMeditation =
           meditationQuestionsJson[currentQuestionIndex].Question;
+
+        const newChosenButtons = chosenButtons.filter(
+          (button) => button !== text
+        );
         return {
           ...meditationQuestionsJson,
           [currentQuestionIndex]: {
+            ...meditationQuestionsJson[currentQuestionIndex],
             Question: questionMeditation,
-            Answer: chosenButtons.filter((button) => button !== text),
+            Answer: newChosenButtons,
+          },
+          2: {
+            ...meditationQuestionsJson[2],
+            Question:
+              newChosenButtons.length > 0
+                ? emotionsQuestion + newChosenButtons[0].toLowerCase() + "?"
+                : emotionsQuestion,
+            Answer: meditationQuestionsJson[2].Answer,
           },
         };
       });
@@ -132,12 +154,20 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           meditationQuestionsJson[currentQuestionIndex].Answer;
         const questionMeditation =
           meditationQuestionsJson[currentQuestionIndex].Question;
+        const newChosenButtons = [...chosenButtons, text];
 
         return {
           ...meditationQuestionsJson,
           [currentQuestionIndex]: {
+            ...meditationQuestionsJson[currentQuestionIndex],
             Question: questionMeditation,
-            Answer: [...chosenButtons, text],
+            Answer: newChosenButtons,
+          },
+          2: {
+            ...meditationQuestionsJson[2],
+            Question:
+              emotionsQuestion + newChosenButtons[0].toLowerCase() + "?",
+            Answer: meditationQuestionsJson[2].Answer,
           },
         };
       });
@@ -150,6 +180,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         return {
           ...meditationQuestionsJson,
           [currentQuestionIndex]: {
+            ...meditationQuestionsJson[currentQuestionIndex],
             Question: meditationQuestionsJson[currentQuestionIndex].Question,
             Answer: "",
           },
@@ -161,6 +192,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         return {
           ...meditationQuestionsJson,
           [currentQuestionIndex]: {
+            ...meditationQuestionsJson[currentQuestionIndex],
             Question: meditationQuestionsJson[currentQuestionIndex].Question,
             Answer: text,
           },
