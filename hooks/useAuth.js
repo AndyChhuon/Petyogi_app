@@ -15,6 +15,7 @@ import {
   sendPasswordResetEmail,
   getIdToken,
   updateProfile,
+  signOut,
 } from "firebase/auth";
 import { ref, child, get, onValue, off, getDatabase } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
@@ -201,6 +202,11 @@ export const AuthProvider = ({ children }) => {
           });
         });
     });
+  };
+
+  const accountSignOut = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    signOut(auth);
   };
 
   const checkStreaks = () => {
@@ -510,6 +516,7 @@ export const AuthProvider = ({ children }) => {
       setVerificationModalVisible,
       updateTutorialModalVisible,
       setUpdateTutorialModalVisible,
+      accountSignOut,
     }),
     [
       user,
@@ -539,6 +546,7 @@ export const AuthProvider = ({ children }) => {
       setVerificationModalVisible,
       updateTutorialModalVisible,
       setUpdateTutorialModalVisible,
+      accountSignOut,
     ]
   );
 

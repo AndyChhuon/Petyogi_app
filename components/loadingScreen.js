@@ -5,7 +5,7 @@ import { Colors } from "../constants/styles";
 import useAuth from "../hooks/useAuth";
 
 const LoadingScreen = ({ navigation }) => {
-  const { setAppInitialized } = useAuth();
+  const { setAppInitialized, user, appInitialized } = useAuth();
 
   useEffect(() => {
     async function loadFont() {
@@ -21,7 +21,13 @@ const LoadingScreen = ({ navigation }) => {
         Inter_Black: require("../assets/fonts/Inter-Black.ttf"),
       });
 
-      setAppInitialized(true);
+      if (user && appInitialized) {
+        navigation.navigate("BottomTabBar");
+      } else if (!user && appInitialized) {
+        navigation.navigate("Login");
+      } else {
+        setAppInitialized(true);
+      }
 
       // const propsToPass = {
       //   shouldListenRealTime: true,

@@ -22,6 +22,7 @@ import { showMessage } from "react-native-flash-message";
 import Lottie from "lottie-react-native";
 import { meditationLotties } from "../../constants/constants";
 import FloatingAnimation from "../../Animations/FloatingAnimation";
+
 const { width, height } = Dimensions.get("window");
 
 const ProfileScreen = ({ navigation }) => {
@@ -36,6 +37,7 @@ const ProfileScreen = ({ navigation }) => {
     checkIfUserHasCredits,
     user,
     creditsObj,
+    accountSignOut,
   } = useAuth();
 
   const todayStreakCompleted =
@@ -185,9 +187,9 @@ const ProfileScreen = ({ navigation }) => {
         </View>
         <View>
           <Dialog.Container visible={dialogVisible}>
-            <Dialog.Title>Account delete</Dialog.Title>
+            <Dialog.Title>Sign Out</Dialog.Title>
             <Dialog.Description>
-              Do you want to delete this account? You cannot undo this action.
+              Are you sure you want to sign out?
             </Dialog.Description>
             <Dialog.Button
               label="Cancel"
@@ -195,8 +197,11 @@ const ProfileScreen = ({ navigation }) => {
             />
             <Dialog.Button
               color="red"
-              label="Delete"
-              onPress={() => setDialogVisible(false)}
+              label="Sign Out"
+              onPress={() => {
+                accountSignOut();
+                setDialogVisible(false);
+              }}
             />
           </Dialog.Container>
         </View>
@@ -1020,6 +1025,21 @@ const ProfileScreen = ({ navigation }) => {
               * max accumulated credits are credits given while offline, resets
               every month.
             </Text>
+          </View>
+          <View style={{ paddingBottom: 25, alignItems: "center" }}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setDialogVisible(true)}
+            >
+              <Text
+                style={[
+                  Fonts.whiteColor20SemiBold,
+                  { color: Colors.errorColor },
+                ]}
+              >
+                Sign Out
+              </Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </SafeAreaView>

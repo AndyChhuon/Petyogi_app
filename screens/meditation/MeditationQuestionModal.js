@@ -106,7 +106,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   console.log(meditationQuestionsJson[currentQuestionIndex]);
   const maxChars = meditationQuestionsJson[currentQuestionIndex].maxChars
     ? meditationQuestionsJson[currentQuestionIndex].maxChars
-    : 600;
+    : 500;
   const tooManyChars = charCount > maxChars;
   const noteEnoughChars = charCount < 1;
 
@@ -272,7 +272,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         <Text
           style={[
             Fonts.musicMeditationText,
-            { color: "white", fontSize: 16, marginTop: 4 },
+            { color: "white", fontSize: 15.5, marginTop: 6 },
           ]}
         >
           {item.text}
@@ -399,6 +399,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       Object.keys(meditationQuestionsJson).length - 1
     ) {
       setLoadingClicked(true);
+      handlePressOutsideTextBox();
       setTimeout(() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setCurrentQuestionIndex((index) => index + 1);
@@ -406,6 +407,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     } else if (!isLastModal) {
       setLoadingClicked(true);
       setIsTextBoxFocused(false);
+      handlePressOutsideTextBox();
       setTimeout(() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setIsLastModal(true);
@@ -466,7 +468,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     if (loadingClicked) {
       return;
     }
-    if (currentQuestionIndex == 1) {
+    if (currentQuestionIndex == 2) {
       setIsTextBoxFocused(false);
     }
 
@@ -543,6 +545,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               style={{
                 ...Fonts.whiteColor20SemiBold,
                 textAlign: "center",
+                paddingHorizontal: 4,
               }}
             >
               {isLastModal ? "Let's Meditate!" : meditationQuestion}
@@ -551,7 +554,9 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             <Text
               style={{
                 ...Fonts.whiteColor22SemiBold,
+                fontSize: 21,
                 marginBottom: 8,
+                paddingHorizontal: 4,
                 textAlign: "center",
               }}
             >
@@ -789,6 +794,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         >
           <ProgressBar
             progress={progress}
+            animationType="timing"
             color="#98eab7"
             borderColor="#3a4754"
             unfilledColor="#30404c"

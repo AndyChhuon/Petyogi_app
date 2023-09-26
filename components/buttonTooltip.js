@@ -208,6 +208,7 @@ function Button(props) {
                 height={width / 6}
                 onPressedIn={onPress}
                 style={{ marginBottom: 10 }}
+                paddingHorizontal={0}
               >
                 {currentMeditation > number ? (
                   <Image
@@ -224,7 +225,8 @@ function Button(props) {
                     style={{
                       ...Fonts.blackMicroma,
                       color: dayMode ? "#fffefe" : "#B99B92",
-                      fontSize: (25 * width) / 414,
+                      fontSize:
+                        number < 100 ? (25 * width) / 414 : (23 * width) / 414,
                     }}
                   >
                     {number}

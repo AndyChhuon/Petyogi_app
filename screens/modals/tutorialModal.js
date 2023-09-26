@@ -194,7 +194,6 @@ const TutorialModal = () => {
     console.log(updateTutorialModalVisible);
     console.log(displayTutorial);
     if (updateTutorialModalVisible) {
-      console.log("ttest");
       setCurrentModal(updateTutorialModalVisible);
       if (updateTutorialModalVisible != "none") {
         setDisplayTutorial(true);

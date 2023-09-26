@@ -122,13 +122,13 @@ export const meditationTypeButtons = [
   },
   {
     id: "2",
-    text: "Body Scan",
-    lottie: require("../assets/meditation_lottie/bodyScan.json"),
+    text: "Positive Affirmation",
+    lottie: require("../assets/meditation_lottie/positiveAffirmation.json"),
   },
   {
     id: "3",
-    text: "Focused Attention",
-    lottie: require("../assets/meditation_lottie/focusedAttention.json"),
+    text: "Mindfulness",
+    lottie: require("../assets/meditation_lottie/mindfulness.json"),
   },
   {
     id: "4",
@@ -137,7 +137,7 @@ export const meditationTypeButtons = [
   },
   {
     id: "5",
-    text: "God's presence",
+    text: "Contemplative Prayer",
     lottie: require("../assets/meditation_lottie/godsPresence.json"),
   },
 ];
@@ -164,6 +164,7 @@ export const meditationLotties = [
     speed: 0.8,
   },
 ];
+0;
 
 export const meditationQuestionsByType = {
   Visualization: {
@@ -173,88 +174,89 @@ export const meditationQuestionsByType = {
       Answer: "",
     },
     5: {
-      Question: "Is there a specific setting you would like to visualize?",
+      Question:
+        "Is there a specific setting, smell, or emotion you would like to visualize?",
       Answer: "",
-      maxChars: 200,
-    },
-    6: {
-      Question: "Any other requests for this meditation?",
-      Answer: "",
-      maxChars: 200,
+      maxChars: 350,
     },
   },
-  "Body Scan": {
+  "Positive Affirmation": {
     3: {
-      Question: "What is on top of your mind right now?",
+      Question: "Describe your thoughts and emotions.",
       Answer: "",
     },
     4: {
-      Question: "Why is it on your mind?",
+      Question: "What is the purpose of this meditation?",
       Answer: "",
     },
     5: {
-      Question: "Where in your body do you feel most tense?",
-      Answer: "",
-    },
-    6: {
       Question:
-        "Describe the environment in which you will be meditating, are you seated or laying down?",
+        "Is there specific affirmations/topics you would like to include?",
       Answer: "",
+      maxChars: 350,
     },
   },
-  "Focused Attention": {
+  Mindfulness: {
     3: {
-      Question: "What is on top of your mind right now?",
+      Question: "Describe your thoughts and emotions.",
       Answer: "",
     },
     4: {
-      Question: "Why is it on your mind?",
+      Question: "What is the purpose of this meditation?",
       Answer: "",
     },
     5: {
-      Question: "What can I do to help you?",
-      Answer: "",
-    },
-    6: {
       Question:
-        "What specific anchor would you like to focus on (breath, sound, item, etc)?",
+        "Is there a specific question, topic, or scenario you would like to explore?",
       Answer: "",
+      maxChars: 350,
     },
   },
   "Loving Kindness": {
     3: {
-      Question: "What is on top of your mind right now?",
+      Question:
+        "Express love and gratitude to yourself, like you were talking to someone else.",
       Answer: "",
+      maxChars: 400,
     },
     4: {
-      Question: "Why is it on your mind?",
+      Question: "Identify and express love and gratitude to some you love.",
       Answer: "",
+      maxChars: 400,
     },
     5: {
-      Question: "Who would you like to share loving kindness to?",
+      Question:
+        "Identify and express love and gratitude to a person you occasionally see.",
       Answer: "",
+      maxChars: 400,
     },
     6: {
-      Question: "Is there something in particular you would like to visualize?",
+      Question: "Identify and express love and gratitude to a total stranger.",
       Answer: "",
+      maxChars: 400,
     },
   },
-  "God's presence": {
+  "Contemplative Prayer": {
     3: {
-      Question: "What is on top of your mind right now?",
+      Question: "What is the purpose of this prayer?",
       Answer: "",
+      maxChars: 400,
     },
     4: {
-      Question: "Why is it on your mind?",
+      Question: "Express your love and gratitude to God.",
       Answer: "",
+      maxChars: 400,
     },
     5: {
-      Question: "How does God play into your previous answers?",
+      Question: "Ask God for guidance and blessings, feeling his presence.",
       Answer: "",
+      maxChars: 400,
     },
     6: {
-      Question: "How can I help this conversation with God?",
+      Question:
+        "Express to God your shortcomings and ask for strength and forgiveness.",
       Answer: "",
+      maxChars: 400,
     },
   },
 };
