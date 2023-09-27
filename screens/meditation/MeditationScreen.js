@@ -59,12 +59,18 @@ const MeditationScreen = ({ navigation, route }) => {
   });
 
   const [musicMeditation, setMusicMeditation] = useState({
+    id: "1",
+    image: null,
+    title: "No music",
+  });
+
+  const initMusic = {
     id: "4",
     image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
     title: "Peaceful Thoughts",
     sound:
       "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/peaceful_thoughts.mp3",
-  });
+  };
 
   const [meditationInfo, setMeditationInfo] = useState(route.params);
 
@@ -177,6 +183,7 @@ const MeditationScreen = ({ navigation, route }) => {
     setTimeout(() => {
       if (!playing) {
         setPlaying(true);
+        setMusicMeditation(initMusic);
       }
     }, 1000);
   }, []);

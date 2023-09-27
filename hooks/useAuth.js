@@ -129,7 +129,6 @@ export const AuthProvider = ({ children }) => {
 
           Purchases.logIn(user.uid)
             .then((infoCustomer) => {
-              console.log("login");
               console.log(infoCustomer);
               setRevenueCatCustomerInfo(infoCustomer.customerInfo);
             })
@@ -141,8 +140,14 @@ export const AuthProvider = ({ children }) => {
             });
         } else {
           navigation.navigate("Register");
+          //check purchases was initialized
+
           Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
-          Purchases.logOut();
+          Purchases.isAnonymous().then((isAnonymous) => {
+            if (!isAnonymous) {
+              Purchases.logOut();
+            }
+          });
         }
       });
 
@@ -160,7 +165,7 @@ export const AuthProvider = ({ children }) => {
     number,
     setLoadingClicked
   ) => {
-    getIdToken(user).then((idToken) => {
+    getIdToken(user, true).then((idToken) => {
       //post request
       fetch(
         "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/createMeditation",

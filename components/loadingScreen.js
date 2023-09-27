@@ -24,7 +24,7 @@ const LoadingScreen = ({ navigation }) => {
       if (user && appInitialized) {
         navigation.navigate("BottomTabBar");
       } else if (!user && appInitialized) {
-        navigation.navigate("Login");
+        navigation.navigate("Register");
       } else {
         setAppInitialized(true);
       }
