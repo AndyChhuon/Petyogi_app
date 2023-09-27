@@ -141,6 +141,8 @@ export const AuthProvider = ({ children }) => {
             });
         } else {
           navigation.navigate("Register");
+          Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
+          Purchases.logOut();
         }
       });
 

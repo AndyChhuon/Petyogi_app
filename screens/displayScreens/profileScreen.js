@@ -95,7 +95,7 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const timeRemaining =
-    subscriptionWithPrevDate[0] != "noSubscription"
+    subscriptionWithPrevDate[0] != "noSubscription" && noCreditsLeft
       ? getTimeRemaining(
           subscriptionWithPrevDate[1],
           subscriptionWithPrevDate[0]
@@ -277,7 +277,6 @@ const ProfileScreen = ({ navigation }) => {
                         resizeMode: "contain",
                         borderColor: Colors.bodyBackColor,
                         borderWidth: 2,
-                        //grey out
                       }}
                     />
                   </View>
@@ -432,7 +431,6 @@ const ProfileScreen = ({ navigation }) => {
                         height: (115.0 * width) / 414,
                         marginVertical: 10,
                         resizeMode: "contain",
-                        //grey out
                       }}
                     />
                   </View>
@@ -495,7 +493,6 @@ const ProfileScreen = ({ navigation }) => {
                         width: (115.0 * width) / 414,
                         height: (115.0 * width) / 414,
                         resizeMode: "contain",
-                        //grey out
                       }}
                     />
                   </View>

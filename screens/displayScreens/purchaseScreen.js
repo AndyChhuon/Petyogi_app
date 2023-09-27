@@ -85,7 +85,7 @@ const ShopScreen = ({ navigation }) => {
   };
 
   const timeRemaining =
-    subscriptionWithPrevDate[0] != "noSubscription"
+    subscriptionWithPrevDate[0] != "noSubscription" && noCreditsLeft
       ? getTimeRemaining(
           subscriptionWithPrevDate[1],
           subscriptionWithPrevDate[0]
@@ -225,7 +225,6 @@ const ShopScreen = ({ navigation }) => {
                   resizeMode: "contain",
                   borderColor: Colors.bodyBackColor,
                   borderWidth: 2,
-                  //grey out
                 }}
               />
             </View>

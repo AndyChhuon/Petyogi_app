@@ -90,7 +90,6 @@ const ShopScreen = ({ navigation }) => {
                   width: (150.0 * width) / 414,
                   height: (150.0 * width) / 414,
                   resizeMode: "contain",
-                  //grey out
                 }}
               />
             </View>

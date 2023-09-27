@@ -49,8 +49,6 @@ const streaksModal = () => {
 
   const handleSaveStreak = () => {
     if (streakObj?.coinsNeededToSaveStreak <= coins) {
-      // changed
-      // setStreakMsgState("noStreakMsg");
       setNotEnoughCoins(false);
       setStreakObj({ ...streakObj, streakMsg: "noStreakMsg" });
       saveStreak(user);
@@ -148,7 +146,6 @@ const streaksModal = () => {
               backgroundDarker="#a26208"
               onPressOut={() => {
                 setNotEnoughCoins(false);
-                // setStreakMsgState("noStreakMsg");
                 setStreakObj({ ...streakObj, streakMsg: "noStreakMsg" });
               }}
             >

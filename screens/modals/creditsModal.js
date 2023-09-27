@@ -87,8 +87,11 @@ const creditsModal = () => {
               backgroundColor="#eb910a"
               backgroundDarker="#a26208"
               onPressOut={() => {
-                // setcreditsMsgState("nocreditsMsg");
-                setCreditsObj({ ...creditsObj, nbCreditsGiven: 0 });
+                setCreditsObj({
+                  ...creditsObj,
+                  nbCreditsGiven: 0,
+                  isNewSub: false,
+                });
               }}
             >
               <Ionicons name="close" color={Colors.whiteDarker} size={25} />
@@ -140,7 +143,6 @@ const creditsModal = () => {
                   width: 18,
                   height: 18,
                   resizeMode: "contain",
-                  //grey out
                 }}
               />
               : {creditsObj?.nbCreditsGiven}
