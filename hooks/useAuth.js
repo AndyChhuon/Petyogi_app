@@ -142,9 +142,9 @@ export const AuthProvider = ({ children }) => {
           navigation.navigate("Register");
           //check purchases was initialized
 
-          Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
-          Purchases.isAnonymous().then((isAnonymous) => {
-            if (!isAnonymous) {
+          Purchases.isConfigured().then((isConfigured) => {
+            if (isConfigured) {
+              Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
               Purchases.logOut();
             }
           });
