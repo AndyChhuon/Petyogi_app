@@ -28,7 +28,7 @@ const creditsModal = () => {
 
     console.log(creditsMsg);
 
-    if (creditsMsgState != "nocreditsMsg") {
+    if (creditsMsg != "nocreditsMsg") {
       setcreditsObtainedImageIndex(
         Math.floor(Math.random() * streaksSavedImage.length)
       );

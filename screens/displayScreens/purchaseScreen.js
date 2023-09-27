@@ -40,6 +40,7 @@ const ShopScreen = ({ navigation }) => {
   const { remainingCredits, accountType, hasFreeTrial } = userValues;
   const [hasCheckedIfUserHasCredits, setHasCheckedIfUserHasCredits] =
     useState(false);
+  const [newlyPurchased, setNewlyPurchased] = useState(false);
   const accountPlan = revenueCatCustomerInfo?.activeSubscriptions[0]
     ? revenueCatCustomerInfo?.activeSubscriptions[0]
     : accountType == "freeVerified"
@@ -72,6 +73,7 @@ const ShopScreen = ({ navigation }) => {
     );
 
     const minutesLeft = (nextDate - new Date()) / 1000 / 60;
+    console.log("test", minutesLeft);
 
     if (minutesLeft < 0 && !hasCheckedIfUserHasCredits) {
       setHasCheckedIfUserHasCredits(true);
@@ -85,7 +87,7 @@ const ShopScreen = ({ navigation }) => {
   };
 
   const timeRemaining =
-    subscriptionWithPrevDate[0] != "noSubscription" && noCreditsLeft
+    subscriptionWithPrevDate[0] != "noSubscription" && !newlyPurchased
       ? getTimeRemaining(
           subscriptionWithPrevDate[1],
           subscriptionWithPrevDate[0]
@@ -98,6 +100,7 @@ const ShopScreen = ({ navigation }) => {
     console.log(packageID);
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
+        setNewlyPurchased(true);
         setLoadingModalVisible(false);
         checkIfUserHasCredits(user);
       })
