@@ -19,7 +19,7 @@ import {
 } from "firebase/auth";
 import { ref, child, get, onValue, off, getDatabase } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
-import { showMessage } from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
 
 const AuthContext = createContext({});
@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
   const [loadingModalVisible, setLoadingModalVisible] = useState(false);
   const [currentOffering, setCurrentOffering] = useState(null);
   const [revenueCatCustomerInfo, setRevenueCatCustomerInfo] = useState(null);
+  const [planWasChecked, setPlanWasChecked] = useState("");
   const [userValues, setUserValues] = useState({});
   const dbRef = ref(db);
   const [isWaitingOnEmailVerification, setIsWaitingOnEmailVerification] =
@@ -51,6 +52,84 @@ export const AuthProvider = ({ children }) => {
     console.log(purchaserInfo);
     setRevenueCatCustomerInfo(purchaserInfo);
   };
+
+  // const initializePurchases = async (user) => {
+  //   //setup Revenue Cat
+  //   if (Platform.OS === "android") {
+  //     await Purchases.configure({
+  //       apiKey: APIKeys.google,
+  //       appUserID: user.uid,
+  //     });
+  //   } else {
+  //     await Purchases.configure({
+  //       apiKey: APIKeys.apple,
+  //       appUserID: user.uid,
+  //     });
+  //   }
+
+  //   await Purchases.syncPurchases();
+
+  //   Purchases.getOfferings()
+  //     .then((offerings) => {
+  //       setCurrentOffering(offerings.current);
+  //       Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
+  //     })
+  //     .catch((err) => {
+  //       showMessage({
+  //         message: "There was an error fetching in app purchases.",
+  //         type: "danger",
+  //       });
+  //     });
+
+  //   Purchases.logIn(user.uid)
+  //     .then((infoCustomer) => {
+  //       console.log("infoCustomer");
+  //       console.log(infoCustomer);
+  //       setRevenueCatCustomerInfo(infoCustomer.customerInfo);
+  //     })
+  //     .catch((err) => {
+  //       showMessage({
+  //         message: "There was an error fetching your customer info.",
+  //         type: "danger",
+  //       });
+  //     });
+  // };
+  const planOrder = ["yogi_plan", "turtle_plan", "sloth_plan"];
+
+  useEffect(() => {
+    console.log("revenueCatCustomerInfo");
+    console.log(revenueCatCustomerInfo);
+    console.log("creditsObj");
+    console.log(creditsObj);
+    if (
+      revenueCatCustomerInfo?.activeSubscriptions &&
+      creditsObj?.subscriptionWithPrevDate
+    ) {
+      const subscriptionWithPrevDate = creditsObj.subscriptionWithPrevDate;
+      const activeSubscriptionsArray =
+        revenueCatCustomerInfo.activeSubscriptions;
+      let selectedPlan = "noSubscription";
+      for (const plan of planOrder) {
+        if (activeSubscriptionsArray.includes(plan)) {
+          selectedPlan = plan;
+          break;
+        }
+      }
+
+      console.log("selectedPlan");
+      console.log(selectedPlan);
+      console.log("subscriptionWithPrevDate");
+      console.log(subscriptionWithPrevDate);
+      if (
+        subscriptionWithPrevDate[0] !== selectedPlan &&
+        planWasChecked !== selectedPlan
+      ) {
+        console.log("Call update credits");
+        checkIfUserHasCredits(user);
+        setPlanWasChecked(selectedPlan);
+      }
+    }
+  }, [revenueCatCustomerInfo, creditsObj]);
 
   useEffect(() => {
     if (appInitialized) {
@@ -72,80 +151,103 @@ export const AuthProvider = ({ children }) => {
                   idToken: idToken,
                 }),
               }
-            )
-              .then((res) => res.json())
-              .then((data) => {
-                setUserValues(data.userValues);
-                setStreakObj(data.streakObj);
+            ).then((res) => {
+              if (res.ok) {
+                return res.json().then(async (data) => {
+                  console.log("data");
+                  console.log(data);
+                  setUserValues(data.userValues);
+                  setStreakObj(data.streakObj);
 
-                const isNewlyVerified = data.isNewlyVerified;
-                if (isNewlyVerified) {
-                  setVerificationModalVisible(true);
-                }
+                  const isNewlyVerified = data.isNewlyVerified;
+                  if (isNewlyVerified) {
+                    setIsWaitingOnEmailVerification(false);
+                    setVerificationModalVisible(true);
+                  }
 
-                checkIfUserHasCredits(user);
+                  checkIfUserHasCredits(user);
 
-                navigation.navigate("BottomTabBar");
-              })
-              .catch((err) => {
-                console.log(err);
-                showMessage({
-                  message: "There was an error fetching your data.",
-                  type: "danger",
+                  navigation.navigate("BottomTabBar");
+
+                  if (!user.displayName) {
+                    updateProfile(user, { displayName: "fellow yogi" });
+                  }
+
+                  console.log("setting up");
+
+                  //setup Revenue Cat
+                  if (Platform.OS === "android") {
+                    await Purchases.configure({
+                      apiKey: APIKeys.google,
+                      appUserID: user.uid,
+                    });
+                  } else {
+                    await Purchases.configure({
+                      apiKey: APIKeys.apple,
+                      appUserID: user.uid,
+                    });
+                  }
+
+                  await Purchases.syncPurchases();
+
+                  Purchases.getOfferings()
+                    .then((offerings) => {
+                      setCurrentOffering(offerings.current);
+                      Purchases.addCustomerInfoUpdateListener(
+                        customerInfoUpdated
+                      );
+                    })
+                    .catch((err) => {
+                      showMessage({
+                        message:
+                          "There was an error fetching in app purchases.",
+                        type: "danger",
+                      });
+                    });
+
+                  Purchases.logIn(user.uid)
+                    .then((infoCustomer) => {
+                      console.log("infoCustomer");
+                      console.log(infoCustomer);
+                      setRevenueCatCustomerInfo(infoCustomer.customerInfo);
+                    })
+                    .catch((err) => {
+                      showMessage({
+                        message:
+                          "There was an error fetching your customer info.",
+                        type: "danger",
+                      });
+                    });
                 });
-              });
+              } else {
+                res.text().then((text) => {
+                  console.log(text);
+                  showMessage({
+                    message: text,
+                    type: "danger",
+                  });
+                  navigation.navigate("Register");
+                  signOut(auth);
+                });
+              }
+            });
           });
-
-          if (!user.displayName) {
-            updateProfile(user, { displayName: "fellow yogi" });
-          }
-
-          //setup Revenue Cat
-          if (Platform.OS === "android") {
-            await Purchases.configure({
-              apiKey: APIKeys.google,
-              appUserID: user.uid,
-            });
-          } else {
-            await Purchases.configure({
-              apiKey: APIKeys.apple,
-              appUserID: user.uid,
-            });
-          }
-
-          await Purchases.syncPurchases();
-
-          Purchases.getOfferings()
-            .then((offerings) => {
-              setCurrentOffering(offerings.current);
-              Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
-            })
-            .catch((err) => {
-              showMessage({
-                message: "There was an error fetching in app purchases.",
-                type: "danger",
-              });
-            });
-
-          Purchases.logIn(user.uid)
-            .then((infoCustomer) => {
-              console.log(infoCustomer);
-              setRevenueCatCustomerInfo(infoCustomer.customerInfo);
-            })
-            .catch((err) => {
-              showMessage({
-                message: "There was an error fetching your customer info.",
-                type: "danger",
-              });
-            });
         } else {
           navigation.navigate("Register");
           //check purchases was initialized
+          console.log("no user");
+          if (userValues) {
+            setUserValues({});
+          }
 
           Purchases.isConfigured().then((isConfigured) => {
             if (isConfigured) {
               Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
-              Purchases.logOut();
+              Purchases.isAnonymous().then((isAnonymous) => {
+                if (!isAnonymous) {
+                  Purchases.logOut();
+                }
+              });
             }
           });
         }
@@ -180,34 +282,33 @@ export const AuthProvider = ({ children }) => {
             meditationType: meditationType,
           }),
         }
-      )
-        .then((res) => {
-          if (res.ok) {
-            return res.json();
-          }
-        })
-        .then((data) => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      ).then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
-          const tutorialShouldShow = number == 1;
+            const tutorialShouldShow = number == 1;
 
-          const propsToPass = {
-            shouldListenRealTime: true,
-            tutorialShouldShow: tutorialShouldShow,
-            number: number,
-          };
-          setUserValues(data.userValues);
-          setStreakObj(data.streakObj);
-          setLoadingClicked(false);
-          navigation.navigate("MeditationScreen", propsToPass);
-        })
-        .catch((err) => {
-          setLoadingClicked(false);
-          showMessage({
-            message: "There was an error creating your meditation.",
-            type: "danger",
+            const propsToPass = {
+              shouldListenRealTime: true,
+              tutorialShouldShow: tutorialShouldShow,
+              number: number,
+            };
+            setUserValues(data.userValues);
+            setStreakObj(data.streakObj);
+            setLoadingClicked(false);
+            navigation.navigate("MeditationScreen", propsToPass);
           });
-        });
+        } else {
+          res.text().then((text) => {
+            console.log(text);
+            showMessage({
+              message: text,
+              type: "danger",
+            });
+          });
+        }
+      });
     });
   };
 
@@ -230,23 +331,27 @@ export const AuthProvider = ({ children }) => {
             idToken: idToken,
           }),
         }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setUserValues(data.userValues);
-          setStreakObj(data.streakObj);
-          const isNewlyVerified = data.isNewlyVerified;
-          if (isNewlyVerified) {
-            setVerificationModalVisible(true);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          showMessage({
-            message: "There was an error fetching your data.",
-            type: "danger",
+      ).then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            setUserValues(data.userValues);
+            setStreakObj(data.streakObj);
+            const isNewlyVerified = data.isNewlyVerified;
+            if (isNewlyVerified) {
+              setIsWaitingOnEmailVerification(false);
+              setVerificationModalVisible(true);
+            }
           });
-        });
+        } else {
+          res.text().then((text) => {
+            console.log(text);
+            showMessage({
+              message: text,
+              type: "danger",
+            });
+          });
+        }
+      });
     });
   };
 
@@ -265,32 +370,31 @@ export const AuthProvider = ({ children }) => {
             idToken: idToken,
           }),
         }
-      )
-        .then((res) => {
-          if (res.ok) {
-            return res.json();
-          } else {
-            res.text().then((text) => {
-              console.log(text);
-              showMessage({
-                message: text,
-                type: "danger",
-              });
+      ).then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            setLoadingModalVisible(false);
+            setUserValues(data.userValues);
+            setStreakObj(data.streakObj);
+          });
+        } else {
+          res.text().then((text) => {
+            console.log(text);
+            setLoadingModalVisible(false);
+
+            showMessage({
+              message: text,
+              type: "danger",
             });
-          }
-        })
-        .then((data) => {
-          setLoadingModalVisible(false);
-          setUserValues(data.userValues);
-          setStreakObj(data.streakObj);
-        })
-        .catch((err) => {
-          setLoadingModalVisible(false);
-        });
+          });
+        }
+      });
     });
   };
 
   const checkIfUserHasCredits = (user) => {
+    console.log("inside checkIfUserHasCredits");
+
     getIdToken(user).then((idToken) => {
       //post request
       fetch(
@@ -304,23 +408,28 @@ export const AuthProvider = ({ children }) => {
             idToken: idToken,
           }),
         }
-      )
-        .then((res) => {
-          if (res.ok) {
-            return res.json();
-          }
-        })
-        .then((data) => {
-          setUserValues(data.userValues);
-          setCreditsObj(data.modalDisplay);
-          console.log(data.modalDisplay);
-        })
-        .catch((err) => {
-          showMessage({
-            message: "There was an error trying to update your credits.",
-            type: "danger",
+      ).then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            setUserValues(data.userValues);
+            // Modal not currently displayed
+            if (!(creditsObj?.nbCreditsGiven > 0)) {
+              setCreditsObj(data.modalDisplay);
+              console.log("not currently displayed");
+            }
+            console.log("success checkIfUserHasCredits");
+            console.log(data.modalDisplay);
           });
-        });
+        } else {
+          res.text().then((text) => {
+            console.log(text);
+            showMessage({
+              message: text,
+              type: "danger",
+            });
+          });
+        }
+      });
     });
   };
 
@@ -342,24 +451,28 @@ export const AuthProvider = ({ children }) => {
                 idToken: idToken,
               }),
             }
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              setUserValues(data.userValues);
-              setStreakObj(data.streakObj);
-              setIsWaitingOnEmailVerification(false);
+          ).then((res) => {
+            if (res.ok) {
+              return res.json().then((data) => {
+                setUserValues(data.userValues);
+                setStreakObj(data.streakObj);
 
-              const isNewlyVerified = data.isNewlyVerified;
-              if (isNewlyVerified) {
-                setVerificationModalVisible(true);
-              }
-            })
-            .catch((err) => {
-              showMessage({
-                message: "There was an error fetching your data.",
-                type: "danger",
+                const isNewlyVerified = data.isNewlyVerified;
+                if (isNewlyVerified) {
+                  setIsWaitingOnEmailVerification(false);
+                  setVerificationModalVisible(true);
+                }
               });
-            });
+            } else {
+              res.text().then((text) => {
+                console.log(text);
+                showMessage({
+                  message: text,
+                  type: "danger",
+                });
+              });
+            }
+          });
         });
       }
     }
@@ -425,8 +538,6 @@ export const AuthProvider = ({ children }) => {
       .then((userCredential) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-        navigation.navigate("BottomTabBar");
-
         // Signed in successfully
       })
       .catch((error) => {
@@ -463,7 +574,6 @@ export const AuthProvider = ({ children }) => {
       .then((userCredential) => {
         // Signed in
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        navigation.navigate("BottomTabBar");
       })
       .catch((error) => {
         if (isRegister) {

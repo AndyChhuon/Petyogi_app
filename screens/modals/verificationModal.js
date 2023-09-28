@@ -74,7 +74,7 @@ const VerificationModal = () => {
   return (
     verificationModalVisible && (
       <ScaleInOut
-        visible={verificationModalVisible != "nocreditsMsg"}
+        visible={verificationModalVisible}
         delayIn={creditsDelay}
         style={{
           display: "flex",

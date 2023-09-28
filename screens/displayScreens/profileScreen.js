@@ -30,7 +30,6 @@ const ProfileScreen = ({ navigation }) => {
   const {
     userValues,
     isWaitingOnEmailVerification,
-    revenueCatCustomerInfo,
     currentOffering,
     loadingModalVisible,
     setLoadingModalVisible,
@@ -49,13 +48,6 @@ const ProfileScreen = ({ navigation }) => {
   const [hasCheckedIfUserHasCredits, setHasCheckedIfUserHasCredits] =
     useState(false);
   const [newlyPurchased, setNewlyPurchased] = useState(false);
-  const accountPlan = revenueCatCustomerInfo?.activeSubscriptions[0]
-    ? revenueCatCustomerInfo?.activeSubscriptions[0]
-    : accountType == "freeVerified"
-    ? hasFreeTrial
-      ? "freeVerifiedTrial"
-      : "freeVerifiedNoTrial"
-    : accountType;
 
   const tutorialShouldShow =
     userValues.numMeditations === 0 &&
@@ -66,6 +58,15 @@ const ProfileScreen = ({ navigation }) => {
   const subscriptionWithPrevDate = creditsObj?.subscriptionWithPrevDate
     ? creditsObj?.subscriptionWithPrevDate
     : ["noSubscription", new Date()];
+
+  const accountPlan =
+    subscriptionWithPrevDate[0] != "noSubscription"
+      ? subscriptionWithPrevDate[0]
+      : accountType == "freeVerified"
+      ? hasFreeTrial
+        ? "freeVerifiedTrial"
+        : "freeVerifiedNoTrial"
+      : accountType;
   console.log(subscriptionWithPrevDate);
 
   const hoursIncrementBySubscriptionType = {
@@ -110,15 +111,17 @@ const ProfileScreen = ({ navigation }) => {
     console.log(packageID);
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
+        console.log("purchasing");
         setNewlyPurchased(true);
         setLoadingModalVisible(false);
-        checkIfUserHasCredits(user);
+        // checkIfUserHasCredits(user);
       })
       .catch((err) => {
         console.log(err);
         if (!err.userCancelled && err.code != 15) {
           showMessage({
-            message: "There was an error purchasing the subscription plan.",
+            message:
+              "There was an error purchasing the subscription plan. Try reloading app.",
             type: "danger",
           });
         }
@@ -325,13 +328,13 @@ const ProfileScreen = ({ navigation }) => {
                         { fontSize: 16.5 },
                       ]}
                     >
-                      {purchaseScreenCTA[accountPlan].noCreditsText}
+                      {purchaseScreenCTA[accountPlan]?.noCreditsText}
                       {subscriptionWithPrevDate[0] != "noSubscription" &&
                         ` Less than ${timeRemaining} before your next credit fill.`}
                     </Text>
                     <TouchableOpacity
                       style={
-                        purchaseScreenCTA[accountPlan].noCreditsCTA
+                        purchaseScreenCTA[accountPlan]?.noCreditsCTA
                           ? {}
                           : { display: "none" }
                       }
@@ -343,7 +346,7 @@ const ProfileScreen = ({ navigation }) => {
                           { fontSize: 17, color: "#42c2fa", marginTop: 9 },
                         ]}
                       >
-                        {purchaseScreenCTA[accountPlan].noCreditsCTA}
+                        {purchaseScreenCTA[accountPlan]?.noCreditsCTA}
                       </Text>
                       {tutorialShouldShow && (
                         <FloatingAnimation
@@ -519,7 +522,7 @@ const ProfileScreen = ({ navigation }) => {
               }}
             >
               <ImageBackground
-                source={purchaseScreenCTA[accountPlan].background}
+                source={purchaseScreenCTA[accountPlan]?.background}
                 style={[
                   styles.BackgroundImage,
                   { borderRadius: 10, borderWidth: 3, borderColor: "#39474f" },
@@ -536,7 +539,7 @@ const ProfileScreen = ({ navigation }) => {
                 >
                   <View style={{ marginRight: 4 }}>
                     <Text style={[Fonts.tryForFreeTitle, { marginLeft: 8 }]}>
-                      {purchaseScreenCTA[accountPlan].title}
+                      {purchaseScreenCTA[accountPlan]?.title}
                     </Text>
                     <Text
                       style={[
@@ -549,11 +552,11 @@ const ProfileScreen = ({ navigation }) => {
                         },
                       ]}
                     >
-                      {purchaseScreenCTA[accountPlan].subtitleOne}{" "}
+                      {purchaseScreenCTA[accountPlan]?.subtitleOne}{" "}
                       <Text style={Fonts.decriptionSemiBold}>
-                        {purchaseScreenCTA[accountPlan].subtitleBold}
+                        {purchaseScreenCTA[accountPlan]?.subtitleBold}
                       </Text>{" "}
-                      {purchaseScreenCTA[accountPlan].subtitleTwo}
+                      {purchaseScreenCTA[accountPlan]?.subtitleTwo}
                     </Text>
                   </View>
                   <Image
@@ -564,14 +567,14 @@ const ProfileScreen = ({ navigation }) => {
                       borderColor: Colors.bodyBackColor,
                       borderWidth: 2,
                     }}
-                    source={purchaseScreenCTA[accountPlan].image}
+                    source={purchaseScreenCTA[accountPlan]?.image}
                   ></Image>
                 </View>
                 <AwesomeButton
                   backgroundColor="#f1f6fb"
-                  borderColor={purchaseScreenCTA[accountPlan].borderColor}
+                  borderColor={purchaseScreenCTA[accountPlan]?.borderColor}
                   backgroundDarker={
-                    purchaseScreenCTA[accountPlan].backgroundDarker
+                    purchaseScreenCTA[accountPlan]?.backgroundDarker
                   }
                   borderWidth={2}
                   paddingHorizontal={0}
@@ -589,7 +592,7 @@ const ProfileScreen = ({ navigation }) => {
                   }}
                 >
                   <Text style={Fonts.tryForFreeButton}>
-                    {purchaseScreenCTA[accountPlan].cta}
+                    {purchaseScreenCTA[accountPlan]?.cta}
                   </Text>
                 </AwesomeButton>
               </ImageBackground>
