@@ -50,8 +50,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     initMeditationQuestionsJson
   );
 
-  console.log(meditationQuestionsJson);
-
   useEffect(() => {
     let timeoutId;
     if (flatListRef?.current && currentQuestionIndex <= 1) {
@@ -103,7 +101,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   };
 
   const charCount = meditationAnswer.length;
-  console.log(meditationQuestionsJson[currentQuestionIndex]);
   const maxChars = meditationQuestionsJson[currentQuestionIndex].maxChars
     ? meditationQuestionsJson[currentQuestionIndex].maxChars
     : 500;

@@ -17,7 +17,15 @@ import {
   updateProfile,
   signOut,
 } from "firebase/auth";
-import { ref, child, get, onValue, off, getDatabase } from "firebase/database";
+import {
+  ref,
+  child,
+  get,
+  onValue,
+  off,
+  getDatabase,
+  set,
+} from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
@@ -49,58 +57,12 @@ export const AuthProvider = ({ children }) => {
   const navigation = useNavigation();
 
   const customerInfoUpdated = async (purchaserInfo) => {
-    console.log(purchaserInfo);
     setRevenueCatCustomerInfo(purchaserInfo);
   };
 
-  // const initializePurchases = async (user) => {
-  //   //setup Revenue Cat
-  //   if (Platform.OS === "android") {
-  //     await Purchases.configure({
-  //       apiKey: APIKeys.google,
-  //       appUserID: user.uid,
-  //     });
-  //   } else {
-  //     await Purchases.configure({
-  //       apiKey: APIKeys.apple,
-  //       appUserID: user.uid,
-  //     });
-  //   }
-
-  //   await Purchases.syncPurchases();
-
-  //   Purchases.getOfferings()
-  //     .then((offerings) => {
-  //       setCurrentOffering(offerings.current);
-  //       Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
-  //     })
-  //     .catch((err) => {
-  //       showMessage({
-  //         message: "There was an error fetching in app purchases.",
-  //         type: "danger",
-  //       });
-  //     });
-
-  //   Purchases.logIn(user.uid)
-  //     .then((infoCustomer) => {
-  //       console.log("infoCustomer");
-  //       console.log(infoCustomer);
-  //       setRevenueCatCustomerInfo(infoCustomer.customerInfo);
-  //     })
-  //     .catch((err) => {
-  //       showMessage({
-  //         message: "There was an error fetching your customer info.",
-  //         type: "danger",
-  //       });
-  //     });
-  // };
   const planOrder = ["yogi_plan", "turtle_plan", "sloth_plan"];
 
   useEffect(() => {
-    console.log("revenueCatCustomerInfo");
-    console.log(revenueCatCustomerInfo);
-    console.log("creditsObj");
-    console.log(creditsObj);
     if (
       revenueCatCustomerInfo?.activeSubscriptions &&
       creditsObj?.subscriptionWithPrevDate
@@ -116,15 +78,10 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      console.log("selectedPlan");
-      console.log(selectedPlan);
-      console.log("subscriptionWithPrevDate");
-      console.log(subscriptionWithPrevDate);
       if (
         subscriptionWithPrevDate[0] !== selectedPlan &&
         planWasChecked !== selectedPlan
       ) {
-        console.log("Call update credits");
         checkIfUserHasCredits(user);
         setPlanWasChecked(selectedPlan);
       }
@@ -135,7 +92,6 @@ export const AuthProvider = ({ children }) => {
     if (appInitialized) {
       var unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
-          console.log(user);
           setUser(user);
 
           getIdToken(user).then((idToken) => {
@@ -154,8 +110,6 @@ export const AuthProvider = ({ children }) => {
             ).then((res) => {
               if (res.ok) {
                 return res.json().then(async (data) => {
-                  console.log("data");
-                  console.log(data);
                   setUserValues(data.userValues);
                   setStreakObj(data.streakObj);
 
@@ -172,8 +126,6 @@ export const AuthProvider = ({ children }) => {
                   if (!user.displayName) {
                     updateProfile(user, { displayName: "fellow yogi" });
                   }
-
-                  console.log("setting up");
 
                   //setup Revenue Cat
                   if (Platform.OS === "android") {
@@ -207,8 +159,6 @@ export const AuthProvider = ({ children }) => {
 
                   Purchases.logIn(user.uid)
                     .then((infoCustomer) => {
-                      console.log("infoCustomer");
-                      console.log(infoCustomer);
                       setRevenueCatCustomerInfo(infoCustomer.customerInfo);
                     })
                     .catch((err) => {
@@ -221,7 +171,6 @@ export const AuthProvider = ({ children }) => {
                 });
               } else {
                 res.text().then((text) => {
-                  console.log(text);
                   showMessage({
                     message: text,
                     type: "danger",
@@ -235,7 +184,6 @@ export const AuthProvider = ({ children }) => {
         } else {
           navigation.navigate("Register");
           //check purchases was initialized
-          console.log("no user");
           if (userValues) {
             setUserValues({});
           }
@@ -301,7 +249,6 @@ export const AuthProvider = ({ children }) => {
           });
         } else {
           res.text().then((text) => {
-            console.log(text);
             showMessage({
               message: text,
               type: "danger",
@@ -315,6 +262,10 @@ export const AuthProvider = ({ children }) => {
   const accountSignOut = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     signOut(auth);
+    setPlanWasChecked("");
+    setRevenueCatCustomerInfo(null);
+    setCreditsObj(null);
+    setUserValues({});
   };
 
   const checkStreaks = () => {
@@ -344,7 +295,6 @@ export const AuthProvider = ({ children }) => {
           });
         } else {
           res.text().then((text) => {
-            console.log(text);
             showMessage({
               message: text,
               type: "danger",
@@ -379,7 +329,6 @@ export const AuthProvider = ({ children }) => {
           });
         } else {
           res.text().then((text) => {
-            console.log(text);
             setLoadingModalVisible(false);
 
             showMessage({
@@ -393,8 +342,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const checkIfUserHasCredits = (user) => {
-    console.log("inside checkIfUserHasCredits");
-
     getIdToken(user).then((idToken) => {
       //post request
       fetch(
@@ -415,14 +362,10 @@ export const AuthProvider = ({ children }) => {
             // Modal not currently displayed
             if (!(creditsObj?.nbCreditsGiven > 0)) {
               setCreditsObj(data.modalDisplay);
-              console.log("not currently displayed");
             }
-            console.log("success checkIfUserHasCredits");
-            console.log(data.modalDisplay);
           });
         } else {
           res.text().then((text) => {
-            console.log(text);
             showMessage({
               message: text,
               type: "danger",
@@ -465,7 +408,6 @@ export const AuthProvider = ({ children }) => {
               });
             } else {
               res.text().then((text) => {
-                console.log(text);
                 showMessage({
                   message: text,
                   type: "danger",
@@ -580,7 +522,6 @@ export const AuthProvider = ({ children }) => {
           //Login from register page
           setError("auth/email-already-in-use");
         } else {
-          console.log("Error signing in:", error.code);
           setError(error.code);
         }
       });

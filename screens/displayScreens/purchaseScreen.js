@@ -59,7 +59,6 @@ const ShopScreen = ({ navigation }) => {
         ? "freeVerifiedTrial"
         : "freeVerifiedNoTrial"
       : accountType;
-  console.log(subscriptionWithPrevDate);
 
   const hoursIncrementBySubscriptionType = {
     sloth_plan: 48,
@@ -69,14 +68,12 @@ const ShopScreen = ({ navigation }) => {
 
   const getTimeRemaining = (date, subscriptionType) => {
     const nextDate = new Date(date);
-    console.log(nextDate);
 
     nextDate.setHours(
       nextDate.getHours() + hoursIncrementBySubscriptionType[subscriptionType]
     );
 
     const minutesLeft = (nextDate - new Date()) / 1000 / 60;
-    console.log("test", minutesLeft);
 
     if (minutesLeft < 0 && !hasCheckedIfUserHasCredits) {
       setHasCheckedIfUserHasCredits(true);
@@ -97,20 +94,20 @@ const ShopScreen = ({ navigation }) => {
         )
       : "";
 
-  const handlePurchase = async (packageID) => {
+  const handlePurchase = async (packageID, isTopUp = false) => {
     if (loadingModalVisible) return;
     setLoadingModalVisible(true);
-    console.log(packageID);
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
-        console.log("purchasing");
         setNewlyPurchased(true);
         setLoadingModalVisible(false);
-        // checkIfUserHasCredits(user);
+
+        if (isTopUp) {
+          checkIfUserHasCredits(user);
+        }
       })
       .catch((err) => {
         if (!err.userCancelled && err.code != 15) {
-          console.log(err);
           showMessage({
             message:
               "There was an error purchasing the subscription plan. Try reloading app.",
@@ -700,7 +697,8 @@ const ShopScreen = ({ navigation }) => {
                   handlePurchase(
                     currentOffering?.availablePackages.find(
                       (item) => item.identifier === "3_credits"
-                    )
+                    ),
+                    true
                   )
                 }
                 style={{
@@ -746,7 +744,8 @@ const ShopScreen = ({ navigation }) => {
                   handlePurchase(
                     currentOffering?.availablePackages.find(
                       (item) => item.identifier === "8_credits"
-                    )
+                    ),
+                    true
                   )
                 }
                 style={{
@@ -792,7 +791,8 @@ const ShopScreen = ({ navigation }) => {
                   handlePurchase(
                     currentOffering?.availablePackages.find(
                       (item) => item.identifier === "22_credits"
-                    )
+                    ),
+                    true
                   )
                 }
                 style={{

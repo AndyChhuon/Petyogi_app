@@ -189,12 +189,6 @@ const MeditationScreen = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    if (updateTutorialModalVisible == "meditationTutorialIcons") {
-      console.log("tst");
-    }
-  }, [updateTutorialModalVisible]);
-
-  useEffect(() => {
     let unsubscribe;
     if (meditationInfo.shouldListenRealTime) {
       unsubscribe = listenMeditationUpdate(

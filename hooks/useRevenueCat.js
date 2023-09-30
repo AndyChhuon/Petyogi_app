@@ -15,12 +15,8 @@ function useRevenueCat() {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("getofferings");
       const offerings = await Purchases.getOfferings();
-      console.log(offerings.current);
-      console.log("getcustomerinfo");
       const customerInfo = await Purchases.getCustomerInfo();
-      console.log(customerInfo);
       setCurrentOffering(offerings.current);
       setCustomerInfo(customerInfo);
     };
