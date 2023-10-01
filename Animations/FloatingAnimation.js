@@ -7,9 +7,6 @@ import Animated, {
   Easing,
   withRepeat,
 } from "react-native-reanimated";
-import useAuth from "../hooks/useAuth";
-import ScaleInOut from "../Animations/ScaleInOut";
-import * as Haptics from "expo-haptics";
 
 const FloatingAnimation = ({
   children,
