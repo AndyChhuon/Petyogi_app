@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 
 import {
   SafeAreaView,
@@ -19,7 +19,6 @@ import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
 import Purchases from "react-native-purchases";
 import { showMessage } from "react-native-flash-message";
-import { min } from "react-native-reanimated";
 import FloatingAnimation from "../../Animations/FloatingAnimation";
 import Lottie from "lottie-react-native";
 

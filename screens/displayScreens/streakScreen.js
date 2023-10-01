@@ -1,19 +1,17 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 
 import {
   SafeAreaView,
   View,
   StatusBar,
   Dimensions,
-  ImageBackground,
   TouchableOpacity,
   Image,
   StyleSheet,
   Text,
-  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors, Sizes, Fonts } from "../../constants/styles";
+import { Colors, Fonts } from "../../constants/styles";
 import useAuth from "../../hooks/useAuth";
 
 const { width, height } = Dimensions.get("window");

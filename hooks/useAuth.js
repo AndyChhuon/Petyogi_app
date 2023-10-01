@@ -17,17 +17,9 @@ import {
   updateProfile,
   signOut,
 } from "firebase/auth";
-import {
-  ref,
-  child,
-  get,
-  onValue,
-  off,
-  getDatabase,
-  set,
-} from "firebase/database";
+import { ref, child, get, onValue } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
-import { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
 
 const AuthContext = createContext({});

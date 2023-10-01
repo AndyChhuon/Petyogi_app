@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
-import { SafeAreaView, View, Image } from "react-native";
+import { Image } from "react-native";
 import * as Font from "expo-font";
-import { Colors } from "../constants/styles";
 import useAuth from "../hooks/useAuth";
 
 const LoadingScreen = ({ navigation }) => {

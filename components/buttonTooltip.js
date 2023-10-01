@@ -1,5 +1,5 @@
 import AwesomeButton from "react-native-really-awesome-button";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Dimensions,
@@ -12,13 +12,6 @@ import {
 import { Colors, Fonts } from "../constants/styles";
 import { initMeditationQuestionsJson } from "../constants/constants";
 
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  Easing,
-  withRepeat,
-} from "react-native-reanimated";
 import useAuth from "../hooks/useAuth";
 import ScaleInOut from "../Animations/ScaleInOut";
 import FloatingAnimation from "../Animations/FloatingAnimation";

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment } from "react";
 
 import {
   SafeAreaView,
@@ -13,7 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Colors, Fonts } from "../../constants/styles";
 import * as Haptics from "expo-haptics";
 
-const { width, height } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 const TermsAndConditions = ({ navigation }) => {
   return (

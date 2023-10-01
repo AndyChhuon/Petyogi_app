@@ -1,20 +1,17 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment } from "react";
 
 import {
   SafeAreaView,
   View,
   StatusBar,
   Dimensions,
-  ImageBackground,
-  TouchableOpacity,
   Image,
   StyleSheet,
   Text,
-  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors, Sizes, Fonts } from "../../constants/styles";
-const { width, height } = Dimensions.get("window");
+import { Colors, Fonts } from "../../constants/styles";
+const { width } = Dimensions.get("window");
 import useAuth from "../../hooks/useAuth";
 
 const ShopScreen = ({ navigation }) => {

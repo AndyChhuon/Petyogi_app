@@ -1,25 +1,8 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import {
-  SafeAreaView,
-  View,
-  StatusBar,
-  Dimensions,
-  ImageBackground,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-  StyleSheet,
-  Text,
-  FlatList,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Colors, Sizes, Fonts } from "../../constants/styles";
-import { purchaseScreenCTA } from "../../constants/constants";
-import AwesomeButton from "react-native-really-awesome-button";
+import { View, Text } from "react-native";
+import { Colors, Fonts } from "../../constants/styles";
 import useAuth from "../../hooks/useAuth";
-import Purchases from "react-native-purchases";
-import { showMessage } from "react-native-flash-message";
 import Lottie from "lottie-react-native";
 import { meditationLotties } from "../../constants/constants";
 

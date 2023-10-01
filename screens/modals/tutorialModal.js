@@ -1,42 +1,23 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
-  SafeAreaView,
   View,
-  StatusBar,
   Dimensions,
-  ImageBackground,
   TouchableOpacity,
-  ScrollView,
   Image,
   StyleSheet,
   Text,
-  FlatList,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { Colors, Fonts } from "../../constants/styles";
-import { purchaseScreenCTA } from "../../constants/constants";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
-import Purchases from "react-native-purchases";
-import { showMessage } from "react-native-flash-message";
-import Lottie from "lottie-react-native";
-import { meditationLotties } from "../../constants/constants";
 import ScaleInOut from "../../Animations/ScaleInOut";
 import * as Haptics from "expo-haptics";
 import { useNavigationState } from "@react-navigation/native";
-import {
-  streaksSavedImage,
-  initMeditationQuestionsJson,
-} from "../../constants/constants";
-import { useNavigation } from "@react-navigation/native";
-import { set } from "firebase/database";
 
 const { width, height } = Dimensions.get("window");
 
 const TutorialModal = () => {
-  const navigation = useNavigation();
-
   const [currentModal, setCurrentModal] = useState(null);
   const [displayTutorial, setDisplayTutorial] = useState(true);
   const state = useNavigationState((state) => state);
@@ -58,7 +39,6 @@ const TutorialModal = () => {
   const isVerified = userValues?.remainingCredits > 0;
 
   const creditsDelay = 200;
-  const displayType = "bottom";
 
   const tutorialObj = {
     welcome: {

@@ -3,7 +3,6 @@ import {
   TransitionPresets,
   createStackNavigator,
 } from "@react-navigation/stack";
-import { LogBox } from "react-native";
 import LoadingScreen from "../components/loadingScreen";
 import BottomTabBarScreen from "../components/bottomTabBarScreen";
 import LoginScreen from "./auth/loginScreen";
@@ -25,13 +24,11 @@ import VerificationModal from "./modals/verificationModal";
 import SplashScreenModal from "./modals/splashScreenModal";
 import TutorialModal from "./modals/tutorialModal";
 import { StatusBar } from "expo-status-bar";
-import { initializeApp } from "firebase/app";
-import app from "../config/firebaseConfig";
 
 const Stack = createStackNavigator();
 
 const AppContent = () => {
-  const { user, userValues } = useAuth();
+  const { user } = useAuth();
 
   return (
     <>

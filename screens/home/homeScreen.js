@@ -9,7 +9,6 @@ import {
   Image,
   StyleSheet,
   Text,
-  FlatList,
   TouchableWithoutFeedback,
   ScrollView,
 } from "react-native";
