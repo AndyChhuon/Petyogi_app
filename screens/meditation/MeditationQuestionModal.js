@@ -180,19 +180,41 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             Question: meditationQuestionsJson[currentQuestionIndex].Question,
             Answer: "",
           },
-          ...meditationQuestionsByType[text],
         };
       });
     } else {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
+        const meditationJsonToKeep = {};
+
+        Object.keys(meditationQuestionsJson).forEach((key) => {
+          if (key == 0 || key == 1 || key == 2) {
+            meditationJsonToKeep[key] = meditationQuestionsJson[key];
+          } else {
+            // Keep same number of questions
+            if (key in meditationQuestionsByType[text]) {
+              // if questions are the same
+              if (
+                meditationQuestionsJson[key].Question ==
+                meditationQuestionsByType[text][key].Question
+              ) {
+                meditationJsonToKeep[key] = meditationQuestionsJson[key];
+              } else {
+                // if questions are different
+                meditationJsonToKeep[key] =
+                  meditationQuestionsByType[text][key];
+              }
+            }
+          }
+        });
+
         return {
-          ...meditationQuestionsJson,
+          ...meditationQuestionsByType[text],
+          ...meditationJsonToKeep,
           [currentQuestionIndex]: {
             ...meditationQuestionsJson[currentQuestionIndex],
             Question: meditationQuestionsJson[currentQuestionIndex].Question,
             Answer: text,
           },
-          ...meditationQuestionsByType[text],
         };
       });
     }

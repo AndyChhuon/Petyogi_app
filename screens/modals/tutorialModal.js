@@ -119,9 +119,12 @@ const TutorialModal = () => {
           if (isWaitingOnEmailVerification) {
             setCurrentModal("verifyEmailSent");
           } else {
-            if (!currentModal) {
+            if (!currentModal || currentModal == "none") {
+              console.log("welcome");
               setCurrentModal("welcome");
             } else {
+              console.log(currentModal);
+              console.log("verifyEmailHome");
               setCurrentModal("verifyEmailHome");
             }
           }
