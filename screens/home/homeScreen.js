@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
+import React, { useState, useRef, useMemo, useEffect, Fragment } from "react";
 import {
   SafeAreaView,
   View,
@@ -186,89 +186,96 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <TouchableWithoutFeedback onPressIn={tooltipOverlayPress}>
-      <SafeAreaView
-        style={
-          dayMode
-            ? { flex: 1, backgroundColor: "#f9cb70" }
-            : { flex: 1, backgroundColor: "#5760b5" }
-        }
-      >
-        <ImageBackground
-          source={
+    <Fragment>
+      <StatusBar
+        translucent={false}
+        backgroundColor={dayMode ? "#f9cb70" : "#5760b5"}
+      />
+
+      <TouchableWithoutFeedback onPressIn={tooltipOverlayPress}>
+        <SafeAreaView
+          style={
             dayMode
-              ? require("../../assets/Day_Background.png")
-              : require("../../assets/Night_Background.png")
+              ? { flex: 1, backgroundColor: "#f9cb70" }
+              : { flex: 1, backgroundColor: "#5760b5" }
           }
-          style={styles.BackgroundImage}
-          backgroundColor="none"
         >
-          <StatusBar
-            translucent={false}
-            backgroundColor={dayMode ? "#f9cb70" : "#5760b5"}
-          />
-          {userInfo()}
-          <ScrollView
-            ref={scrollViewRef}
-            onScroll={handleScroll}
-            scrollEventThrottle={1}
+          <ImageBackground
+            source={
+              dayMode
+                ? require("../../assets/Day_Background.png")
+                : require("../../assets/Night_Background.png")
+            }
+            style={styles.BackgroundImage}
+            backgroundColor="none"
           >
-            <View
-              style={{ flex: 1 }}
-              onLayout={handleLayout}
-              onStartShouldSetResponder={() => {
-                // Allow scroll unless button is pressed
-                return pressedButton === null;
-              }}
+            <StatusBar
+              translucent={false}
+              backgroundColor={dayMode ? "#f9cb70" : "#5760b5"}
+            />
+            {userInfo()}
+            <ScrollView
+              ref={scrollViewRef}
+              onScroll={handleScroll}
+              scrollEventThrottle={1}
             >
               <View
-                style={{
-                  marginTop: (10 * width) / 414,
-                  marginBottom: 180,
+                style={{ flex: 1 }}
+                onLayout={handleLayout}
+                onStartShouldSetResponder={() => {
+                  // Allow scroll unless button is pressed
+                  return pressedButton === null;
                 }}
-                ref={buttonsViewRef}
               >
-                {buttonTooltips}
+                <View
+                  style={{
+                    marginTop: (10 * width) / 414,
+                    marginBottom: 180,
+                  }}
+                  ref={buttonsViewRef}
+                >
+                  {buttonTooltips}
+                </View>
               </View>
-            </View>
-          </ScrollView>
-          <View
-            style={
-              showButton
-                ? {
-                    position: "absolute",
-                    bottom: (25 * width) / 414,
-                    right: (15 * width) / 414,
-                  }
-                : { display: "none" }
-            }
-          >
-            <AwesomeButton
-              backgroundColor={Colors.bodyBackColor}
-              borderColor="#3b464e"
-              backgroundDarker="#3b464e"
-              borderWidth={2}
-              paddingHorizontal={0}
-              borderRadius={15}
-              raiseLevel={2}
-              onPress={bringToBottom}
-              width={(60 * width) / 414}
-              height={(60 * width) / 414}
+            </ScrollView>
+            <View
+              style={
+                showButton
+                  ? {
+                      position: "absolute",
+                      bottom: (25 * width) / 414,
+                      right: (15 * width) / 414,
+                    }
+                  : { display: "none" }
+              }
             >
-              <Image
-                source={require("../../assets/images/icons/downArrow.png")}
-                style={{
-                  width: (30.0 * width) / 414,
-                  height: (30.0 * width) / 414,
-                  resizeMode: "contain",
-                  tintColor: dayMode ? "#7f76d7" : "#fbb855",
-                }}
-              />
-            </AwesomeButton>
-          </View>
-        </ImageBackground>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+              <AwesomeButton
+                backgroundColor={Colors.bodyBackColor}
+                borderColor="#3b464e"
+                backgroundDarker="#3b464e"
+                borderWidth={2}
+                paddingHorizontal={0}
+                borderRadius={15}
+                raiseLevel={2}
+                onPress={bringToBottom}
+                width={(60 * width) / 414}
+                height={(60 * width) / 414}
+              >
+                <Image
+                  source={require("../../assets/images/icons/downArrow.png")}
+                  style={{
+                    width: (30.0 * width) / 414,
+                    height: (30.0 * width) / 414,
+                    resizeMode: "contain",
+                    tintColor: dayMode ? "#7f76d7" : "#fbb855",
+                  }}
+                />
+              </AwesomeButton>
+            </View>
+          </ImageBackground>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </Fragment>
   );
 
   function userInfo() {
@@ -307,8 +314,10 @@ const HomeScreen = ({ navigation }) => {
                       : require("../../assets/images/icons/streak_grey.png")
                   }
                   style={{
-                    width: (22.0 * width) / 414,
-                    height: (22.0 * width) / 414,
+                    width:
+                      (22.0 * width) / 414 > 70 ? 70 : (22.0 * width) / 414,
+                    height:
+                      (22.0 * width) / 414 > 70 ? 70 : (22.0 * width) / 414,
                     resizeMode: "contain",
                   }}
                 />
@@ -338,8 +347,10 @@ const HomeScreen = ({ navigation }) => {
                 <Image
                   source={require("../../assets/images/icons/gem.png")}
                   style={{
-                    width: (20.0 * width) / 414,
-                    height: (20.0 * width) / 414,
+                    width:
+                      (20.0 * width) / 414 > 70 ? 70 : (20.0 * width) / 414,
+                    height:
+                      (20.0 * width) / 414 > 70 ? 70 : (20.0 * width) / 414,
                     resizeMode: "contain",
                   }}
                 />
@@ -369,8 +380,10 @@ const HomeScreen = ({ navigation }) => {
                   <Image
                     source={require("../../assets/images/icons/meditation.png")}
                     style={{
-                      width: (28.0 * width) / 414,
-                      height: (28.0 * width) / 414,
+                      width:
+                        (28.0 * width) / 414 > 70 ? 70 : (28.0 * width) / 414,
+                      height:
+                        (28.0 * width) / 414 > 70 ? 70 : (28.0 * width) / 414,
                       resizeMode: "contain",
                     }}
                   />
@@ -424,8 +437,10 @@ const HomeScreen = ({ navigation }) => {
                       : require("../../assets/images/icons/moon.png")
                   }
                   style={{
-                    width: (22.0 * width) / 414,
-                    height: (22.0 * width) / 414,
+                    width:
+                      (22.0 * width) / 414 > 60 ? 60 : (22.0 * width) / 414,
+                    height:
+                      (22.0 * width) / 414 > 60 ? 60 : (22.0 * width) / 414,
                     resizeMode: "contain",
                   }}
                 />
@@ -440,18 +455,19 @@ const HomeScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   notificationIconWrapStyle: {
-    borderRadius: (Sizes.fixPadding * width) / 414,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(0, 0, 0, 0.05)",
-    width: (40.0 * width) / 414,
-    height: (40.0 * width) / 414,
+    width: (40.0 * width) / 414 > 80 ? 80 : (40.0 * width) / 414,
+    height: (40.0 * width) / 414 > 80 ? 80 : (40.0 * width) / 414,
     marginTop: 3,
-    marginBottom: (Sizes.fixPadding * 1.5 * width) / 414,
+    marginBottom:
+      (50.0 * width) / 414 < 80 ? 20 : (Sizes.fixPadding * 1.5 * width) / 414,
   },
   userImageStyle: {
-    width: (50.0 * width) / 414,
-    height: (50.0 * width) / 414,
+    width: (50.0 * width) / 414 > 80 ? 80 : (50.0 * width) / 414,
+    height: (50.0 * width) / 414 > 80 ? 80 : (50.0 * width) / 414,
     borderRadius: (25.0 * width) / 414,
     borderColor: Colors.primaryColor,
     borderWidth: (1.5 * width) / 414,
@@ -460,7 +476,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: (Sizes.fixPadding * 1.5 * width) / 414,
+    paddingHorizontal:
+      (Sizes.fixPadding * 1.5 * width) / 414 > 20
+        ? 20
+        : (Sizes.fixPadding * 1.5 * width) / 414,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   BackgroundImage: {

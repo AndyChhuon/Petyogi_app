@@ -636,11 +636,11 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         {/*Prev Next buttons*/}
         <View
           style={{
-            height: 50,
             display: "flex",
             flexDirection: "row",
             justifyContent: "center",
             marginVertical: 2,
+            marginBottom: 5,
             backgroundColor: "transparent",
           }}
         >
@@ -659,7 +659,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 raiseLevel={3}
                 width={width * 0.2}
                 borderRadius={20}
-                height={(width * 45) / 414}
+                height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
                 backgroundDarker="#e7a60b"
                 backgroundShadow="#e7a60b"
               >
@@ -677,7 +677,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 raiseLevel={3}
                 width={width * 0.6}
                 borderRadius={20}
-                height={(width * 45) / 414}
+                height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
                 backgroundDarker={Colors.secondaryGoldColor}
                 backgroundShadow={Colors.secondaryGoldColor}
               >
@@ -698,8 +698,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                       style={{
                         position: "relative",
                         top: 2,
-                        width: (20.0 * width) / 414,
-                        height: (20.0 * width) / 414,
+                        width:
+                          (20.0 * width) / 414 > 30 ? 30 : (20.0 * width) / 414,
+                        height:
+                          (20.0 * width) / 414 > 30 ? 30 : (20.0 * width) / 414,
                         resizeMode: "contain",
                       }}
                     />
@@ -722,7 +724,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 raiseLevel={3}
                 width={width * 0.4}
                 borderRadius={20}
-                height={(width * 45) / 414}
+                height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
                 backgroundDarker="#e7a60b"
                 backgroundShadow="#e7a60b"
               >
@@ -742,7 +744,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 raiseLevel={3}
                 width={width * 0.4}
                 borderRadius={20}
-                height={(width * 45) / 414}
+                height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
                 backgroundDarker={
                   tooManyChars || noteEnoughChars ? "#dbdee8" : "#e7a60b"
                 }

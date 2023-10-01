@@ -15,7 +15,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import useAuth from "../hooks/useAuth";
 
 const Tab = createBottomTabNavigator();
-const { width } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 const TabNavigator = ({ route }) => {
   const backAction = () => {
@@ -101,8 +101,8 @@ const TabNavigator = ({ route }) => {
         <Image
           source={icon}
           style={{
-            width: (size * width) / 414,
-            height: (size * width) / 414,
+            width: (size * height) / 880,
+            height: (size * height) / 880,
             resizeMode: "contain",
           }}
         />
@@ -125,8 +125,8 @@ export default TabNavigator;
 
 const styles = StyleSheet.create({
   bottomTabBarItemWrapStyle: {
-    width: (40.0 * width) / 414,
-    height: (40.0 * width) / 414,
+    width: (40.0 * height) / 880,
+    height: (40.0 * height) / 880,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
@@ -143,11 +143,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tabBarStyle: {
-    borderTopWidth: (2 * width) / 414,
+    borderTopWidth: (2 * height) / 880,
+    height: (70 * height) / 880,
     paddingTop: 15,
-    paddingBottom: 20,
     borderTopColor: "#7b8c95",
-    elevation: (3.0 * width) / 414,
+    elevation: (3.0 * height) / 880,
     shadowColor: Colors.primaryColor,
     backgroundColor: "#120d28",
   },

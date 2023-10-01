@@ -128,7 +128,6 @@ const TutorialModal = () => {
 
     if (isTutorial) {
       const routeName = routeObj?.name;
-      console.log(routeName);
 
       if (routeName == "BottomTabBar") {
         const bottomTabIndex = routeObj?.state?.index
@@ -191,8 +190,6 @@ const TutorialModal = () => {
   }, [routeObj, isTutorial]);
 
   useEffect(() => {
-    console.log(updateTutorialModalVisible);
-    console.log(displayTutorial);
     if (updateTutorialModalVisible) {
       setCurrentModal(updateTutorialModalVisible);
       if (updateTutorialModalVisible != "none") {

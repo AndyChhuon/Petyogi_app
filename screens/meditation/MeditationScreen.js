@@ -411,7 +411,7 @@ const MeditationScreen = ({ navigation, route }) => {
       <Lottie
         source={lottieBackground?.lottie}
         style={{
-          position: "relative",
+          position: "absolute",
           zIndex: 1,
           resizeMode: "cover",
           width: "100%",
@@ -443,7 +443,6 @@ const MeditationScreen = ({ navigation, route }) => {
           <View
             style={{
               flex: 1,
-              marginTop: "10%",
               display: "flex",
               zIndex: 1,
             }}
@@ -506,7 +505,7 @@ const MeditationScreen = ({ navigation, route }) => {
                   : meditationInfo?.phrases[currentPhrase]}
               </Text>
             </View>
-            <View style={{ marginBottom: "14%" }}>
+            <View style={{ marginBottom: height > 1200 ? "3%" : "14%" }}>
               <View style={styles.playMeditationStyle}>
                 <Slider
                   style={{

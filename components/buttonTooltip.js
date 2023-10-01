@@ -159,6 +159,7 @@ function Button(props) {
                     <Text
                       style={{
                         ...Fonts.blackTooltipTextVerySmall,
+                        fontSize: width > 750 ? 19 : 16,
                         color: dayMode ? Colors.goldColor : "#fbb855",
                       }}
                     >
@@ -203,9 +204,9 @@ function Button(props) {
               <AwesomeButton
                 backgroundColor={buttonBackgroundColor}
                 borderRadius={100}
-                raiseLevel={(8 * width) / 414}
-                width={width / 6}
-                height={width / 6}
+                raiseLevel={(8 * width) / 414 > 13 ? 13 : (8 * width) / 414}
+                width={width / 6 > 150 ? 150 : width / 6}
+                height={width / 6 > 150 ? 150 : width / 6}
                 onPressedIn={onPress}
                 style={{ marginBottom: 10 }}
                 paddingHorizontal={0}
@@ -214,7 +215,7 @@ function Button(props) {
                   <Image
                     source={require("../assets/images/icons/checkmark.png")}
                     style={{
-                      width: width / 12,
+                      width: width / 12 > 40 ? width / 15 : width / 12,
                       height: width / 12,
                       resizeMode: "contain",
                       tintColor: dayMode ? Colors.bodyBackColor : "#fffefe",
@@ -226,7 +227,7 @@ function Button(props) {
                       ...Fonts.blackMicroma,
                       color: dayMode ? "#fffefe" : "#B99B92",
                       fontSize:
-                        number < 100 ? (25 * width) / 414 : (23 * width) / 414,
+                        number < 100 ? (25 * width) / 414 : (22 * width) / 414,
                     }}
                   >
                     {number}
@@ -279,7 +280,7 @@ function Button(props) {
                 ? {
                     ...styles.tooltipDisplay,
                     backgroundColor: tooltipBackgroundColor,
-                    top: width / 6 + 12,
+                    top: width / 6 > 150 ? 162 : width / 6 + 12,
                   }
                 : { ...styles.tooltipDisplay, display: "none" }
             }
@@ -345,8 +346,8 @@ function Button(props) {
                           style={{
                             position: "relative",
                             top: 2,
-                            width: (20.0 * width) / 414,
-                            height: (20.0 * width) / 414,
+                            width: 20,
+                            height: 20,
                             resizeMode: "contain",
                           }}
                         />
@@ -361,7 +362,7 @@ function Button(props) {
                       alignItems: "center",
                       justifyContent: "center",
                       bottom: 0,
-                      paddingLeft: "50%",
+                      paddingLeft: "55%",
                     }}
                     onPress={onMeditateButtonPress}
                   >
@@ -370,8 +371,15 @@ function Button(props) {
                         source={require("../assets/Lottie/click.json")}
                         style={{
                           position: "relative",
-                          width: (60.0 * width) / 414,
-                          height: (60.0 * width) / 414,
+                          width:
+                            (60.0 * width) / 414 > 80
+                              ? 80
+                              : (60.0 * width) / 414,
+                          height:
+                            (60.0 * width) / 414 > 80
+                              ? 80
+                              : (60.0 * width) / 414,
+
                           resizeMode: "contain",
                         }}
                         speed={0.5}
@@ -433,7 +441,7 @@ const styles = StyleSheet.create({
   },
   topTooltipDisplay: {
     zIndex: 1000,
-    width: 90,
+    width: (90 * width) / 414 > 150 ? 150 : (90 * width) / 414,
     zIndex: 2,
     borderRadius: 10,
     padding: (12 * width) / 414,
