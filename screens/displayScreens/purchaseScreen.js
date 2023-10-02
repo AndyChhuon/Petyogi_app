@@ -39,6 +39,7 @@ const ShopScreen = ({ navigation }) => {
   const [hasCheckedIfUserHasCredits, setHasCheckedIfUserHasCredits] =
     useState(false);
   const [newlyPurchased, setNewlyPurchased] = useState(false);
+  const [hasTriedAgain, setHasTriedAgain] = useState(false);
 
   const tutorialShouldShow =
     userValues.numMeditations === 0 &&
@@ -96,6 +97,7 @@ const ShopScreen = ({ navigation }) => {
   const handlePurchase = async (packageID, isTopUp = false) => {
     if (loadingModalVisible) return;
     setLoadingModalVisible(true);
+    await Purchases.syncPurchases();
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
         setNewlyPurchased(true);
@@ -107,11 +109,16 @@ const ShopScreen = ({ navigation }) => {
       })
       .catch((err) => {
         if (!err.userCancelled && err.code != 15) {
-          showMessage({
-            message:
-              "There was an error purchasing the subscription plan. Try reloading app.",
-            type: "danger",
-          });
+          if (!hasTriedAgain) {
+            setHasTriedAgain(true);
+            checkIfUserHasCredits(user);
+          } else {
+            showMessage({
+              message:
+                "There was an error purchasing the subscription plan. Try reloading app.",
+              type: "danger",
+            });
+          }
         }
         if (err.userCancelled) {
           showMessage({

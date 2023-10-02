@@ -74,8 +74,11 @@ export const AuthProvider = ({ children }) => {
         subscriptionWithPrevDate[0] !== selectedPlan &&
         planWasChecked !== selectedPlan
       ) {
-        checkIfUserHasCredits(user);
         setPlanWasChecked(selectedPlan);
+
+        setTimeout(() => {
+          checkIfUserHasCredits(user);
+        }, 200);
       }
     }
   }, [revenueCatCustomerInfo, creditsObj]);

@@ -15,11 +15,10 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.petyogi.app",
-      "buildNumber": "4.0.0",
+      "buildNumber": "5.0.0",
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
-        "UIRequiredDeviceCapabilities": ["audio"]
+        "UIBackgroundModes": ["audio"]
       }
     },
     "android": {
