@@ -36,6 +36,7 @@ const ProfileScreen = ({ navigation }) => {
     user,
     creditsObj,
     accountSignOut,
+    setRevenueCatCustomerInfo,
   } = useAuth();
 
   const todayStreakCompleted =
@@ -105,9 +106,9 @@ const ProfileScreen = ({ navigation }) => {
   const handlePurchase = async (packageID, isTopUp = false) => {
     if (loadingModalVisible) return;
     setLoadingModalVisible(true);
-    await Purchases.syncPurchases();
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
+        setRevenueCatCustomerInfo(purchase.customerInfo);
         setNewlyPurchased(true);
         setLoadingModalVisible(false);
 
@@ -119,7 +120,9 @@ const ProfileScreen = ({ navigation }) => {
         if (!err.userCancelled && err.code != 15) {
           if (!hasTriedAgain) {
             setHasTriedAgain(true);
-            checkIfUserHasCredits(user);
+            setTimeout(() => {
+              checkIfUserHasCredits(user);
+            }, 1000);
           } else {
             showMessage({
               message:

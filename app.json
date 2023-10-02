@@ -15,7 +15,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.petyogi.app",
-      "buildNumber": "5.0.0",
+      "buildNumber": "5.0.2",
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": ["audio"]

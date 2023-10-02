@@ -49,7 +49,10 @@ export const AuthProvider = ({ children }) => {
   const navigation = useNavigation();
 
   const customerInfoUpdated = async (purchaserInfo) => {
-    setRevenueCatCustomerInfo(purchaserInfo);
+    // purchase not currently happening (will manually update on purchase)
+    if (!loadingModalVisible) {
+      setRevenueCatCustomerInfo(purchaserInfo);
+    }
   };
 
   const planOrder = ["yogi_plan", "turtle_plan", "sloth_plan"];
@@ -75,7 +78,6 @@ export const AuthProvider = ({ children }) => {
         planWasChecked !== selectedPlan
       ) {
         setPlanWasChecked(selectedPlan);
-
         setTimeout(() => {
           checkIfUserHasCredits(user);
         }, 200);
@@ -336,7 +338,8 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const checkIfUserHasCredits = (user) => {
+  const checkIfUserHasCredits = (user, isTryAgain = false) => {
+    // await Purchases.syncPurchases();
     getIdToken(user).then((idToken) => {
       //post request
       fetch(
@@ -360,12 +363,18 @@ export const AuthProvider = ({ children }) => {
             }
           });
         } else {
-          res.text().then((text) => {
-            showMessage({
-              message: text,
-              type: "danger",
+          if (!isTryAgain) {
+            setTimeout(() => {
+              checkIfUserHasCredits(user, true);
+            }, 750);
+          } else {
+            res.text().then((text) => {
+              showMessage({
+                message: text,
+                type: "danger",
+              });
             });
-          });
+          }
         }
       });
     });
@@ -570,6 +579,7 @@ export const AuthProvider = ({ children }) => {
       updateTutorialModalVisible,
       setUpdateTutorialModalVisible,
       accountSignOut,
+      setRevenueCatCustomerInfo,
     }),
     [
       user,
@@ -600,6 +610,7 @@ export const AuthProvider = ({ children }) => {
       updateTutorialModalVisible,
       setUpdateTutorialModalVisible,
       accountSignOut,
+      setRevenueCatCustomerInfo,
     ]
   );
 

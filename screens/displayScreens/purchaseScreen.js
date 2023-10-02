@@ -34,6 +34,7 @@ const ShopScreen = ({ navigation }) => {
     checkIfUserHasCredits,
     user,
     creditsObj,
+    setRevenueCatCustomerInfo,
   } = useAuth();
   const { remainingCredits, accountType, hasFreeTrial } = userValues;
   const [hasCheckedIfUserHasCredits, setHasCheckedIfUserHasCredits] =
@@ -97,9 +98,9 @@ const ShopScreen = ({ navigation }) => {
   const handlePurchase = async (packageID, isTopUp = false) => {
     if (loadingModalVisible) return;
     setLoadingModalVisible(true);
-    await Purchases.syncPurchases();
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
+        setRevenueCatCustomerInfo(purchase.customerInfo);
         setNewlyPurchased(true);
         setLoadingModalVisible(false);
 
@@ -111,7 +112,9 @@ const ShopScreen = ({ navigation }) => {
         if (!err.userCancelled && err.code != 15) {
           if (!hasTriedAgain) {
             setHasTriedAgain(true);
-            checkIfUserHasCredits(user);
+            setTimeout(() => {
+              checkIfUserHasCredits(user);
+            }, 1000);
           } else {
             showMessage({
               message:
