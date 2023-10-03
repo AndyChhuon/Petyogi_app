@@ -17,7 +17,7 @@ import {
   updateProfile,
   signOut,
 } from "firebase/auth";
-import { ref, child, get, onValue } from "firebase/database";
+import { ref, child, get, onValue, set } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
@@ -116,10 +116,6 @@ export const AuthProvider = ({ children }) => {
                     setVerificationModalVisible(true);
                   }
 
-                  checkIfUserHasCredits(user);
-
-                  navigation.navigate("BottomTabBar");
-
                   if (!user.displayName) {
                     updateProfile(user, { displayName: "fellow yogi" });
                   }
@@ -139,7 +135,7 @@ export const AuthProvider = ({ children }) => {
 
                   await Purchases.syncPurchases();
 
-                  Purchases.getOfferings()
+                  await Purchases.getOfferings()
                     .then((offerings) => {
                       setCurrentOffering(offerings.current);
                       Purchases.addCustomerInfoUpdateListener(
@@ -154,9 +150,10 @@ export const AuthProvider = ({ children }) => {
                       });
                     });
 
-                  Purchases.logIn(user.uid)
+                  await Purchases.logIn(user.uid)
                     .then((infoCustomer) => {
-                      setRevenueCatCustomerInfo(infoCustomer.customerInfo);
+                      setLoadingModalVisible(true);
+                      checkIfUserHasCredits(user);
                     })
                     .catch((err) => {
                       showMessage({
@@ -165,6 +162,8 @@ export const AuthProvider = ({ children }) => {
                         type: "danger",
                       });
                     });
+
+                  navigation.navigate("BottomTabBar");
                 });
               } else {
                 res.text().then((text) => {
@@ -357,6 +356,7 @@ export const AuthProvider = ({ children }) => {
         if (res.ok) {
           return res.json().then((data) => {
             setUserValues(data.userValues);
+            setLoadingModalVisible(false);
             // Modal not currently displayed
             if (!(creditsObj?.nbCreditsGiven > 0)) {
               setCreditsObj(data.modalDisplay);
@@ -366,8 +366,9 @@ export const AuthProvider = ({ children }) => {
           if (!isTryAgain) {
             setTimeout(() => {
               checkIfUserHasCredits(user, true);
-            }, 750);
+            }, 1000);
           } else {
+            setLoadingModalVisible(false);
             res.text().then((text) => {
               showMessage({
                 message: text,

@@ -102,7 +102,6 @@ const ShopScreen = ({ navigation }) => {
       .then((purchase) => {
         setRevenueCatCustomerInfo(purchase.customerInfo);
         setNewlyPurchased(true);
-        setLoadingModalVisible(false);
 
         if (isTopUp) {
           checkIfUserHasCredits(user);

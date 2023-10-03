@@ -12,3 +12,7 @@ Creating development build
 
 1. eas build --profile development --platform ios
 2. login (ki...@gmail.com)
+
+Apple prod build
+1. eas build --platform ios
+2. eas submit -p ios
