@@ -45,12 +45,13 @@ export const AuthProvider = ({ children }) => {
   const dbRef = ref(db);
   const [isWaitingOnEmailVerification, setIsWaitingOnEmailVerification] =
     useState(false);
+  const [revenueCatInitialized, setRevenueCatInitialized] = useState(false);
 
   const navigation = useNavigation();
 
   const customerInfoUpdated = async (purchaserInfo) => {
     // purchase not currently happening (will manually update on purchase)
-    if (!loadingModalVisible) {
+    if (!loadingModalVisible && revenueCatInitialized) {
       setRevenueCatCustomerInfo(purchaserInfo);
     }
   };
@@ -120,6 +121,11 @@ export const AuthProvider = ({ children }) => {
                     updateProfile(user, { displayName: "fellow yogi" });
                   }
 
+                  navigation.navigate("BottomTabBar", {
+                    screen: "Home",
+                    initial: false,
+                  });
+
                   //setup Revenue Cat
                   if (Platform.OS === "android") {
                     await Purchases.configure({
@@ -152,7 +158,6 @@ export const AuthProvider = ({ children }) => {
 
                   await Purchases.logIn(user.uid)
                     .then((infoCustomer) => {
-                      setLoadingModalVisible(true);
                       checkIfUserHasCredits(user);
                     })
                     .catch((err) => {
@@ -162,8 +167,6 @@ export const AuthProvider = ({ children }) => {
                         type: "danger",
                       });
                     });
-
-                  navigation.navigate("BottomTabBar");
                 });
               } else {
                 res.text().then((text) => {
@@ -262,6 +265,7 @@ export const AuthProvider = ({ children }) => {
     setRevenueCatCustomerInfo(null);
     setCreditsObj(null);
     setUserValues({});
+    setRevenueCatInitialized(false);
   };
 
   const checkStreaks = () => {
@@ -357,10 +361,11 @@ export const AuthProvider = ({ children }) => {
           return res.json().then((data) => {
             setUserValues(data.userValues);
             setLoadingModalVisible(false);
-            // Modal not currently displayed
-            if (!(creditsObj?.nbCreditsGiven > 0)) {
-              setCreditsObj(data.modalDisplay);
+            if (!revenueCatInitialized) {
+              setRevenueCatInitialized(true);
             }
+
+            setCreditsObj(data.modalDisplay);
           });
         } else {
           if (!isTryAgain) {
@@ -369,6 +374,9 @@ export const AuthProvider = ({ children }) => {
             }, 1000);
           } else {
             setLoadingModalVisible(false);
+            if (!revenueCatInitialized) {
+              setRevenueCatInitialized(true);
+            }
             res.text().then((text) => {
               showMessage({
                 message: text,
@@ -581,6 +589,7 @@ export const AuthProvider = ({ children }) => {
       setUpdateTutorialModalVisible,
       accountSignOut,
       setRevenueCatCustomerInfo,
+      revenueCatInitialized,
     }),
     [
       user,
@@ -612,6 +621,7 @@ export const AuthProvider = ({ children }) => {
       setUpdateTutorialModalVisible,
       accountSignOut,
       setRevenueCatCustomerInfo,
+      revenueCatInitialized,
     ]
   );
 

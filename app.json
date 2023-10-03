@@ -8,14 +8,14 @@
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/icon.png",
-      "resizeMode": "contain",
+      "image": "./assets/images/splash-screen.png",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.petyogi.app",
-      "buildNumber": "5.0.2",
+      "buildNumber": "5.0.4",
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": ["audio"]

@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 
 import {
   SafeAreaView,
@@ -37,6 +37,7 @@ const ProfileScreen = ({ navigation }) => {
     creditsObj,
     accountSignOut,
     setRevenueCatCustomerInfo,
+    revenueCatInitialized,
   } = useAuth();
 
   const todayStreakCompleted =
@@ -74,6 +75,12 @@ const ProfileScreen = ({ navigation }) => {
     turtle_plan: 24,
     yogi_plan: 12,
   };
+
+  useEffect(() => {
+    if (!revenueCatInitialized) {
+      setLoadingModalVisible(true);
+    }
+  }, []);
 
   const getTimeRemaining = (date, subscriptionType) => {
     const nextDate = new Date(date);
