@@ -34,7 +34,6 @@ const ShopScreen = ({ navigation }) => {
     checkIfUserHasCredits,
     user,
     creditsObj,
-    setRevenueCatCustomerInfo,
     revenueCatInitialized,
   } = useAuth();
   const { remainingCredits, accountType, hasFreeTrial } = userValues;
@@ -107,12 +106,8 @@ const ShopScreen = ({ navigation }) => {
     setLoadingModalVisible(true);
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
-        setRevenueCatCustomerInfo(purchase.customerInfo);
+        checkIfUserHasCredits(user);
         setNewlyPurchased(true);
-
-        if (isTopUp) {
-          checkIfUserHasCredits(user);
-        }
       })
       .catch((err) => {
         if (!err.userCancelled && err.code != 15) {

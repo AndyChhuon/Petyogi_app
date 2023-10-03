@@ -28,6 +28,8 @@ const TutorialModal = () => {
     reloadUser,
     updateTutorialModalVisible,
     setUpdateTutorialModalVisible,
+    setLoadingModalVisible,
+    revenueCatInitialized,
   } = useAuth();
 
   const email = user?.email;
@@ -106,9 +108,27 @@ const TutorialModal = () => {
       reloadUser();
     }
 
-    if (isTutorial) {
-      const routeName = routeObj?.name;
+    const routeName = routeObj?.name;
 
+    // revenue cat initialized
+    if (routeName == "BottomTabBar") {
+      const bottomTabIndex = routeObj?.state?.index
+        ? routeObj?.state?.index
+        : 0;
+      const currentBottomTab = bottomTabIndex == 0 ? "Home" : "Profile";
+
+      if (currentBottomTab == "Profile") {
+        if (!revenueCatInitialized) {
+          setLoadingModalVisible(true);
+        }
+      } else {
+        if (!revenueCatInitialized) {
+          setLoadingModalVisible(false);
+        }
+      }
+    }
+
+    if (isTutorial) {
       if (routeName == "BottomTabBar") {
         const bottomTabIndex = routeObj?.state?.index
           ? routeObj?.state?.index
@@ -121,6 +141,7 @@ const TutorialModal = () => {
           } else {
             if (!currentModal || currentModal == "none") {
               setCurrentModal("welcome");
+              setDisplayTutorial(true);
             } else {
               setCurrentModal("verifyEmailHome");
             }

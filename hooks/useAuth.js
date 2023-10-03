@@ -51,9 +51,7 @@ export const AuthProvider = ({ children }) => {
 
   const customerInfoUpdated = async (purchaserInfo) => {
     // purchase not currently happening (will manually update on purchase)
-    if (!loadingModalVisible && revenueCatInitialized) {
-      setRevenueCatCustomerInfo(purchaserInfo);
-    }
+    setRevenueCatCustomerInfo(purchaserInfo);
   };
 
   const planOrder = ["yogi_plan", "turtle_plan", "sloth_plan"];
@@ -76,7 +74,9 @@ export const AuthProvider = ({ children }) => {
 
       if (
         subscriptionWithPrevDate[0] !== selectedPlan &&
-        planWasChecked !== selectedPlan
+        planWasChecked !== selectedPlan &&
+        revenueCatInitialized &&
+        !loadingModalVisible
       ) {
         setPlanWasChecked(selectedPlan);
         setTimeout(() => {
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
         }, 200);
       }
     }
-  }, [revenueCatCustomerInfo, creditsObj]);
+  }, [revenueCatCustomerInfo, creditsObj, revenueCatInitialized]);
 
   useEffect(() => {
     if (appInitialized) {
@@ -110,7 +110,6 @@ export const AuthProvider = ({ children }) => {
                 return res.json().then(async (data) => {
                   setUserValues(data.userValues);
                   setStreakObj(data.streakObj);
-
                   const isNewlyVerified = data.isNewlyVerified;
                   if (isNewlyVerified) {
                     setIsWaitingOnEmailVerification(false);
@@ -120,11 +119,9 @@ export const AuthProvider = ({ children }) => {
                   if (!user.displayName) {
                     updateProfile(user, { displayName: "fellow yogi" });
                   }
+                  setRevenueCatInitialized(false);
 
-                  navigation.navigate("BottomTabBar", {
-                    screen: "Home",
-                    initial: false,
-                  });
+                  navigation.navigate("BottomTabBar", { screen: "Home" });
 
                   //setup Revenue Cat
                   if (Platform.OS === "android") {
@@ -141,12 +138,11 @@ export const AuthProvider = ({ children }) => {
 
                   await Purchases.syncPurchases();
 
+                  Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
+
                   await Purchases.getOfferings()
                     .then((offerings) => {
                       setCurrentOffering(offerings.current);
-                      Purchases.addCustomerInfoUpdateListener(
-                        customerInfoUpdated
-                      );
                     })
                     .catch((err) => {
                       showMessage({
@@ -158,6 +154,7 @@ export const AuthProvider = ({ children }) => {
 
                   await Purchases.logIn(user.uid)
                     .then((infoCustomer) => {
+                      setRevenueCatCustomerInfo(infoCustomer);
                       checkIfUserHasCredits(user);
                     })
                     .catch((err) => {
@@ -265,7 +262,6 @@ export const AuthProvider = ({ children }) => {
     setRevenueCatCustomerInfo(null);
     setCreditsObj(null);
     setUserValues({});
-    setRevenueCatInitialized(false);
   };
 
   const checkStreaks = () => {
@@ -361,10 +357,8 @@ export const AuthProvider = ({ children }) => {
           return res.json().then((data) => {
             setUserValues(data.userValues);
             setLoadingModalVisible(false);
-            if (!revenueCatInitialized) {
-              setRevenueCatInitialized(true);
-            }
-
+            setRevenueCatInitialized(true);
+            // Modal not currently displayed
             setCreditsObj(data.modalDisplay);
           });
         } else {
@@ -374,9 +368,7 @@ export const AuthProvider = ({ children }) => {
             }, 1000);
           } else {
             setLoadingModalVisible(false);
-            if (!revenueCatInitialized) {
-              setRevenueCatInitialized(true);
-            }
+            setRevenueCatInitialized(true);
             res.text().then((text) => {
               showMessage({
                 message: text,

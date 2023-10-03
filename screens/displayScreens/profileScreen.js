@@ -36,8 +36,6 @@ const ProfileScreen = ({ navigation }) => {
     user,
     creditsObj,
     accountSignOut,
-    setRevenueCatCustomerInfo,
-    revenueCatInitialized,
   } = useAuth();
 
   const todayStreakCompleted =
@@ -76,12 +74,6 @@ const ProfileScreen = ({ navigation }) => {
     yogi_plan: 12,
   };
 
-  useEffect(() => {
-    if (!revenueCatInitialized) {
-      setLoadingModalVisible(true);
-    }
-  }, []);
-
   const getTimeRemaining = (date, subscriptionType) => {
     const nextDate = new Date(date);
 
@@ -115,12 +107,8 @@ const ProfileScreen = ({ navigation }) => {
     setLoadingModalVisible(true);
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
-        setRevenueCatCustomerInfo(purchase.customerInfo);
         setNewlyPurchased(true);
-
-        if (isTopUp) {
-          checkIfUserHasCredits(user);
-        }
+        checkIfUserHasCredits(user);
       })
       .catch((err) => {
         if (!err.userCancelled && err.code != 15) {
