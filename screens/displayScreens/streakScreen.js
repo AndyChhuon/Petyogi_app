@@ -44,9 +44,17 @@ const StreakScreen = ({ navigation }) => {
     if (minutesLeft < 0) {
       return "0 minutes";
     } else if (minutesLeft > 60) {
-      return Math.ceil(minutesLeft / 60) + " hours";
+      const hoursLeft = Math.ceil(minutesLeft / 60);
+      if (hoursLeft == 1) {
+        return "1 hour";
+      }
+      return hoursLeft + " hours";
     } else {
-      return Math.ceil(minutesLeft) + " minutes";
+      const roundedMinutesLeft = Math.ceil(minutesLeft);
+      if (roundedMinutesLeft == 1) {
+        return "1 minute";
+      }
+      return roundedMinutesLeft + " minutes";
     }
   };
 
