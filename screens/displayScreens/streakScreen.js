@@ -17,9 +17,7 @@ import useAuth from "../../hooks/useAuth";
 const { width, height } = Dimensions.get("window");
 
 const StreakScreen = ({ navigation }) => {
-  const { userValues, streakObj, setStreakObj, checkStreaks } = useAuth();
-
-  const [hasCheckedStreaksReload, setHasCheckedStreaksReload] = useState(false);
+  const { userValues, streakObj, setStreakObj } = useAuth();
 
   const streak = userValues.streak;
   const streakIsSaveable = streak == 0 && streakObj.shouldAllowStreakSave;
@@ -37,17 +35,11 @@ const StreakScreen = ({ navigation }) => {
 
   const getTimeUntilStreakReset = () => {
     const currentUTC = new Date();
-    const currentUTCString = currentUTC.toISOString().slice(0, 10);
-    const lastStreakChecked = streakObj.dateToday;
     const midnightUTC = new Date(currentUTC);
     midnightUTC.setDate(midnightUTC.getDate() + 1);
     midnightUTC.setUTCHours(0, 0, 0, 0);
 
     const minutesLeft = (midnightUTC - currentUTC) / 1000 / 60;
-    if (lastStreakChecked != currentUTCString && !hasCheckedStreaksReload) {
-      setHasCheckedStreaksReload(true);
-      checkStreaks();
-    }
 
     if (minutesLeft < 0) {
       return "0 minutes";

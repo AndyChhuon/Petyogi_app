@@ -60,6 +60,10 @@ const LoginScreen = ({ navigation }) => {
     Keyboard.dismiss();
   };
 
+  useEffect(() => {
+    Keyboard.dismiss();
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor2 }}>
@@ -89,7 +93,6 @@ const LoginScreen = ({ navigation }) => {
           ></Lottie>
         </View>
         <KeyboardAvoidingView
-          style={{ flexGrow: 1, justifyContent: "flex-end" }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           {userEmailTextField()}
@@ -135,7 +138,12 @@ const LoginScreen = ({ navigation }) => {
       setEmailError("Please enter a valid email address");
       return;
     } else if (
-      !userEmail.match(/^[a-zA-Z0-9]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/)
+      !userEmail
+        .trim()
+        .toLowerCase()
+        .match(
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
     ) {
       setEmailError("Please enter a valid email address");
       return;

@@ -86,6 +86,10 @@ const RegisterScreen = ({ navigation }) => {
     Keyboard.dismiss();
   };
 
+  useEffect(() => {
+    Keyboard.dismiss();
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.bodyBackColor2 }}>
@@ -104,7 +108,7 @@ const RegisterScreen = ({ navigation }) => {
             style={{
               position: "relative",
               resizeMode: "cover",
-              flexGrow: height < 560 ? 0.8 : 0.65,
+              flexGrow: height < 750 ? 1 : 0.7,
             }}
             speed={0.7}
             autoPlay
@@ -112,7 +116,6 @@ const RegisterScreen = ({ navigation }) => {
           ></Lottie>
         </View>
         <KeyboardAvoidingView
-          style={{ flexGrow: 1, justifyContent: "flex-end" }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           {userEmailTextField()}
@@ -167,7 +170,12 @@ const RegisterScreen = ({ navigation }) => {
       setEmailError("Please enter a valid email address");
       return;
     } else if (
-      !userEmail.match(/^[a-zA-Z0-9]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/)
+      !userEmail
+        .trim()
+        .toLowerCase()
+        .match(
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
     ) {
       setEmailError("Please enter a valid email address");
       return;

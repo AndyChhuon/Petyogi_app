@@ -37,8 +37,6 @@ const ShopScreen = ({ navigation }) => {
     revenueCatInitialized,
   } = useAuth();
   const { remainingCredits, accountType, hasFreeTrial } = userValues;
-  const [hasCheckedIfUserHasCredits, setHasCheckedIfUserHasCredits] =
-    useState(false);
   const [newlyPurchased, setNewlyPurchased] = useState(false);
   const [hasTriedAgain, setHasTriedAgain] = useState(false);
 
@@ -82,9 +80,7 @@ const ShopScreen = ({ navigation }) => {
 
     const minutesLeft = (nextDate - new Date()) / 1000 / 60;
 
-    if (minutesLeft < 0 && !hasCheckedIfUserHasCredits) {
-      setHasCheckedIfUserHasCredits(true);
-      checkIfUserHasCredits(user);
+    if (minutesLeft < 0) {
       return "0 minutes";
     } else if (minutesLeft > 60) {
       return Math.ceil(minutesLeft / 60) + " hours";

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import {
   View,
@@ -7,6 +7,7 @@ import {
   Image,
   StyleSheet,
   Text,
+  AppState,
 } from "react-native";
 import { Colors, Fonts } from "../../constants/styles";
 import AwesomeButton from "react-native-really-awesome-button";
@@ -14,12 +15,17 @@ import useAuth from "../../hooks/useAuth";
 import ScaleInOut from "../../Animations/ScaleInOut";
 import * as Haptics from "expo-haptics";
 import { useNavigationState } from "@react-navigation/native";
+import Purchases from "react-native-purchases";
 
 const { width, height } = Dimensions.get("window");
 
 const TutorialModal = () => {
   const [currentModal, setCurrentModal] = useState(null);
   const [displayTutorial, setDisplayTutorial] = useState(true);
+  const [isCheckingStreaks, setIsCheckingStreaks] = useState(false);
+  const [lastCheck, setLastCheck] = useState(Date.now());
+  const [shouldCheckUpdateCredits, setShouldCheckUpdateCredits] =
+    useState(false);
   const state = useNavigationState((state) => state);
   const {
     userValues,
@@ -30,6 +36,13 @@ const TutorialModal = () => {
     setUpdateTutorialModalVisible,
     setLoadingModalVisible,
     revenueCatInitialized,
+    streakObj,
+    loadingModalVisible,
+    checkIfUserHasCreditsCalled,
+    checkIfUserHasCredits,
+    setRevenueCatCustomerInfo,
+    creditsObj,
+    checkStreaks,
   } = useAuth();
 
   const email = user?.email;
@@ -39,6 +52,10 @@ const TutorialModal = () => {
     userValues?.numMeditations == 0 ||
     (updateTutorialModalVisible && updateTutorialModalVisible != "none");
   const isVerified = userValues?.remainingCredits > 0;
+
+  const subscriptionWithPrevDate = creditsObj?.subscriptionWithPrevDate
+    ? creditsObj?.subscriptionWithPrevDate
+    : ["noSubscription", new Date()];
 
   const creditsDelay = 200;
 
@@ -100,16 +117,127 @@ const TutorialModal = () => {
       colorBottom: "#A0DED9",
     },
   };
+  const appState = useRef(AppState.currentState);
 
   // useeffect if isTutorial
+  console.log(appState);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      // from background to active, sync purchases and check if user has credits
+      if (appState.current === "background" && nextAppState === "active") {
+        if (lastCheck + 1000 * 15 < Date.now()) {
+          setShouldCheckUpdateCredits(true);
+          setLastCheck(Date.now());
+        }
+      }
+
+      appState.current = nextAppState;
+      console.log("AppState", appState.current);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (shouldCheckUpdateCredits) {
+      reloadUserAndCheckCredits();
+      setShouldCheckUpdateCredits(false);
+    }
+  }, [shouldCheckUpdateCredits]);
+
+  const reloadUserAndCheckCredits = () => {
+    console.log(user?.uid);
+    Purchases.isConfigured().then((isConfigured) => {
+      if (
+        isConfigured &&
+        revenueCatInitialized &&
+        !checkIfUserHasCreditsCalled &&
+        user?.uid
+      ) {
+        Purchases.syncPurchases().then(() => {
+          console.log("synching purchases");
+          Purchases.logIn(user.uid)
+            .then((infoCustomer) => {
+              console.log("calling checkifuserhascredits from reload");
+
+              setTimeout(() => {
+                checkIfUserHasCredits(user);
+                setRevenueCatCustomerInfo(infoCustomer);
+                checkStreaksUpdates();
+              }, 300);
+            })
+            .catch((err) => {
+              console.log(err);
+              setTimeout(() => {
+                checkIfUserHasCredits(user);
+                checkStreaksUpdates();
+              }, 300);
+            });
+        });
+      }
+    });
+  };
+
+  const checkStreaksUpdates = () => {
+    if (streakObj?.dateToday) {
+      console.log("inside check streaks updates");
+      const currentUTC = new Date();
+      const currentUTCString = currentUTC.toISOString().slice(0, 10);
+      const lastStreakChecked = streakObj.dateToday;
+
+      console.log(lastStreakChecked, currentUTCString);
+      if (lastStreakChecked != currentUTCString) {
+        console.log("checking streaks");
+        checkStreaks();
+      }
+    }
+  };
+
+  const hoursIncrementBySubscriptionType = {
+    sloth_plan: 48,
+    turtle_plan: 24,
+    yogi_plan: 12,
+  };
+
+  const checkCreditsUpdate = () => {
+    console.log(
+      "inside checkCreditsUpdate with subscription " +
+        subscriptionWithPrevDate[0]
+    );
+    if (subscriptionWithPrevDate[0] != "noSubscription") {
+      const nextDate = new Date(subscriptionWithPrevDate[1]);
+
+      nextDate.setHours(
+        nextDate.getHours() +
+          hoursIncrementBySubscriptionType[subscriptionWithPrevDate[0]]
+      );
+
+      const millisecondsLeft = nextDate - new Date();
+      console.log("milliseconds left credits", millisecondsLeft);
+      console.log("minutes left credits", millisecondsLeft / 1000 / 60);
+      if (millisecondsLeft < 0) {
+        checkIfUserHasCredits(user);
+      }
+    }
+  };
 
   useEffect(() => {
     if (isWaitingOnEmailVerification) {
       reloadUser();
     }
 
-    const routeName = routeObj?.name;
+    if (lastCheck + 1000 * 15 < Date.now() && revenueCatInitialized) {
+      console.log("check streaks and credits");
+      checkStreaksUpdates();
+      checkCreditsUpdate();
 
+      setLastCheck(Date.now());
+    }
+
+    const routeName = routeObj?.name;
     // revenue cat initialized
     if (routeName == "BottomTabBar") {
       const bottomTabIndex = routeObj?.state?.index

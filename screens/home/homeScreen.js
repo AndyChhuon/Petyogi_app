@@ -190,7 +190,9 @@ const HomeScreen = ({ navigation }) => {
         translucent={false}
         backgroundColor={dayMode ? "#f9cb70" : "#5760b5"}
       />
-
+      <SafeAreaView
+        style={{ flex: 0, backgroundColor: dayMode ? "#f9cb70" : "#5760b5" }}
+      />
       <TouchableWithoutFeedback onPressIn={tooltipOverlayPress}>
         <SafeAreaView
           style={

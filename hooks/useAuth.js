@@ -38,6 +38,8 @@ export const AuthProvider = ({ children }) => {
   const [updateTutorialModalVisible, setUpdateTutorialModalVisible] =
     useState(false);
   const [loadingModalVisible, setLoadingModalVisible] = useState(false);
+  const [checkIfUserHasCreditsCalled, setCheckIfUserHasCreditsCalled] =
+    useState(false);
   const [currentOffering, setCurrentOffering] = useState(null);
   const [revenueCatCustomerInfo, setRevenueCatCustomerInfo] = useState(null);
   const [planWasChecked, setPlanWasChecked] = useState("");
@@ -76,15 +78,17 @@ export const AuthProvider = ({ children }) => {
         subscriptionWithPrevDate[0] !== selectedPlan &&
         planWasChecked !== selectedPlan &&
         revenueCatInitialized &&
-        !loadingModalVisible
+        !loadingModalVisible &&
+        !checkIfUserHasCreditsCalled
       ) {
+        console.log("check if user has credits from useEffect");
         setPlanWasChecked(selectedPlan);
         setTimeout(() => {
           checkIfUserHasCredits(user);
-        }, 200);
+        }, 300);
       }
     }
-  }, [revenueCatCustomerInfo, creditsObj, revenueCatInitialized]);
+  }, [revenueCatCustomerInfo, creditsObj, checkIfUserHasCreditsCalled]);
 
   useEffect(() => {
     if (appInitialized) {
@@ -94,6 +98,7 @@ export const AuthProvider = ({ children }) => {
 
           getIdToken(user).then((idToken) => {
             //post request
+            setRevenueCatInitialized(false);
             fetch(
               "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
               {
@@ -119,51 +124,63 @@ export const AuthProvider = ({ children }) => {
                   if (!user.displayName) {
                     updateProfile(user, { displayName: "fellow yogi" });
                   }
-                  setRevenueCatInitialized(false);
 
                   navigation.navigate("BottomTabBar", { screen: "Home" });
 
-                  //setup Revenue Cat
-                  if (Platform.OS === "android") {
-                    await Purchases.configure({
-                      apiKey: APIKeys.google,
-                      appUserID: user.uid,
-                    });
-                  } else {
-                    await Purchases.configure({
-                      apiKey: APIKeys.apple,
-                      appUserID: user.uid,
+                  try {
+                    //setup Revenue Cat
+                    if (Platform.OS === "android") {
+                      await Purchases.configure({
+                        apiKey: APIKeys.google,
+                        appUserID: user.uid,
+                      });
+                    } else {
+                      await Purchases.configure({
+                        apiKey: APIKeys.apple,
+                        appUserID: user.uid,
+                      });
+                    }
+
+                    await Purchases.syncPurchases();
+
+                    Purchases.addCustomerInfoUpdateListener(
+                      customerInfoUpdated
+                    );
+
+                    await Purchases.getOfferings()
+                      .then((offerings) => {
+                        setCurrentOffering(offerings.current);
+                      })
+                      .catch((err) => {
+                        showMessage({
+                          message:
+                            "There was an error fetching in app purchases.",
+                          type: "danger",
+                        });
+                      });
+
+                    await Purchases.logIn(user.uid)
+                      .then((infoCustomer) => {
+                        setRevenueCatCustomerInfo(infoCustomer);
+                        setTimeout(() => {
+                          checkIfUserHasCredits(user);
+                        }, 300);
+                      })
+                      .catch((err) => {
+                        setTimeout(() => {
+                          checkIfUserHasCredits(user);
+                        }, 300);
+                      });
+                  } catch (err) {
+                    setTimeout(() => {
+                      checkIfUserHasCredits(user);
+                    }, 300);
+                    showMessage({
+                      message:
+                        "There was an error configuring purchases. Try reloading app.",
+                      type: "warning",
                     });
                   }
-
-                  await Purchases.syncPurchases();
-
-                  Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
-
-                  await Purchases.getOfferings()
-                    .then((offerings) => {
-                      setCurrentOffering(offerings.current);
-                    })
-                    .catch((err) => {
-                      showMessage({
-                        message:
-                          "There was an error fetching in app purchases.",
-                        type: "danger",
-                      });
-                    });
-
-                  await Purchases.logIn(user.uid)
-                    .then((infoCustomer) => {
-                      setRevenueCatCustomerInfo(infoCustomer);
-                      checkIfUserHasCredits(user);
-                    })
-                    .catch((err) => {
-                      showMessage({
-                        message:
-                          "There was an error fetching your customer info.",
-                        type: "danger",
-                      });
-                    });
                 });
               } else {
                 res.text().then((text) => {
@@ -288,6 +305,7 @@ export const AuthProvider = ({ children }) => {
               setIsWaitingOnEmailVerification(false);
               setVerificationModalVisible(true);
             }
+            setIsCheckingStreaks(false);
           });
         } else {
           res.text().then((text) => {
@@ -296,6 +314,7 @@ export const AuthProvider = ({ children }) => {
               type: "danger",
             });
           });
+          setIsCheckingStreaks(false);
         }
       });
     });
@@ -339,6 +358,8 @@ export const AuthProvider = ({ children }) => {
 
   const checkIfUserHasCredits = (user, isTryAgain = false) => {
     // await Purchases.syncPurchases();
+    console.log("inside check if user has credits");
+    setCheckIfUserHasCreditsCalled(true);
     getIdToken(user).then((idToken) => {
       //post request
       fetch(
@@ -360,13 +381,16 @@ export const AuthProvider = ({ children }) => {
             setRevenueCatInitialized(true);
             // Modal not currently displayed
             setCreditsObj(data.modalDisplay);
+            setCheckIfUserHasCreditsCalled(false);
           });
         } else {
           if (!isTryAgain) {
+            console.log("try again");
             setTimeout(() => {
               checkIfUserHasCredits(user, true);
             }, 1000);
           } else {
+            setCheckIfUserHasCreditsCalled(false);
             setLoadingModalVisible(false);
             setRevenueCatInitialized(true);
             res.text().then((text) => {
@@ -582,6 +606,7 @@ export const AuthProvider = ({ children }) => {
       accountSignOut,
       setRevenueCatCustomerInfo,
       revenueCatInitialized,
+      checkIfUserHasCreditsCalled,
     }),
     [
       user,
@@ -614,6 +639,7 @@ export const AuthProvider = ({ children }) => {
       accountSignOut,
       setRevenueCatCustomerInfo,
       revenueCatInitialized,
+      checkIfUserHasCreditsCalled,
     ]
   );
 
