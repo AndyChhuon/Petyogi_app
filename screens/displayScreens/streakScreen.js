@@ -180,7 +180,7 @@ const StreakScreen = ({ navigation }) => {
                 style={[Fonts.purchaseScreenDescription, { fontSize: 16.5 }]}
               >
                 {streakIsSaveable
-                  ? `You are about to lose your streak. It is not too late to save it! You have less than ${timeUntilStreakReset}.`
+                  ? `You are late on your streak. It is not too late to save it! You have less than ${timeUntilStreakReset}.`
                   : streak == 0
                   ? `Complete your first meditation to begin a new streak! You have less than ${timeUntilStreakReset}.`
                   : `Complete your meditation to extend your streak! You have less than ${timeUntilStreakReset}.`}

@@ -23,10 +23,6 @@ import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
 
 const AuthContext = createContext({});
-const APIKeys = {
-  apple: "appl_mTTdHSJWtMTIsPypmaQXWiXGVzs",
-  google: "",
-};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -48,7 +44,10 @@ export const AuthProvider = ({ children }) => {
   const [isWaitingOnEmailVerification, setIsWaitingOnEmailVerification] =
     useState(false);
   const [revenueCatInitialized, setRevenueCatInitialized] = useState(false);
-
+  const APIKeys = {
+    apple: "appl_mTTdHSJWtMTIsPypmaQXWiXGVzs",
+    google: "",
+  };
   const navigation = useNavigation();
 
   const customerInfoUpdated = async (purchaserInfo) => {
@@ -91,10 +90,60 @@ export const AuthProvider = ({ children }) => {
   }, [revenueCatCustomerInfo, creditsObj, checkIfUserHasCreditsCalled]);
 
   useEffect(() => {
+    console.log("Calling configure");
+    if (Platform.OS === "android") {
+      Purchases.configure({
+        apiKey: APIKeys.google,
+      });
+    } else {
+      Purchases.configure({
+        apiKey: APIKeys.apple,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
     if (appInitialized) {
       var unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           setUser(user);
+
+          //setup Revenue Cat
+          console.log("setting up revenue cat");
+          if (Platform.OS === "android") {
+            Purchases.configure({
+              apiKey: APIKeys.google,
+              appUserID: user.uid,
+            });
+          } else {
+            Purchases.configure({
+              apiKey: APIKeys.apple,
+              appUserID: user.uid,
+            });
+          }
+
+          console.log("getting offerings");
+          Purchases.getOfferings()
+            .then((offerings) => {
+              setCurrentOffering(offerings.current);
+            })
+            .catch((err) => {
+              // try again
+              setTimeout(() => {
+                Purchases.getOfferings()
+                  .then((offerings) => {
+                    setCurrentOffering(offerings.current);
+                  })
+                  .catch((err) => {
+                    showMessage({
+                      message: "There was an error fetching in app purchases.",
+                      type: "danger",
+                    });
+                  });
+              }, 300);
+            });
+
+          Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
 
           getIdToken(user).then((idToken) => {
             //post request
@@ -127,60 +176,39 @@ export const AuthProvider = ({ children }) => {
 
                   navigation.navigate("BottomTabBar", { screen: "Home" });
 
-                  try {
-                    //setup Revenue Cat
-                    if (Platform.OS === "android") {
-                      await Purchases.configure({
-                        apiKey: APIKeys.google,
-                        appUserID: user.uid,
-                      });
-                    } else {
-                      await Purchases.configure({
-                        apiKey: APIKeys.apple,
-                        appUserID: user.uid,
-                      });
-                    }
+                  // revenuecat setup continued
+                  await Purchases.syncPurchases();
 
-                    await Purchases.syncPurchases();
-
-                    Purchases.addCustomerInfoUpdateListener(
-                      customerInfoUpdated
-                    );
-
-                    await Purchases.getOfferings()
-                      .then((offerings) => {
-                        setCurrentOffering(offerings.current);
-                      })
-                      .catch((err) => {
-                        showMessage({
-                          message:
-                            "There was an error fetching in app purchases.",
-                          type: "danger",
-                        });
-                      });
-
-                    await Purchases.logIn(user.uid)
-                      .then((infoCustomer) => {
-                        setRevenueCatCustomerInfo(infoCustomer);
-                        setTimeout(() => {
-                          checkIfUserHasCredits(user);
-                        }, 300);
-                      })
-                      .catch((err) => {
-                        setTimeout(() => {
-                          checkIfUserHasCredits(user);
-                        }, 300);
-                      });
-                  } catch (err) {
-                    setTimeout(() => {
-                      checkIfUserHasCredits(user);
-                    }, 300);
-                    showMessage({
-                      message:
-                        "There was an error configuring purchases. Try reloading app.",
-                      type: "warning",
+                  await Purchases.logIn(user.uid)
+                    .then((infoCustomer) => {
+                      setRevenueCatCustomerInfo(infoCustomer);
+                      setTimeout(() => {
+                        checkIfUserHasCredits(user);
+                      }, 300);
+                    })
+                    .catch((err) => {
+                      setTimeout(() => {
+                        //try logging in again
+                        console.log("error log in but try again");
+                        Purchases.logIn(user.uid)
+                          .then((infoCustomer) => {
+                            setRevenueCatCustomerInfo(infoCustomer);
+                            setTimeout(() => {
+                              checkIfUserHasCredits(user);
+                            }, 300);
+                          })
+                          .catch((err) => {
+                            setTimeout(() => {
+                              checkIfUserHasCredits(user);
+                            }, 300);
+                            showMessage({
+                              message:
+                                "There was an error configuring your account. Try reloading app.",
+                              type: "warning",
+                            });
+                          });
+                      }, 300);
                     });
-                  }
                 });
               } else {
                 res.text().then((text) => {
