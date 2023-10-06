@@ -19,19 +19,20 @@ import useAuth from "../../hooks/useAuth";
 import AwesomeButton from "react-native-really-awesome-button";
 import FloatingAnimation from "../../Animations/FloatingAnimation";
 import Lottie from "lottie-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
-  const [dayMode, setDayMode] = useState(false);
+  const { userValues, isWaitingOnEmailVerification, initDayMode, user } =
+    useAuth();
 
+  const [dayMode, setDayMode] = useState(initDayMode);
   const [showButton, setShowButton] = useState(false);
 
   const [contentHeight, setContentHeight] = useState(0);
 
   const [pressedButton, setPressedButton] = useState(null);
-
-  const { userValues, isWaitingOnEmailVerification } = useAuth();
 
   const todayStreakCompleted =
     new Date(userValues.lastMeditationDate) >=
@@ -43,6 +44,9 @@ const HomeScreen = ({ navigation }) => {
     !isWaitingOnEmailVerification;
 
   const currentMeditation = userValues.numMeditations + 1;
+  const isOutOfCredits = userValues.remainingCredits === 0;
+  const tutorialMeditationShouldShow =
+    userValues.numMeditations === 0 && userValues.remainingCredits > 0;
 
   const scrollViewRef = useRef();
   const buttonsViewRef = useRef();
@@ -50,10 +54,34 @@ const HomeScreen = ({ navigation }) => {
   const onModeChange = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setDayMode(!dayMode);
+    updateDayMode(!dayMode);
   };
 
   const tooltipOverlayPress = () => {
     removeClickedButton();
+  };
+
+  useEffect(() => {
+    //get daymode from async storage
+    const getDayMode = async () => {
+      try {
+        const value = await AsyncStorage.getItem("dayMode");
+        if (value !== null) {
+          setDayMode(value === "true");
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getDayMode();
+  }, []);
+
+  const updateDayMode = async (isDayMode) => {
+    try {
+      await AsyncStorage.setItem("dayMode", isDayMode.toString());
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   useEffect(() => {
@@ -70,6 +98,9 @@ const HomeScreen = ({ navigation }) => {
             onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
             showTopTooltip={pressedButton === null}
+            tutorialMeditationShouldShow={tutorialMeditationShouldShow}
+            isOutOfCredits={isOutOfCredits}
+            userId={user.uid}
             navigation={navigation}
           />
         ) : (
@@ -82,6 +113,8 @@ const HomeScreen = ({ navigation }) => {
             buttonsViewRef={buttonsViewRef}
             onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
+            userId={user.uid}
+            tutorialMeditationShouldShow={tutorialMeditationShouldShow}
             navigation={navigation}
           />
         )
@@ -103,6 +136,9 @@ const HomeScreen = ({ navigation }) => {
           onButtonpress={setPressedButton}
           showTooltip={false}
           navigation={navigation}
+          userId={user.uid}
+          isOutOfCredits={pressedButton == currentMeditation && isOutOfCredits}
+          tutorialMeditationShouldShow={tutorialMeditationShouldShow}
         />
       );
       return newArray;
@@ -149,6 +185,9 @@ const HomeScreen = ({ navigation }) => {
             onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
             showTopTooltip={pressedButton === null}
+            userId={user.uid}
+            tutorialMeditationShouldShow={tutorialMeditationShouldShow}
+            isOutOfCredits={isOutOfCredits}
             navigation={navigation}
           />
         ) : (
@@ -161,11 +200,19 @@ const HomeScreen = ({ navigation }) => {
             buttonsViewRef={buttonsViewRef}
             onButtonpress={setPressedButton}
             showTooltip={pressedButton === i}
+            userId={user.uid}
+            tutorialMeditationShouldShow={tutorialMeditationShouldShow}
             navigation={navigation}
           />
         )
       ),
-    [dayMode, userValues.numMeditations]
+    [
+      dayMode,
+      userValues.numMeditations,
+      tutorialMeditationShouldShow,
+      isOutOfCredits,
+      user.uid,
+    ]
   );
 
   const [buttonTooltips, setButtonTooltips] = useState(initTooltip);

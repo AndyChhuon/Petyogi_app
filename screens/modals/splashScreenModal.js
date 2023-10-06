@@ -1,29 +1,19 @@
-import { Image } from "react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import * as SplashScreen from "expo-splash-screen";
+import { useNavigationState } from "@react-navigation/native";
 
 const splashScreenModal = () => {
   const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
+  const state = useNavigationState((state) => state);
+  const routeObj = state?.routes[state.routes.length - 1];
 
   useEffect(() => {
-    setTimeout(() => {
+    const routeName = routeObj?.name;
+    if (isSplashScreenVisible && routeName) {
       setIsSplashScreenVisible(false);
-    }, 1000);
-  }, []);
-  return (
-    isSplashScreenVisible && (
-      <Image
-        style={{
-          display: "flex",
-          position: "absolute",
-          height: "100%",
-          width: "100%",
-          resizeMode: "cover",
-          zIndex: 999999,
-        }}
-        source={require("../../assets/images/splash-screen.png")}
-      />
-    )
-  );
+      SplashScreen.hideAsync();
+    }
+  }, [routeObj]);
 };
 
 export default splashScreenModal;

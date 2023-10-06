@@ -14,6 +14,7 @@ import {
 import {
   prerecordedAudioUrls,
   prerecordedAudioPhrases,
+  meditationScreenCustomizeables,
 } from "../../constants/constants";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import * as Haptics from "expo-haptics";
@@ -24,6 +25,7 @@ import ScaleInOut from "../../Animations/ScaleInOut";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import FloatingAnimation from "../../Animations/FloatingAnimation";
 import useAuth from "../../hooks/useAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 
@@ -46,17 +48,75 @@ const MeditationScreen = ({ navigation, route }) => {
     updateTutorialModalVisible,
   } = useAuth();
 
-  const [lottieBackground, setLottieBackground] = useState({
-    id: "7",
-    image: require("../../assets/background_svg/starry_night_preview.png"),
-    lottie: require("../../assets/background_svg/starry_night.json"),
-  });
+  const updateMusicStorage = async (musicMeditation) => {
+    try {
+      await AsyncStorage.setItem(
+        "musicMeditation",
+        musicMeditation.id.toString()
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
-  const [lottieMeditation, setLottieMeditation] = useState({
-    id: "2",
-    image: require("../../assets/Meditation/sloth.png"),
-    lottie: require("../../assets/Meditation/sloth.json"),
-  });
+  const updateLottieMeditationStorage = async (lottieMeditation) => {
+    try {
+      await AsyncStorage.setItem(
+        "lottieMeditation",
+        lottieMeditation.id.toString()
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const updateLottieBackgroundStorage = async (lottieBackground) => {
+    try {
+      await AsyncStorage.setItem(
+        "lottieBackground",
+        lottieBackground.id.toString()
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const [meditationInfo, setMeditationInfo] = useState(route.params);
+  const initLottieBackgroundId =
+    meditationInfo.meditationPreferences?.lottieBackground;
+  const initLottieMeditationId =
+    meditationInfo.meditationPreferences?.lottieMeditation;
+  const initMusicMeditationId =
+    meditationInfo.meditationPreferences?.musicMeditation;
+  const [lottieBackground, setLottieBackground] = useState(
+    initLottieBackgroundId &&
+      meditationScreenCustomizeables.background.find(
+        (item) => item.id == initLottieBackgroundId
+      )
+      ? meditationScreenCustomizeables.background.find(
+          (item) => item.id == initLottieBackgroundId
+        )
+      : {
+          id: "7",
+          image: require("../../assets/background_svg/starry_night_preview.png"),
+          lottie: require("../../assets/background_svg/starry_night.json"),
+        }
+  );
+
+  const [lottieMeditation, setLottieMeditation] = useState(
+    initLottieMeditationId &&
+      meditationScreenCustomizeables.meditation.find(
+        (item) => item.id == initLottieMeditationId
+      )
+      ? meditationScreenCustomizeables.meditation.find(
+          (item) => item.id == initLottieMeditationId
+        )
+      : {
+          id: "2",
+          image: require("../../assets/Meditation/sloth.png"),
+          lottie: require("../../assets/Meditation/sloth.json"),
+        }
+  );
 
   const [musicMeditation, setMusicMeditation] = useState({
     id: "1",
@@ -64,15 +124,21 @@ const MeditationScreen = ({ navigation, route }) => {
     title: "No music",
   });
 
-  const initMusic = {
-    id: "4",
-    image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
-    title: "Peaceful Thoughts",
-    sound:
-      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/peaceful_thoughts.mp3",
-  };
-
-  const [meditationInfo, setMeditationInfo] = useState(route.params);
+  const initMusic =
+    initMusicMeditationId &&
+    meditationScreenCustomizeables.music.find(
+      (item) => item.id == initMusicMeditationId
+    )
+      ? meditationScreenCustomizeables.music.find(
+          (item) => item.id == initMusicMeditationId
+        )
+      : {
+          id: "4",
+          image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
+          title: "Peaceful Thoughts",
+          sound:
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/peaceful_thoughts.mp3",
+        };
 
   const loadingAudioRef = useRef(false); // Track if audio is currently loading
   const loadingMusicRef = useRef(false); // Track if music is currently loading
@@ -756,199 +822,6 @@ const MeditationScreen = ({ navigation, route }) => {
   }
 
   function sideMenu() {
-    const data = {
-      background: [
-        {
-          id: "1",
-          image: require("../../assets/background_svg/fireplace_preview.png"),
-          lottie: require("../../assets/background_svg/fireplace.json"),
-        },
-        {
-          id: "2",
-          image: require("../../assets/background_svg/frosty_snowman_preview.png"),
-          lottie: require("../../assets/background_svg/frosty_snowman.json"),
-        },
-        {
-          id: "3",
-          image: require("../../assets/background_svg/jungle_preview.png"),
-          lottie: require("../../assets/background_svg/jungle.json"),
-        },
-        {
-          id: "4",
-          image: require("../../assets/background_svg/mountain_preview.png"),
-          lottie: require("../../assets/background_svg/mountain.json"),
-        },
-        {
-          id: "5",
-          image: require("../../assets/background_svg/rosy_blur_preview.png"),
-          lottie: require("../../assets/background_svg/rosy_blur.json"),
-        },
-        {
-          id: "6",
-          image: require("../../assets/background_svg/space_preview.png"),
-          lottie: require("../../assets/background_svg/space.json"),
-        },
-        {
-          id: "7",
-          image: require("../../assets/background_svg/starry_night_preview.png"),
-          lottie: require("../../assets/background_svg/starry_night.json"),
-        },
-
-        {
-          id: "8",
-          image: require("../../assets/background_svg/train_preview.png"),
-          lottie: require("../../assets/background_svg/train.json"),
-        },
-        {
-          id: "9",
-          image: require("../../assets/background_svg/colorful_bubbles_preview.png"),
-          lottie: require("../../assets/background_svg/colorful_bubbles.json"),
-        },
-        {
-          id: "10",
-          image: require("../../assets/background_svg/rainbow_strips_preview.png"),
-          lottie: require("../../assets/background_svg/rainbow_strips.json"),
-        },
-        {
-          id: "11",
-          image: require("../../assets/background_svg/plants_preview.png"),
-          lottie: require("../../assets/background_svg/plants.json"),
-        },
-        {
-          id: "12",
-          image: require("../../assets/background_svg/magenta_blur_preview.png"),
-          lottie: require("../../assets/background_svg/magenta_blur.json"),
-          title: "",
-        },
-      ],
-      music: [
-        {
-          id: "1",
-          image: null,
-          title: "No music",
-        },
-        {
-          id: "2",
-          image: require("../../assets/music/tranquil_rainfall_preview.jpg"),
-          title: "Nature Sounds - Rainfall",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/tranquil_rainfall.mp3",
-        },
-        {
-          id: "3",
-          image: require("../../assets/music/waterstream_preview.png"),
-          title: "Nature Sounds - Water Stream",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/waterstream.mp3",
-        },
-        {
-          id: "4",
-          image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
-          title: "Peaceful Thoughts",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/peaceful_thoughts.mp3",
-        },
-        {
-          id: "5",
-          image: require("../../assets/music/piano_valley_preview.jpg"),
-          title: "Piano Valley",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/piano_valley.mp3",
-        },
-        {
-          id: "6",
-          image: require("../../assets/music/ocean_waves_preview.jpg"),
-          title: "Nature Sounds - Ocean Waves",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/ocean_waves.mp3",
-        },
-        {
-          id: "7",
-          image: require("../../assets/music/quartz_bowl_preview.jpg"),
-          title: "Meditation Bowls",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/quartz_bowl.mp3",
-        },
-        {
-          id: "8",
-          image: require("../../assets/music/earth_chimes_preview.jpg"),
-          title: "Earth's Chimes",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/earth_chimes.mp3",
-        },
-        {
-          id: "9",
-          image: require("../../assets/music/mystical_handpan_preview.jpg"),
-          title: "Handpan Harmonies",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/handpan_harmonies.mp3",
-        },
-        {
-          id: "10",
-          image: require("../../assets/music/mystical_flute_preview.jpg"),
-          title: "Flute of Enchantments",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/flute_enchantments.mp3",
-        },
-        {
-          id: "11",
-          image: require("../../assets/music/earthly_wonders_preview.jpg"),
-          title: "Mind's Wonderland",
-          sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/Mind_wonderland.mp3",
-        },
-      ],
-      meditation: [
-        {
-          id: "1",
-          image: require("../../assets/Meditation/monkey.png"),
-          lottie: require("../../assets/Meditation/monkey.json"),
-        },
-        {
-          id: "2",
-          image: require("../../assets/Meditation/sloth.png"),
-          lottie: require("../../assets/Meditation/sloth.json"),
-        },
-        {
-          id: "3",
-          image: require("../../assets/Meditation/tiger.png"),
-          lottie: require("../../assets/Meditation/tiger.json"),
-        },
-        {
-          id: "4",
-          image: require("../../assets/Meditation/turtle.png"),
-          lottie: require("../../assets/Meditation/turtle.json"),
-        },
-        {
-          id: "5",
-          image: require("../../assets/Meditation/koala.png"),
-          lottie: require("../../assets/Meditation/koala.json"),
-        },
-        {
-          id: "6",
-          image: require("../../assets/Meditation/fox.png"),
-          lottie: require("../../assets/Meditation/fox.json"),
-        },
-        {
-          id: "7",
-          image: require("../../assets/Meditation/blob.png"),
-          lottie: require("../../assets/Meditation/blob.json"),
-        },
-        {
-          id: "8",
-          image: require("../../assets/Meditation/meditation_ring_1.png"),
-          lottie: require("../../assets/Meditation/meditation_ring_1.json"),
-          speed: 1,
-        },
-        {
-          id: "8",
-          image: require("../../assets/Meditation/rabbit.png"),
-          lottie: require("../../assets/Meditation/rabbit.json"),
-          speed: 0.5,
-        },
-      ],
-    };
-
     const renderItem = ({ item }) => {
       if (showMenu == "background") {
         return (
@@ -956,6 +829,7 @@ const MeditationScreen = ({ navigation, route }) => {
             activeOpacity={0.9}
             onPress={() => {
               setLottieBackground(item);
+              updateLottieBackgroundStorage(item);
               setShowMenu(false);
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             }}
@@ -983,6 +857,7 @@ const MeditationScreen = ({ navigation, route }) => {
             activeOpacity={0.9}
             onPress={() => {
               setLottieMeditation(item);
+              updateLottieMeditationStorage(item);
               setShowMenu(false);
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             }}
@@ -1014,6 +889,7 @@ const MeditationScreen = ({ navigation, route }) => {
             activeOpacity={0.9}
             onPress={() => {
               setMusicMeditation(item);
+              updateMusicStorage(item);
               setInitialVolume(musicVolume);
               setShowMenu(false);
 
@@ -1080,7 +956,7 @@ const MeditationScreen = ({ navigation, route }) => {
           <FlatList
             horizontal={false}
             style={[styles.flatListMenuStyle]}
-            data={data[showMenu]}
+            data={meditationScreenCustomizeables[showMenu]}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             numColumns={1}
@@ -1116,7 +992,7 @@ const MeditationScreen = ({ navigation, route }) => {
             key={"#"}
             horizontal={false}
             style={[styles.flatListMenuStyle]}
-            data={data[showMenu]}
+            data={meditationScreenCustomizeables[showMenu]}
             renderItem={renderItem}
             keyExtractor={(item) => "#" + item.id}
             numColumns={2}

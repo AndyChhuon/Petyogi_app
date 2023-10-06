@@ -12,7 +12,8 @@ import {
 import { Colors, Fonts } from "../constants/styles";
 import { initMeditationQuestionsJson } from "../constants/constants";
 
-import useAuth from "../hooks/useAuth";
+import { db } from "../config/firebaseConfig";
+import { ref, child, get } from "firebase/database";
 import ScaleInOut from "../Animations/ScaleInOut";
 import FloatingAnimation from "../Animations/FloatingAnimation";
 import * as Haptics from "expo-haptics";
@@ -22,11 +23,6 @@ const { width } = Dimensions.get("window");
 
 function Button(props) {
   const [meditateButtonIsPressed, setMeditateButtonIsPressed] = useState(false);
-  const { getPastMeditationJson, userValues } = useAuth();
-
-  const tutorialMeditationShouldShow =
-    userValues.numMeditations === 0 && userValues.remainingCredits > 0;
-
   const {
     number,
     dayMode,
@@ -37,9 +33,46 @@ function Button(props) {
     showTooltip,
     showTopTooltip,
     navigation,
+    tutorialMeditationShouldShow,
+    isOutOfCredits,
+    userId,
   } = props;
 
+  const dbRef = ref(db);
+
   const buttonRef = useRef();
+
+  const getPastMeditationJson = () => {
+    get(child(dbRef, `meditations/${userId}/${number}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const propsToPass = {
+            initMeditationQuestionsJson: snapshot.val().userInput,
+            phrases: snapshot.val().phrases,
+            meditationUrls: snapshot.val().meditationUrls,
+            finishedGenerating: snapshot.val().finishedGenerating,
+            number: number,
+            readOnly: true,
+          };
+          navigation.navigate("Meditation", propsToPass);
+        } else {
+          showMessage({
+            message: "No past meditation was found.",
+            type: "danger",
+          });
+        }
+        setMeditateButtonIsPressed(false);
+      })
+      .catch((error) => {
+        showMessage({
+          message: "There was an error fetching your meditation.",
+          type: "danger",
+        });
+        setMeditateButtonIsPressed(false);
+      });
+  };
+
+  console.log("reload");
 
   const leftMargin =
     (number - 1) % 6 < 4
@@ -87,10 +120,10 @@ function Button(props) {
     setMeditateButtonIsPressed(true);
     // Past meditation
     if (currentMeditation > number) {
-      getPastMeditationJson(number, setMeditateButtonIsPressed);
+      getPastMeditationJson();
     } else {
       setTimeout(() => {
-        if (userValues.remainingCredits == 0) {
+        if (isOutOfCredits) {
           navigation.navigate("PurchaseScreen");
           setMeditateButtonIsPressed(false);
           return;

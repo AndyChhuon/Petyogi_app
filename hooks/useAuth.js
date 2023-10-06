@@ -21,6 +21,7 @@ import { ref, child, get, onValue, set } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContext = createContext({});
 
@@ -44,6 +45,8 @@ export const AuthProvider = ({ children }) => {
   const [isWaitingOnEmailVerification, setIsWaitingOnEmailVerification] =
     useState(false);
   const [revenueCatInitialized, setRevenueCatInitialized] = useState(false);
+  const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
+  const [initDayMode, setDayMode] = useState(false);
   const APIKeys = {
     apple: "appl_mTTdHSJWtMTIsPypmaQXWiXGVzs",
     google: "",
@@ -89,7 +92,20 @@ export const AuthProvider = ({ children }) => {
     }
   }, [revenueCatCustomerInfo, creditsObj, checkIfUserHasCreditsCalled]);
 
+  const getDayMode = async () => {
+    try {
+      const value = await AsyncStorage.getItem("dayMode");
+      if (value !== null) {
+        setDayMode(value === "true");
+      }
+      console.log("day mode is " + value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
+    //revenue cat configure
     console.log("Calling configure");
     if (Platform.OS === "android") {
       Purchases.configure({
@@ -100,6 +116,9 @@ export const AuthProvider = ({ children }) => {
         apiKey: APIKeys.apple,
       });
     }
+
+    // get dayMode from async storage
+    getDayMode();
   }, []);
 
   useEffect(() => {
@@ -107,6 +126,7 @@ export const AuthProvider = ({ children }) => {
       var unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           setUser(user);
+          setRevenueCatInitialized(false);
 
           //setup Revenue Cat
           console.log("setting up revenue cat");
@@ -126,6 +146,7 @@ export const AuthProvider = ({ children }) => {
           Purchases.getOfferings()
             .then((offerings) => {
               setCurrentOffering(offerings.current);
+              Purchases.syncPurchases();
             })
             .catch((err) => {
               // try again
@@ -133,6 +154,7 @@ export const AuthProvider = ({ children }) => {
                 Purchases.getOfferings()
                   .then((offerings) => {
                     setCurrentOffering(offerings.current);
+                    Purchases.syncPurchases();
                   })
                   .catch((err) => {
                     showMessage({
@@ -147,7 +169,6 @@ export const AuthProvider = ({ children }) => {
 
           getIdToken(user).then((idToken) => {
             //post request
-            setRevenueCatInitialized(false);
             fetch(
               "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
               {
@@ -174,10 +195,7 @@ export const AuthProvider = ({ children }) => {
                     updateProfile(user, { displayName: "fellow yogi" });
                   }
 
-                  navigation.navigate("BottomTabBar", { screen: "Home" });
-
-                  // revenuecat setup continued
-                  await Purchases.syncPurchases();
+                  navigation.navigate("BottomTabBar");
 
                   await Purchases.logIn(user.uid)
                     .then((infoCustomer) => {
@@ -254,7 +272,8 @@ export const AuthProvider = ({ children }) => {
     userInput,
     meditationType,
     number,
-    setLoadingClicked
+    setLoadingClicked,
+    meditationPreferences
   ) => {
     getIdToken(user, true).then((idToken) => {
       //post request
@@ -282,6 +301,7 @@ export const AuthProvider = ({ children }) => {
               shouldListenRealTime: true,
               tutorialShouldShow: tutorialShouldShow,
               number: number,
+              meditationPreferences: meditationPreferences,
             };
             setUserValues(data.userValues);
             setStreakObj(data.streakObj);
@@ -333,7 +353,6 @@ export const AuthProvider = ({ children }) => {
               setIsWaitingOnEmailVerification(false);
               setVerificationModalVisible(true);
             }
-            setIsCheckingStreaks(false);
           });
         } else {
           res.text().then((text) => {
@@ -342,7 +361,6 @@ export const AuthProvider = ({ children }) => {
               type: "danger",
             });
           });
-          setIsCheckingStreaks(false);
         }
       });
     });
@@ -410,6 +428,7 @@ export const AuthProvider = ({ children }) => {
             // Modal not currently displayed
             setCreditsObj(data.modalDisplay);
             setCheckIfUserHasCreditsCalled(false);
+            console.log("done initializing revenue cat");
           });
         } else {
           if (!isTryAgain) {
@@ -475,35 +494,6 @@ export const AuthProvider = ({ children }) => {
         });
       }
     }
-  };
-  const getPastMeditationJson = (number, setMeditateButtonIsPressed) => {
-    get(child(dbRef, `meditations/${user.uid}/${number}`))
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const propsToPass = {
-            initMeditationQuestionsJson: snapshot.val().userInput,
-            phrases: snapshot.val().phrases,
-            meditationUrls: snapshot.val().meditationUrls,
-            finishedGenerating: snapshot.val().finishedGenerating,
-            number: number,
-            readOnly: true,
-          };
-          navigation.navigate("Meditation", propsToPass);
-        } else {
-          showMessage({
-            message: "No past meditation was found.",
-            type: "danger",
-          });
-        }
-        setMeditateButtonIsPressed(false);
-      })
-      .catch((error) => {
-        showMessage({
-          message: "There was an error fetching your meditation.",
-          type: "danger",
-        });
-        setMeditateButtonIsPressed(false);
-      });
   };
 
   const listenMeditationUpdate = (number, setMeditationInfo) => {
@@ -609,7 +599,6 @@ export const AuthProvider = ({ children }) => {
       emailLogin,
       setAppInitialized,
       passwordReset,
-      getPastMeditationJson,
       userValues,
       listenMeditationUpdate,
       generateNewMeditation,
@@ -635,13 +624,15 @@ export const AuthProvider = ({ children }) => {
       setRevenueCatCustomerInfo,
       revenueCatInitialized,
       checkIfUserHasCreditsCalled,
+      isSplashScreenVisible,
+      setIsSplashScreenVisible,
+      initDayMode,
     }),
     [
       user,
       emailSignup,
       emailVerification,
       emailLogin,
-      getPastMeditationJson,
       setAppInitialized,
       userValues,
       listenMeditationUpdate,
@@ -668,6 +659,9 @@ export const AuthProvider = ({ children }) => {
       setRevenueCatCustomerInfo,
       revenueCatInitialized,
       checkIfUserHasCreditsCalled,
+      isSplashScreenVisible,
+      setIsSplashScreenVisible,
+      initDayMode,
     ]
   );
 

@@ -22,7 +22,6 @@ const { width, height } = Dimensions.get("window");
 const TutorialModal = () => {
   const [currentModal, setCurrentModal] = useState(null);
   const [displayTutorial, setDisplayTutorial] = useState(true);
-  const [isCheckingStreaks, setIsCheckingStreaks] = useState(false);
   const [lastCheck, setLastCheck] = useState(Date.now());
   const [shouldCheckUpdateCredits, setShouldCheckUpdateCredits] =
     useState(false);
@@ -37,7 +36,6 @@ const TutorialModal = () => {
     setLoadingModalVisible,
     revenueCatInitialized,
     streakObj,
-    loadingModalVisible,
     checkIfUserHasCreditsCalled,
     checkIfUserHasCredits,
     setRevenueCatCustomerInfo,
@@ -118,9 +116,6 @@ const TutorialModal = () => {
     },
   };
   const appState = useRef(AppState.currentState);
-
-  // useeffect if isTutorial
-  console.log(appState);
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -228,7 +223,6 @@ const TutorialModal = () => {
     if (isWaitingOnEmailVerification) {
       reloadUser();
     }
-
     if (lastCheck + 1000 * 15 < Date.now() && revenueCatInitialized) {
       console.log("check streaks and credits");
       checkStreaksUpdates();

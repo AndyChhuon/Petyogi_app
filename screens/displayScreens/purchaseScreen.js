@@ -168,14 +168,13 @@ const ShopScreen = ({ navigation }) => {
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor="#5f94ae" />
-      <SafeAreaView style={{ flex: 0, backgroundColor: "#5f94ae" }} />
       <SafeAreaView
         style={{
           flex: 1,
           width: "100%",
           height: "100%",
           zIndex: 2,
-          backgroundColor: Colors.bodyBackColor2,
+          backgroundColor: "#5f94ae",
         }}
       >
         <View style={[styles.closeButtonStyle]}>
@@ -867,6 +866,9 @@ const ShopScreen = ({ navigation }) => {
           </View>
         </ScrollView>
       </SafeAreaView>
+      <SafeAreaView
+        style={{ flex: 0, backgroundColor: Colors.bodyBackColor2 }}
+      />
     </Fragment>
   );
 };

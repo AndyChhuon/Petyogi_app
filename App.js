@@ -5,6 +5,7 @@ import { LogBox } from "react-native";
 import AppContent from "./screens/AppContent";
 import useAuth, { AuthProvider } from "./hooks/useAuth";
 import * as Linking from "expo-linking";
+import * as SplashScreen from "expo-splash-screen";
 
 LogBox.ignoreAllLogs();
 
@@ -18,6 +19,7 @@ const linking = {
     },
   },
 };
+SplashScreen.preventAutoHideAsync();
 
 const App = () => {
   return (

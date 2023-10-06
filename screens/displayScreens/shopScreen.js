@@ -21,14 +21,13 @@ const ShopScreen = ({ navigation }) => {
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor="#15a2de" />
-      <SafeAreaView style={{ flex: 0, backgroundColor: "#15a2de" }} />
       <SafeAreaView
         style={{
           flex: 1,
           width: "100%",
           height: "100%",
           zIndex: 2,
-          backgroundColor: Colors.bodyBackColor2,
+          backgroundColor: "#15a2de",
         }}
       >
         <View
@@ -97,12 +96,15 @@ const ShopScreen = ({ navigation }) => {
             flexGrow: 1,
             backgroundColor: Colors.bodyBackColor2,
             alignItems: "center",
-            marginTop: 30,
+            paddingTop: 30,
           }}
         >
           <Text style={Fonts.streakPrimaryText}>Shop coming soon!</Text>
         </View>
       </SafeAreaView>
+      <SafeAreaView
+        style={{ flex: 0, backgroundColor: Colors.bodyBackColor2 }}
+      />
     </Fragment>
   );
 };

@@ -26,6 +26,7 @@ import { Bar as ProgressBar } from "react-native-progress";
 import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
 import useAuth from "../../hooks/useAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MeditationQuestionModal = ({ navigation, route }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
@@ -48,6 +49,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const [meditationQuestionsJson, setMeditationQuestionsJson] = useState(
     initMeditationQuestionsJson
   );
+  const [meditationPreferences, setMeditationPreferences] = useState({});
 
   useEffect(() => {
     let timeoutId;
@@ -110,10 +112,69 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     setLoadingClicked(false);
   }, [currentQuestionIndex, isLastModal]);
 
+  const getMusicStorage = async () => {
+    try {
+      const value = await AsyncStorage.getItem("musicMeditation");
+      console.log(value);
+      if (value !== null) {
+        // string to json
+        setMeditationPreferences((meditationPreferences) => {
+          return {
+            ...meditationPreferences,
+            musicMeditation: value,
+          };
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getLottieMeditationStorage = async () => {
+    try {
+      const value = await AsyncStorage.getItem("lottieMeditation");
+      console.log(value);
+
+      if (value !== null) {
+        // string to json
+        setMeditationPreferences((meditationPreferences) => {
+          return {
+            ...meditationPreferences,
+            lottieMeditation: value,
+          };
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getLottieBackgroundStorage = async () => {
+    try {
+      const value = await AsyncStorage.getItem("lottieBackground");
+      console.log(value);
+
+      if (value !== null) {
+        // string to json
+        setMeditationPreferences((meditationPreferences) => {
+          return {
+            ...meditationPreferences,
+            lottieBackground: value,
+          };
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
     setCreateMeditationLottieIndex(
       Math.floor(Math.random() * meditationLotties.length)
     );
+    getMusicStorage();
+    getLottieMeditationStorage();
+    getLottieBackgroundStorage();
   }, []);
 
   const onButtonPress = (text, isChosen, currentQuestionIndex) => {
@@ -448,6 +509,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               meditationUrls: meditationUrls,
               shouldListenRealTime: false,
               number: number,
+              meditationPreferences: meditationPreferences,
             };
 
             navigation.navigate("MeditationScreen", propsToPass);
@@ -462,6 +524,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               meditationUrls: meditationUrls,
               shouldListenRealTime: true,
               number: number,
+              meditationPreferences: meditationPreferences,
             };
 
             navigation.navigate("MeditationScreen", propsToPass);
@@ -476,7 +539,8 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           meditationQuestionsJson,
           meditationQuestionsJson[meditationTypeQuestionIndex].Answer,
           number,
-          setLoadingClicked
+          setLoadingClicked,
+          meditationPreferences
         );
       }
     }

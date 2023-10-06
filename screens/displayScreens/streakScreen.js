@@ -63,14 +63,13 @@ const StreakScreen = ({ navigation }) => {
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor="#feaa34" />
-      <SafeAreaView style={{ flex: 0, backgroundColor: "#feaa34" }} />
       <SafeAreaView
         style={{
           flex: 1,
           width: "100%",
           height: "100%",
           zIndex: 2,
-          backgroundColor: Colors.bodyBackColor2,
+          backgroundColor: "#feaa34",
         }}
       >
         <View style={[styles.closeButtonStyle]}>
@@ -207,7 +206,7 @@ const StreakScreen = ({ navigation }) => {
             flexGrow: 1,
             backgroundColor: Colors.bodyBackColor2,
             alignItems: "center",
-            marginTop: 30,
+            paddingTop: 30,
           }}
         >
           <Text style={Fonts.streakPrimaryText}>
@@ -215,6 +214,9 @@ const StreakScreen = ({ navigation }) => {
           </Text>
         </View>
       </SafeAreaView>
+      <SafeAreaView
+        style={{ flex: 0, backgroundColor: Colors.bodyBackColor2 }}
+      />
     </Fragment>
   );
 };
