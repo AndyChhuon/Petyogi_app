@@ -41,6 +41,9 @@ const TutorialModal = () => {
     setRevenueCatCustomerInfo,
     creditsObj,
     checkStreaks,
+    pushLogsToServer,
+    addToUserLogs,
+    userLogs,
   } = useAuth();
 
   const email = user?.email;
@@ -121,13 +124,12 @@ const TutorialModal = () => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       // from background to active, sync purchases and check if user has credits
       if (appState.current === "background" && nextAppState === "active") {
-        if (lastCheck + 1000 * 15 < Date.now()) {
-          setShouldCheckUpdateCredits(true);
-          setLastCheck(Date.now());
-        }
+        addToUserLogs("app opened background to active");
+        setShouldCheckUpdateCredits(true);
       }
 
       appState.current = nextAppState;
+
       console.log("AppState", appState.current);
     });
 
@@ -138,7 +140,11 @@ const TutorialModal = () => {
 
   useEffect(() => {
     if (shouldCheckUpdateCredits) {
-      reloadUserAndCheckCredits();
+      if (lastCheck + 1000 * 15 < Date.now()) {
+        reloadUserAndCheckCredits();
+        pushLogsToServer(userLogs);
+        setLastCheck(Date.now());
+      }
       setShouldCheckUpdateCredits(false);
     }
   }, [shouldCheckUpdateCredits]);
@@ -183,8 +189,14 @@ const TutorialModal = () => {
       const currentUTCString = currentUTC.toISOString().slice(0, 10);
       const lastStreakChecked = streakObj.dateToday;
 
-      console.log(lastStreakChecked, currentUTCString);
       if (lastStreakChecked != currentUTCString) {
+        addToUserLogs(
+          "Inside check streaks updates with last streak checked " +
+            lastStreakChecked +
+            " and current UTC string " +
+            currentUTCString
+        );
+
         console.log("checking streaks");
         checkStreaks();
       }
@@ -213,7 +225,13 @@ const TutorialModal = () => {
       const millisecondsLeft = nextDate - new Date();
       console.log("milliseconds left credits", millisecondsLeft);
       console.log("minutes left credits", millisecondsLeft / 1000 / 60);
+
       if (millisecondsLeft < 0) {
+        addToUserLogs(
+          "Inside check credits update with milliseconds left " +
+            millisecondsLeft
+        );
+
         checkIfUserHasCredits(user);
       }
     }
@@ -232,24 +250,20 @@ const TutorialModal = () => {
     }
 
     const routeName = routeObj?.name;
-    // revenue cat initialized
+
+    // log route name
     if (routeName == "BottomTabBar") {
       const bottomTabIndex = routeObj?.state?.index
         ? routeObj?.state?.index
         : 0;
       const currentBottomTab = bottomTabIndex == 0 ? "Home" : "Profile";
 
-      if (currentBottomTab == "Profile") {
-        if (!revenueCatInitialized) {
-          setLoadingModalVisible(true);
-        }
-      } else {
-        if (!revenueCatInitialized) {
-          setLoadingModalVisible(false);
-        }
-      }
+      addToUserLogs("Viewing route " + currentBottomTab);
+    } else {
+      addToUserLogs("Viewing route " + routeName);
     }
 
+    // check tutorial modal
     if (isTutorial) {
       if (routeName == "BottomTabBar") {
         const bottomTabIndex = routeObj?.state?.index

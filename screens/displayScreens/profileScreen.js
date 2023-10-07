@@ -36,6 +36,7 @@ const ProfileScreen = ({ navigation }) => {
     user,
     creditsObj,
     accountSignOut,
+    addToUserLogs,
   } = useAuth();
 
   const todayStreakCompleted =
@@ -108,20 +109,27 @@ const ProfileScreen = ({ navigation }) => {
 
   const handlePurchase = async (packageID, isTopUp = false) => {
     if (loadingModalVisible) return;
+    addToUserLogs(
+      "Purchasing of package: " + packageID.identifier + " initiated."
+    );
+
     setLoadingModalVisible(true);
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
         setNewlyPurchased(true);
         checkIfUserHasCredits(user);
+        addToUserLogs("Purchase successful.");
       })
       .catch((err) => {
         if (!err.userCancelled && err.code != 15) {
           if (!hasTriedAgain) {
             setHasTriedAgain(true);
+            addToUserLogs("Error purchasing package. Trying again.");
             setTimeout(() => {
               checkIfUserHasCredits(user);
             }, 1000);
           } else {
+            addToUserLogs(`Error purchasing package:${err} Not trying again.`);
             showMessage({
               message:
                 "There was an error purchasing the subscription plan. Try reloading app.",
@@ -130,6 +138,7 @@ const ProfileScreen = ({ navigation }) => {
           }
         }
         if (err.userCancelled) {
+          addToUserLogs("Purchase cancelled.");
           showMessage({
             message: "Purchase cancelled.",
             type: "warning",
@@ -140,6 +149,7 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const onUpgradeClick = () => {
+    addToUserLogs("Upgrade modal clicked with accountplan: " + accountPlan);
     if (accountPlan == "free") {
       navigation.navigate("Verification");
     } else if (accountPlan == "freeVerifiedTrial") {

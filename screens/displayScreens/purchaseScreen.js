@@ -21,6 +21,7 @@ import Purchases from "react-native-purchases";
 import { showMessage } from "react-native-flash-message";
 import FloatingAnimation from "../../Animations/FloatingAnimation";
 import Lottie from "lottie-react-native";
+import { add } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
 
@@ -34,7 +35,7 @@ const ShopScreen = ({ navigation }) => {
     checkIfUserHasCredits,
     user,
     creditsObj,
-    revenueCatInitialized,
+    addToUserLogs,
   } = useAuth();
   const { remainingCredits, accountType, hasFreeTrial } = userValues;
   const [newlyPurchased, setNewlyPurchased] = useState(false);
@@ -64,12 +65,6 @@ const ShopScreen = ({ navigation }) => {
     turtle_plan: 24,
     yogi_plan: 12,
   };
-
-  useEffect(() => {
-    if (!revenueCatInitialized) {
-      setLoadingModalVisible(true);
-    }
-  }, []);
 
   const getTimeRemaining = (date, subscriptionType) => {
     const nextDate = new Date(date);
@@ -107,20 +102,27 @@ const ShopScreen = ({ navigation }) => {
 
   const handlePurchase = async (packageID, isTopUp = false) => {
     if (loadingModalVisible) return;
+    addToUserLogs(
+      "Purchasing of package: " + packageID.identifier + " initiated."
+    );
+
     setLoadingModalVisible(true);
     Purchases.purchasePackage(packageID)
       .then((purchase) => {
         checkIfUserHasCredits(user);
         setNewlyPurchased(true);
+        addToUserLogs("Purchase successful.");
       })
       .catch((err) => {
         if (!err.userCancelled && err.code != 15) {
           if (!hasTriedAgain) {
             setHasTriedAgain(true);
+            addToUserLogs("Error purchasing package. Trying again.");
             setTimeout(() => {
               checkIfUserHasCredits(user);
             }, 1000);
           } else {
+            addToUserLogs(`Error purchasing package:${err} Not trying again.`);
             showMessage({
               message:
                 "There was an error purchasing the subscription plan. Try reloading app.",
@@ -129,6 +131,7 @@ const ShopScreen = ({ navigation }) => {
           }
         }
         if (err.userCancelled) {
+          addToUserLogs("Purchase cancelled.");
           showMessage({
             message: "Purchase cancelled.",
             type: "warning",
@@ -139,6 +142,7 @@ const ShopScreen = ({ navigation }) => {
   };
 
   const onUpgradeClick = () => {
+    addToUserLogs("Upgrade modal clicked with accountplan: " + accountPlan);
     if (accountPlan == "free") {
       navigation.navigate("Verification");
     } else if (accountPlan == "freeVerifiedTrial") {

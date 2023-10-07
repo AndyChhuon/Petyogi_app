@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
 } from "react";
 import { auth, db } from "../config/firebaseConfig";
 import Purchases from "react-native-purchases";
@@ -17,11 +18,12 @@ import {
   updateProfile,
   signOut,
 } from "firebase/auth";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, update } from "firebase/database";
 import { useNavigation, StackActions } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { add } from "react-native-reanimated";
 
 const AuthContext = createContext({});
 
@@ -51,7 +53,10 @@ export const AuthProvider = ({ children }) => {
     apple: "appl_mTTdHSJWtMTIsPypmaQXWiXGVzs",
     google: "",
   };
+  const [deviceUUID, setDeviceUUID] = useState("");
+  const [userLogs, setUserLogs] = useState({});
   const navigation = useNavigation();
+  const userLogsRef = ref(db, `userlogs/${deviceUUID}`);
 
   const customerInfoUpdated = async (purchaserInfo) => {
     // purchase not currently happening (will manually update on purchase)
@@ -83,7 +88,7 @@ export const AuthProvider = ({ children }) => {
         !loadingModalVisible &&
         !checkIfUserHasCreditsCalled
       ) {
-        console.log("check if user has credits from useEffect");
+        addToUserLogs("Check if user has credits from useEffect");
         setPlanWasChecked(selectedPlan);
         setTimeout(() => {
           checkIfUserHasCredits(user);
@@ -104,6 +109,73 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const uuidv4 = () => {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
+  };
+
+  const getDeviceUUID = async () => {
+    try {
+      const value = await AsyncStorage.getItem("deviceUUID");
+      if (value !== null) {
+        setDeviceUUID(value);
+      } else {
+        const newUUID = uuidv4();
+        setDeviceUUID(newUUID);
+        await AsyncStorage.setItem("deviceUUID", newUUID);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getLogsFromAsyncStorage = async () => {
+    try {
+      const value = await AsyncStorage.getItem("userlogs");
+      if (value !== null) {
+        setUserLogs(JSON.parse(value));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const pushLogsToServer = (userLogs) => {
+    console.log("pushing logs to server");
+    if (Object.keys(userLogs).length > 0) {
+      update(userLogsRef, userLogs);
+
+      // delete logs from async storage
+      AsyncStorage.removeItem("userlogs");
+      setUserLogs({});
+    }
+  };
+
+  const addToUserLogs = (message) => {
+    console.log("adding to user logs with date " + new Date().toISOString());
+
+    setUserLogs((prevLogs) => {
+      console.log("prevlogs", prevLogs);
+      const dateNowString = new Date().toISOString().replace(/\./g, "_");
+      const newLogs = { ...prevLogs, [dateNowString]: message };
+      console.log("newlogs", newLogs);
+
+      if (Object.keys(newLogs).length > 10) {
+        pushLogsToServer(newLogs);
+      } else {
+        AsyncStorage.setItem("userlogs", JSON.stringify(newLogs));
+      }
+
+      return newLogs; // Return the updated state
+    });
+  };
+
   useEffect(() => {
     //revenue cat configure
     console.log("Calling configure");
@@ -121,6 +193,8 @@ export const AuthProvider = ({ children }) => {
 
     // get dayMode from async storage
     getDayMode();
+    getDeviceUUID();
+    getLogsFromAsyncStorage();
   }, []);
 
   useEffect(() => {
@@ -131,7 +205,7 @@ export const AuthProvider = ({ children }) => {
           setRevenueCatInitialized(false);
 
           //setup Revenue Cat
-          console.log("setting up revenue cat");
+          addToUserLogs(`logged in with id ${user.uid} setting up revenue cat`);
           if (Platform.OS === "android") {
             Purchases.configure({
               apiKey: APIKeys.google,
@@ -144,21 +218,22 @@ export const AuthProvider = ({ children }) => {
             });
           }
 
-          console.log("getting offerings");
           Purchases.getOfferings()
             .then((offerings) => {
               setCurrentOffering(offerings.current);
               Purchases.syncPurchases();
             })
             .catch((err) => {
+              addToUserLogs(`Error getting offerings: ${err}. Trying again.`);
+              console.log("Error getting offerings: " + err);
               // try again
               setTimeout(() => {
                 Purchases.getOfferings()
                   .then((offerings) => {
-                    setCurrentOffering(offerings.current);
                     Purchases.syncPurchases();
                   })
                   .catch((err) => {
+                    addToUserLogs(`Error getting offerings again: ${err}.`);
                     showMessage({
                       message: "There was an error fetching in app purchases.",
                       type: "danger",
@@ -209,7 +284,8 @@ export const AuthProvider = ({ children }) => {
                     .catch((err) => {
                       setTimeout(() => {
                         //try logging in again
-                        console.log("error log in but try again");
+                        addToUserLogs(`Error log in but try again: ${err}.`);
+
                         Purchases.logIn(user.uid)
                           .then((infoCustomer) => {
                             setRevenueCatCustomerInfo(infoCustomer);
@@ -221,6 +297,8 @@ export const AuthProvider = ({ children }) => {
                             setTimeout(() => {
                               checkIfUserHasCredits(user);
                             }, 300);
+                            addToUserLogs(`Error logging in again: ${err}.`);
+
                             showMessage({
                               message:
                                 "There was an error configuring your account. Try reloading app.",
@@ -232,6 +310,7 @@ export const AuthProvider = ({ children }) => {
                 });
               } else {
                 res.text().then((text) => {
+                  addToUserLogs(`Error initializing user: ${text}.`);
                   showMessage({
                     message: text,
                     type: "danger",
@@ -296,6 +375,7 @@ export const AuthProvider = ({ children }) => {
         if (res.ok) {
           return res.json().then((data) => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            addToUserLogs("Successfully generating meditation.");
 
             const tutorialShouldShow = number == 1;
 
@@ -312,6 +392,7 @@ export const AuthProvider = ({ children }) => {
           });
         } else {
           res.text().then((text) => {
+            addToUserLogs(`Error generating meditation: ${text}.`);
             showMessage({
               message: text,
               type: "danger",
@@ -330,6 +411,7 @@ export const AuthProvider = ({ children }) => {
     setCreditsObj(null);
     setUserValues({});
     navigation.dispatch(StackActions.popToTop());
+    addToUserLogs(`User logged out.`);
   };
 
   const checkStreaks = () => {
@@ -349,6 +431,7 @@ export const AuthProvider = ({ children }) => {
       ).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
+            addToUserLogs("Check streaks successful.");
             setUserValues(data.userValues);
             setStreakObj(data.streakObj);
             const isNewlyVerified = data.isNewlyVerified;
@@ -359,6 +442,7 @@ export const AuthProvider = ({ children }) => {
           });
         } else {
           res.text().then((text) => {
+            addToUserLogs(`Error checking streaks: ${text}.`);
             showMessage({
               message: text,
               type: "danger",
@@ -387,12 +471,14 @@ export const AuthProvider = ({ children }) => {
       ).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
+            addToUserLogs("Streak saved successfully.");
             setLoadingModalVisible(false);
             setUserValues(data.userValues);
             setStreakObj(data.streakObj);
           });
         } else {
           res.text().then((text) => {
+            addToUserLogs(`Error saving streak: ${text}.`);
             setLoadingModalVisible(false);
 
             showMessage({
@@ -405,7 +491,7 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const checkIfUserHasCredits = (user, isTryAgain = false) => {
+  const checkIfUserHasCredits = (user, isTryAgain = 0) => {
     // await Purchases.syncPurchases();
     console.log("inside check if user has credits");
     setCheckIfUserHasCreditsCalled(true);
@@ -425,6 +511,7 @@ export const AuthProvider = ({ children }) => {
       ).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
+            addToUserLogs("Successfully updated credits.");
             setUserValues(data.userValues);
             setLoadingModalVisible(false);
             setRevenueCatInitialized(true);
@@ -434,16 +521,19 @@ export const AuthProvider = ({ children }) => {
             console.log("done initializing revenue cat");
           });
         } else {
-          if (!isTryAgain) {
-            console.log("try again");
+          if (isTryAgain <= 3) {
+            const newTryAgain = isTryAgain + 1;
+            console.log("try again " + isTryAgain);
+            addToUserLogs("Error updating credits. Trying again.");
             setTimeout(() => {
-              checkIfUserHasCredits(user, true);
-            }, 1000);
+              checkIfUserHasCredits(user, newTryAgain);
+            }, newTryAgain * 1000);
           } else {
             setCheckIfUserHasCreditsCalled(false);
             setLoadingModalVisible(false);
             setRevenueCatInitialized(true);
             res.text().then((text) => {
+              addToUserLogs(`Error updating credits final: ${text}.`);
               showMessage({
                 message: text,
                 type: "danger",
@@ -475,6 +565,7 @@ export const AuthProvider = ({ children }) => {
             }
           ).then((res) => {
             if (res.ok) {
+              addToUserLogs("Successfully reloaded user.");
               return res.json().then((data) => {
                 setUserValues(data.userValues);
                 setStreakObj(data.streakObj);
@@ -487,6 +578,7 @@ export const AuthProvider = ({ children }) => {
               });
             } else {
               res.text().then((text) => {
+                addToUserLogs(`Error reloading user: ${text}.`);
                 showMessage({
                   message: text,
                   type: "danger",
@@ -528,6 +620,7 @@ export const AuthProvider = ({ children }) => {
   const emailSignup = (setError, email, password) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        addToUserLogs(`User signed up.`);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
         // Signed in successfully
@@ -553,10 +646,12 @@ export const AuthProvider = ({ children }) => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
           setSuccessMsg("Verification email sent. Please check your inbox.");
           setIsWaitingOnEmailVerification(true);
+          addToUserLogs(`Verification email sent.`);
         })
         .catch((error) => {
           // Error occurred. Inspect error.code.
           setError(error.code);
+          addToUserLogs(`Error sending verification email: ${error.code}.`);
         });
     }
   };
@@ -566,8 +661,10 @@ export const AuthProvider = ({ children }) => {
       .then((userCredential) => {
         // Signed in
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        addToUserLogs(`User logged in.`);
       })
       .catch((error) => {
+        addToUserLogs(`Error logging in: ${error.code}.`);
         if (isRegister) {
           //Login from register page
           setError("auth/email-already-in-use");
@@ -630,6 +727,9 @@ export const AuthProvider = ({ children }) => {
       isSplashScreenVisible,
       setIsSplashScreenVisible,
       initDayMode,
+      pushLogsToServer,
+      addToUserLogs,
+      userLogs,
     }),
     [
       user,
@@ -665,6 +765,9 @@ export const AuthProvider = ({ children }) => {
       isSplashScreenVisible,
       setIsSplashScreenVisible,
       initDayMode,
+      pushLogsToServer,
+      addToUserLogs,
+      userLogs,
     ]
   );
 
