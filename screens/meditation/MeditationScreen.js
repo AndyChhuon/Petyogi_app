@@ -54,9 +54,7 @@ const MeditationScreen = ({ navigation, route }) => {
         "musicMeditation",
         musicMeditation.id.toString()
       );
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const updateLottieMeditationStorage = async (lottieMeditation) => {
@@ -65,9 +63,7 @@ const MeditationScreen = ({ navigation, route }) => {
         "lottieMeditation",
         lottieMeditation.id.toString()
       );
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const updateLottieBackgroundStorage = async (lottieBackground) => {
@@ -76,9 +72,7 @@ const MeditationScreen = ({ navigation, route }) => {
         "lottieBackground",
         lottieBackground.id.toString()
       );
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const [meditationInfo, setMeditationInfo] = useState(route.params);

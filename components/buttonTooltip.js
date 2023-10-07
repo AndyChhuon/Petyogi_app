@@ -72,8 +72,6 @@ function Button(props) {
       });
   };
 
-  console.log("reload");
-
   const leftMargin =
     (number - 1) % 6 < 4
       ? ((number - 1) % 6) * 18

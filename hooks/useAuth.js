@@ -4,7 +4,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
 } from "react";
 import { auth, db } from "../config/firebaseConfig";
 import Purchases from "react-native-purchases";
@@ -23,7 +22,6 @@ import { useNavigation, StackActions } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { add } from "react-native-reanimated";
 
 const AuthContext = createContext({});
 
@@ -103,10 +101,7 @@ export const AuthProvider = ({ children }) => {
       if (value !== null) {
         setDayMode(value === "true");
       }
-      console.log("day mode is " + value);
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const uuidv4 = () => {
@@ -130,9 +125,7 @@ export const AuthProvider = ({ children }) => {
         setDeviceUUID(newUUID);
         await AsyncStorage.setItem("deviceUUID", newUUID);
       }
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const getLogsFromAsyncStorage = async () => {
@@ -141,13 +134,10 @@ export const AuthProvider = ({ children }) => {
       if (value !== null) {
         setUserLogs(JSON.parse(value));
       }
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const pushLogsToServer = (userLogs) => {
-    console.log("pushing logs to server");
     if (Object.keys(userLogs).length > 0) {
       update(userLogsRef, userLogs);
 
@@ -158,13 +148,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const addToUserLogs = (message) => {
-    console.log("adding to user logs with date " + new Date().toISOString());
-
     setUserLogs((prevLogs) => {
-      console.log("prevlogs", prevLogs);
       const dateNowString = new Date().toISOString().replace(/\./g, "_");
       const newLogs = { ...prevLogs, [dateNowString]: message };
-      console.log("newlogs", newLogs);
 
       if (Object.keys(newLogs).length > 10) {
         pushLogsToServer(newLogs);
@@ -178,7 +164,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     //revenue cat configure
-    console.log("Calling configure");
     if (Platform.OS === "android") {
       Purchases.configure({
         apiKey: APIKeys.google,
@@ -225,7 +210,6 @@ export const AuthProvider = ({ children }) => {
             })
             .catch((err) => {
               addToUserLogs(`Error getting offerings: ${err}. Trying again.`);
-              console.log("Error getting offerings: " + err);
               // try again
               setTimeout(() => {
                 Purchases.getOfferings()
@@ -493,7 +477,6 @@ export const AuthProvider = ({ children }) => {
 
   const checkIfUserHasCredits = (user, isTryAgain = 0) => {
     // await Purchases.syncPurchases();
-    console.log("inside check if user has credits");
     setCheckIfUserHasCreditsCalled(true);
     getIdToken(user).then((idToken) => {
       //post request
@@ -518,12 +501,10 @@ export const AuthProvider = ({ children }) => {
             // Modal not currently displayed
             setCreditsObj(data.modalDisplay);
             setCheckIfUserHasCreditsCalled(false);
-            console.log("done initializing revenue cat");
           });
         } else {
           if (isTryAgain <= 3) {
             const newTryAgain = isTryAgain + 1;
-            console.log("try again " + isTryAgain);
             addToUserLogs("Error updating credits. Trying again.");
             setTimeout(() => {
               checkIfUserHasCredits(user, newTryAgain);

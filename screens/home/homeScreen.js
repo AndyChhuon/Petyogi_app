@@ -69,9 +69,7 @@ const HomeScreen = ({ navigation }) => {
         if (value !== null) {
           setDayMode(value === "true");
         }
-      } catch (e) {
-        console.log(e);
-      }
+      } catch (e) {}
     };
     getDayMode();
   }, []);
@@ -79,9 +77,7 @@ const HomeScreen = ({ navigation }) => {
   const updateDayMode = async (isDayMode) => {
     try {
       await AsyncStorage.setItem("dayMode", isDayMode.toString());
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {

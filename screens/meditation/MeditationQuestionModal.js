@@ -115,7 +115,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const getMusicStorage = async () => {
     try {
       const value = await AsyncStorage.getItem("musicMeditation");
-      console.log(value);
       if (value !== null) {
         // string to json
         setMeditationPreferences((meditationPreferences) => {
@@ -125,15 +124,12 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           };
         });
       }
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const getLottieMeditationStorage = async () => {
     try {
       const value = await AsyncStorage.getItem("lottieMeditation");
-      console.log(value);
 
       if (value !== null) {
         // string to json
@@ -144,15 +140,12 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           };
         });
       }
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const getLottieBackgroundStorage = async () => {
     try {
       const value = await AsyncStorage.getItem("lottieBackground");
-      console.log(value);
 
       if (value !== null) {
         // string to json
@@ -163,9 +156,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           };
         });
       }
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {

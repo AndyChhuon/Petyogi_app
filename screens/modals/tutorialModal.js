@@ -129,8 +129,6 @@ const TutorialModal = () => {
       }
 
       appState.current = nextAppState;
-
-      console.log("AppState", appState.current);
     });
 
     return () => {
@@ -150,7 +148,6 @@ const TutorialModal = () => {
   }, [shouldCheckUpdateCredits]);
 
   const reloadUserAndCheckCredits = () => {
-    console.log(user?.uid);
     Purchases.isConfigured().then((isConfigured) => {
       if (
         isConfigured &&
@@ -159,11 +156,8 @@ const TutorialModal = () => {
         user?.uid
       ) {
         Purchases.syncPurchases().then(() => {
-          console.log("synching purchases");
           Purchases.logIn(user.uid)
             .then((infoCustomer) => {
-              console.log("calling checkifuserhascredits from reload");
-
               setTimeout(() => {
                 checkIfUserHasCredits(user);
                 setRevenueCatCustomerInfo(infoCustomer);
@@ -171,7 +165,6 @@ const TutorialModal = () => {
               }, 300);
             })
             .catch((err) => {
-              console.log(err);
               setTimeout(() => {
                 checkIfUserHasCredits(user);
                 checkStreaksUpdates();
@@ -184,7 +177,6 @@ const TutorialModal = () => {
 
   const checkStreaksUpdates = () => {
     if (streakObj?.dateToday) {
-      console.log("inside check streaks updates");
       const currentUTC = new Date();
       const currentUTCString = currentUTC.toISOString().slice(0, 10);
       const lastStreakChecked = streakObj.dateToday;
@@ -197,7 +189,6 @@ const TutorialModal = () => {
             currentUTCString
         );
 
-        console.log("checking streaks");
         checkStreaks();
       }
     }
@@ -210,10 +201,6 @@ const TutorialModal = () => {
   };
 
   const checkCreditsUpdate = () => {
-    console.log(
-      "inside checkCreditsUpdate with subscription " +
-        subscriptionWithPrevDate[0]
-    );
     if (subscriptionWithPrevDate[0] != "noSubscription") {
       const nextDate = new Date(subscriptionWithPrevDate[1]);
 
@@ -223,8 +210,6 @@ const TutorialModal = () => {
       );
 
       const millisecondsLeft = nextDate - new Date();
-      console.log("milliseconds left credits", millisecondsLeft);
-      console.log("minutes left credits", millisecondsLeft / 1000 / 60);
 
       if (millisecondsLeft < 0) {
         addToUserLogs(
@@ -242,7 +227,6 @@ const TutorialModal = () => {
       reloadUser();
     }
     if (lastCheck + 1000 * 15 < Date.now() && revenueCatInitialized) {
-      console.log("check streaks and credits");
       checkStreaksUpdates();
       checkCreditsUpdate();
 
