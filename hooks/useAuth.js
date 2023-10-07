@@ -18,7 +18,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { ref, onValue } from "firebase/database";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, StackActions } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -197,7 +197,7 @@ export const AuthProvider = ({ children }) => {
                     updateProfile(user, { displayName: "fellow yogi" });
                   }
 
-                  navigation.navigate("BottomTabBar");
+                  navigation.navigate("BottomTabBar", { screen: "Home" });
 
                   await Purchases.logIn(user.uid)
                     .then((infoCustomer) => {
@@ -329,6 +329,7 @@ export const AuthProvider = ({ children }) => {
     setRevenueCatCustomerInfo(null);
     setCreditsObj(null);
     setUserValues({});
+    navigation.dispatch(StackActions.popToTop());
   };
 
   const checkStreaks = () => {
