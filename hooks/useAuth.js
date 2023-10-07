@@ -17,7 +17,7 @@ import {
   updateProfile,
   signOut,
 } from "firebase/auth";
-import { ref, child, get, onValue, set } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
@@ -116,6 +116,8 @@ export const AuthProvider = ({ children }) => {
         apiKey: APIKeys.apple,
       });
     }
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     // get dayMode from async storage
     getDayMode();

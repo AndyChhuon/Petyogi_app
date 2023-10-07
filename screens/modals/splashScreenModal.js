@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { useNavigationState } from "@react-navigation/native";
+import * as Haptics from "expo-haptics";
 
 const splashScreenModal = () => {
   const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
@@ -10,6 +11,7 @@ const splashScreenModal = () => {
   useEffect(() => {
     const routeName = routeObj?.name;
     if (isSplashScreenVisible && routeName) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setIsSplashScreenVisible(false);
       SplashScreen.hideAsync();
     }
