@@ -361,12 +361,11 @@ export const meditationLotties = [
 
 export const meditationQuestionsByType = {
   Visualization: {
-    3: { Question: "Describe your thoughts and emotions.", Answer: "" },
-    4: {
+    3: {
       Question: "What would you like to visualize throughout this meditation?",
       Answer: "",
     },
-    5: {
+    4: {
       Question:
         "Is there a specific setting, smell, or emotion you would like to visualize?",
       Answer: "",
@@ -375,14 +374,10 @@ export const meditationQuestionsByType = {
   },
   "Positive Affirmation": {
     3: {
-      Question: "Describe your thoughts and emotions.",
-      Answer: "",
-    },
-    4: {
       Question: "What is the purpose of this meditation?",
       Answer: "",
     },
-    5: {
+    4: {
       Question:
         "Is there specific affirmations/topics you would like to include?",
       Answer: "",
@@ -391,14 +386,10 @@ export const meditationQuestionsByType = {
   },
   Mindfulness: {
     3: {
-      Question: "Describe your thoughts and emotions.",
-      Answer: "",
-    },
-    4: {
       Question: "What is the purpose of this meditation?",
       Answer: "",
     },
-    5: {
+    4: {
       Question:
         "Is there a specific question, topic, or scenario you would like to explore?",
       Answer: "",
@@ -587,16 +578,18 @@ export const purchaseScreenCTA = {
 export const initMeditationQuestionsJson = {
   0: { Question: "How are you feeling?", Answer: [] },
   1: { Question: "Choose today's meditation:", Answer: "" },
-  2: { Question: "Why are you feeling ", Answer: "" },
+  2: {
+    Question:
+      "Freely write down your thoughts and emotions. why are you feeling ",
+    Answer: "",
+  },
   3: { Question: "Why is it on your mind?", Answer: "" },
   4: {
-    Question:
-      "Describe what you would like to visualize throughout the meditation.",
+    Question: "",
     Answer: "",
   },
   5: {
-    Question:
-      "In what setting would you like this visualization to take place?",
+    Question: "",
     Answer: "",
   },
 };

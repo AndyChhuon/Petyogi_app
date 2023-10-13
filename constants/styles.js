@@ -316,6 +316,26 @@ export const Fonts = {
     fontSize: 14,
     fontFamily: "SF_Compact_Display_SemiBold",
   },
+  generateQuestionsText: {
+    // color: "#f2a758",
+    color: "#0ea0e5",
+    fontSize: 15,
+    fontFamily: "Inter_Black",
+  },
+  generateQuestionsCancelText: {
+    color: "#eb575f",
+    fontSize: 15,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
+  generateQuestionsTitle: {
+    fontSize: 19,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
+  generateQuestionsSubtitle: {
+    color: "#212f36",
+    fontSize: 16,
+    fontFamily: "SF_Compact_Display_Regular",
+  },
 };
 
 export const Colors = {

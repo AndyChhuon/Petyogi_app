@@ -12,6 +12,7 @@ import {
   Dimensions,
   Keyboard,
   TouchableWithoutFeedback,
+  TouchableOpacity,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import {
@@ -27,6 +28,7 @@ import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
 import useAuth from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SlideInFromBottom from "../../Animations/SlideFromBottom";
 
 const MeditationQuestionModal = ({ navigation, route }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
@@ -50,6 +52,8 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     initMeditationQuestionsJson
   );
   const [meditationPreferences, setMeditationPreferences] = useState({});
+  const [displayGenerateQuestionModal, setDisplayGenerateQuestionModal] =
+    useState(false);
 
   useEffect(() => {
     let timeoutId;
@@ -68,6 +72,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
 
   const meditationQuestion =
     meditationQuestionsJson[currentQuestionIndex].Question;
+
   const meditationAnswer = meditationQuestionsJson[currentQuestionIndex].Answer;
   const progress =
     (currentQuestionIndex + 1) / Object.keys(meditationQuestionsJson).length;
@@ -468,12 +473,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       currentQuestionIndex <
       Object.keys(meditationQuestionsJson).length - 1
     ) {
-      setLoadingClicked(true);
-      handlePressOutsideTextBox();
-      setTimeout(() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setCurrentQuestionIndex((index) => index + 1);
-      }, 150);
+      if (currentQuestionIndex == 2) {
+        setDisplayGenerateQuestionModal(true);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        handlePressOutsideTextBox();
+      } else {
+        setLoadingClicked(true);
+        handlePressOutsideTextBox();
+        setTimeout(() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setCurrentQuestionIndex((index) => index + 1);
+        }, 150);
+      }
     } else if (!isLastModal) {
       setLoadingClicked(true);
       setIsTextBoxFocused(false);
@@ -596,250 +607,340 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   };
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: Colors.bodyBackColor,
-        paddingTop: 0,
-      }}
-    >
-      <StatusBar translucent={false} backgroundColor={Colors.bodyBackColor} />
-
-      {isTextBoxFocused ? null : topBar()}
-      <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
-        <View
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          {isTextBoxFocused ? (
-            <Text
-              style={{
-                ...Fonts.whiteColor20SemiBold,
-                textAlign: "center",
-                paddingHorizontal: 4,
-              }}
-            >
-              {isLastModal ? "Let's Meditate!" : meditationQuestion}
-            </Text>
-          ) : (
-            <Text
-              style={{
-                ...Fonts.whiteColor22SemiBold,
-                fontSize: 21,
-                marginBottom: 8,
-                paddingHorizontal: 4,
-                textAlign: "center",
-              }}
-            >
-              {isLastModal
-                ? readOnly
-                  ? "Begin Your Meditation!"
-                  : "Create Your Meditation!"
-                : meditationQuestion}
-            </Text>
-          )}
-        </View>
-      </TouchableWithoutFeedback>
-
-      <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: "transparent" }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <>
+      <SlideInFromBottom
+        show={displayGenerateQuestionModal}
+        onOuterClick={() => setDisplayGenerateQuestionModal(false)}
+        height={height * 0.55}
       >
-        {isLastModal == false ? (
-          currentQuestionIndex == 0 ? (
-            // Emotions buttons
-            <View style={[styles.textBoxContainer]}>
-              <FlatList
-                ref={flatListRef}
-                data={initButtons}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderItem}
-                numColumns={2}
-              />
-            </View>
-          ) : currentQuestionIndex == 1 ? (
-            <View style={[styles.meditationBoxContainer]}>
-              <FlatList
-                ref={flatListRef}
-                data={initMeditationTypeButtons}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderItem}
-                numColumns={2}
-              />
-            </View>
-          ) : (
-            // Text box
-            <View style={[styles.textBoxContainer]}>
-              <TextInput
-                style={[
-                  styles.textBoxStyle,
-                  readOnly
-                    ? {
-                        backgroundColor: Colors.goldColor,
-                        color: Colors.bodyBackColor,
-                        fontWeight: "bold",
-                      }
-                    : {},
-                ]}
-                multiline={true}
-                underlineColorAndroid="transparent"
-                onFocus={handleTextBoxFocus}
-                onBlur={handleTextBoxBlur}
-                onChangeText={handleTextChange}
-                editable={readOnly ? false : true}
-                value={meditationAnswer}
-              ></TextInput>
-              <View style={styles.counterContainer}>
-                <Text
-                  style={[
-                    styles.counterText,
-                    tooManyChars || noteEnoughChars
-                      ? { color: Colors.errorColor }
-                      : {},
-                  ]}
-                >
-                  {charCount}/{maxChars}
+        <View style={{ flex: 1.5, alignItems: "center" }}>
+          <View
+            style={{
+              flexGrow: 1,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              source={require("../../assets/images/tutorialModal/shiba_journaling.png")}
+              style={{
+                width: (height * 0.55 * 1.5) / 1.6 / 2.5,
+                height: (height * 0.55 * 1.5) / 1.6 / 2.5,
+                marginVertical: 10,
+                borderRadius: 20,
+                resizeMode: "contain",
+                borderColor: Colors.bodyBackColor,
+                borderWidth: 2,
+              }}
+            />
+          </View>
+          <Text
+            width={width * 0.9}
+            style={[Fonts.generateQuestionsTitle, { textAlign: "center" }]}
+          >
+            Ready to get started?
+          </Text>
+          <Text
+            width={width * 0.9}
+            style={[Fonts.generateQuestionsSubtitle, { textAlign: "center" }]}
+          >
+            Personalized prompts will be generated based on what you've just
+            written.
+          </Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <View
+            style={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <AwesomeButton
+              paddingHorizontal={2}
+              width={width * 0.9}
+              height={50}
+              backgroundColor="#ffffff"
+              backgroundDarker="#4589cf"
+              backgroundShadow="#365f89"
+              raiseLevel={3}
+              borderWidth={1}
+              borderColor="#719cc9"
+              borderRadius={8}
+            >
+              <View>
+                <Text style={Fonts.generateQuestionsText}>
+                  Generate Questions
                 </Text>
               </View>
-            </View>
-          )
-        ) : (
-          // Last modal
-          <RenderLastModalLottie />
-        )}
-        {/*Prev Next buttons*/}
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            marginVertical: 2,
-            marginBottom: 5,
-            backgroundColor: "transparent",
-          }}
-        >
-          {isLastModal ? (
-            <>
-              <AwesomeButton
-                onPressIn={onPrevButtonPress}
-                key={0}
-                style={[
-                  styles.loginButtonStyle,
-                  currentQuestionIndex == 0
-                    ? { display: "none" }
-                    : { display: "flex" },
-                ]}
-                backgroundColor="#ffc802"
-                raiseLevel={3}
-                width={width * 0.2}
-                borderRadius={20}
-                height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
-                backgroundDarker="#e7a60b"
-                backgroundShadow="#e7a60b"
-              >
-                <FontAwesome
-                  name="chevron-left"
-                  color={Colors.whiteColor}
-                  size={20}
-                />
-              </AwesomeButton>
-              <AwesomeButton
-                key={1}
-                onPressIn={onNextButtonPress}
-                style={styles.loginButtonStyle}
-                backgroundColor={Colors.goldColor}
-                raiseLevel={3}
-                width={width * 0.6}
-                borderRadius={20}
-                height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
-                backgroundDarker={Colors.secondaryGoldColor}
-                backgroundShadow={Colors.secondaryGoldColor}
-              >
-                <>
-                  <Text
-                    style={{
-                      ...Fonts.whiteColor20Bold,
-                      textAlign: "center",
-                      color: Colors.bodyBackColor,
-                      marginRight: 5,
-                    }}
-                  >
-                    Let's Meditate!
-                  </Text>
-                  <View>
-                    <Image
-                      source={require("../../assets/images/icons/gem.png")}
-                      style={{
-                        position: "relative",
-                        top: 2,
-                        width:
-                          (20.0 * width) / 414 > 30 ? 30 : (20.0 * width) / 414,
-                        height:
-                          (20.0 * width) / 414 > 30 ? 30 : (20.0 * width) / 414,
-                        resizeMode: "contain",
-                      }}
-                    />
-                  </View>
-                </>
-              </AwesomeButton>
-            </>
-          ) : (
-            <>
-              <AwesomeButton
-                key={3}
-                onPressIn={onPrevButtonPress}
-                style={[
-                  styles.loginButtonStyle,
-                  currentQuestionIndex == 0
-                    ? { display: "none" }
-                    : { display: "flex" },
-                ]}
-                backgroundColor="#ffc802"
-                raiseLevel={3}
-                width={width * 0.4}
-                borderRadius={20}
-                height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
-                backgroundDarker="#e7a60b"
-                backgroundShadow="#e7a60b"
-              >
-                <FontAwesome
-                  name="chevron-left"
-                  color={Colors.whiteColor}
-                  size={20}
-                />
-              </AwesomeButton>
-              <AwesomeButton
-                key={4}
-                onPressIn={onNextButtonPress}
-                style={styles.loginButtonStyle}
-                backgroundColor={
-                  tooManyChars || noteEnoughChars ? "#bababa" : "#ffc802"
-                }
-                raiseLevel={3}
-                width={width * 0.4}
-                borderRadius={20}
-                height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
-                backgroundDarker={
-                  tooManyChars || noteEnoughChars ? "#dbdee8" : "#e7a60b"
-                }
-                backgroundShadow={
-                  tooManyChars || noteEnoughChars ? "#dcdfe7" : "#e7a60b"
-                }
-                disabled={tooManyChars || noteEnoughChars}
-              >
-                <FontAwesome
-                  name="chevron-right"
-                  color={Colors.whiteColor}
-                  size={20}
-                />
-              </AwesomeButton>
-            </>
-          )}
+            </AwesomeButton>
+          </View>
+          <TouchableOpacity
+            activeOpacity={0.6}
+            style={{ flex: 1, alignItems: "center" }}
+            onPress={() => setDisplayGenerateQuestionModal(false)}
+          >
+            <Text style={Fonts.generateQuestionsCancelText}>
+              Keep Journaling
+            </Text>
+          </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SlideInFromBottom>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: Colors.bodyBackColor,
+          paddingTop: 0,
+        }}
+      >
+        <StatusBar translucent={false} backgroundColor={Colors.bodyBackColor} />
+
+        {isTextBoxFocused ? null : topBar()}
+        <TouchableWithoutFeedback onPress={handlePressOutsideTextBox}>
+          <View
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {isTextBoxFocused ? (
+              <Text
+                style={[
+                  {
+                    ...Fonts.whiteColor20SemiBold,
+                    textAlign: "center",
+                    paddingHorizontal: 4,
+                  },
+                  meditationQuestion.length > 50 ? { fontSize: 17 } : {},
+                ]}
+              >
+                {isLastModal ? "Let's Meditate!" : meditationQuestion}
+              </Text>
+            ) : (
+              <Text
+                style={[
+                  {
+                    ...Fonts.whiteColor22SemiBold,
+                    fontSize: 21,
+                    marginBottom: 8,
+                    paddingHorizontal: 4,
+                    textAlign: "center",
+                  },
+                  meditationQuestion.length > 50 ? { fontSize: 18.5 } : {},
+                ]}
+              >
+                {isLastModal
+                  ? readOnly
+                    ? "Begin Your Meditation!"
+                    : "Create Your Meditation!"
+                  : meditationQuestion}
+              </Text>
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+
+        <KeyboardAvoidingView
+          style={{ flex: 1, backgroundColor: "transparent" }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          {isLastModal == false ? (
+            currentQuestionIndex == 0 ? (
+              // Emotions buttons
+              <View style={[styles.textBoxContainer]}>
+                <FlatList
+                  ref={flatListRef}
+                  data={initButtons}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={renderItem}
+                  numColumns={2}
+                />
+              </View>
+            ) : currentQuestionIndex == 1 ? (
+              <View style={[styles.meditationBoxContainer]}>
+                <FlatList
+                  ref={flatListRef}
+                  data={initMeditationTypeButtons}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={renderItem}
+                  numColumns={2}
+                />
+              </View>
+            ) : (
+              // Text box
+              <View style={[styles.textBoxContainer]}>
+                <TextInput
+                  style={[
+                    styles.textBoxStyle,
+                    readOnly
+                      ? {
+                          backgroundColor: Colors.goldColor,
+                          color: Colors.bodyBackColor,
+                          fontWeight: "bold",
+                        }
+                      : {},
+                  ]}
+                  multiline={true}
+                  underlineColorAndroid="transparent"
+                  onFocus={handleTextBoxFocus}
+                  onBlur={handleTextBoxBlur}
+                  onChangeText={handleTextChange}
+                  editable={readOnly ? false : true}
+                  value={meditationAnswer}
+                ></TextInput>
+                <View style={styles.counterContainer}>
+                  <Text
+                    style={[
+                      styles.counterText,
+                      tooManyChars || noteEnoughChars
+                        ? { color: Colors.errorColor }
+                        : {},
+                    ]}
+                  >
+                    {charCount}/{maxChars}
+                  </Text>
+                </View>
+              </View>
+            )
+          ) : (
+            // Last modal
+            <RenderLastModalLottie />
+          )}
+          {/*Prev Next buttons*/}
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              marginVertical: 2,
+              marginBottom: 5,
+              backgroundColor: "transparent",
+            }}
+          >
+            {isLastModal ? (
+              <>
+                <AwesomeButton
+                  onPressIn={onPrevButtonPress}
+                  key={0}
+                  style={[
+                    styles.loginButtonStyle,
+                    currentQuestionIndex == 0
+                      ? { display: "none" }
+                      : { display: "flex" },
+                  ]}
+                  backgroundColor="#ffc802"
+                  raiseLevel={3}
+                  width={width * 0.2}
+                  borderRadius={20}
+                  height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
+                  backgroundDarker="#e7a60b"
+                  backgroundShadow="#e7a60b"
+                >
+                  <FontAwesome
+                    name="chevron-left"
+                    color={Colors.whiteColor}
+                    size={20}
+                  />
+                </AwesomeButton>
+                <AwesomeButton
+                  key={1}
+                  onPressIn={onNextButtonPress}
+                  style={styles.loginButtonStyle}
+                  backgroundColor={Colors.goldColor}
+                  raiseLevel={3}
+                  width={width * 0.6}
+                  borderRadius={20}
+                  height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
+                  backgroundDarker={Colors.secondaryGoldColor}
+                  backgroundShadow={Colors.secondaryGoldColor}
+                >
+                  <>
+                    <Text
+                      style={{
+                        ...Fonts.whiteColor20Bold,
+                        textAlign: "center",
+                        color: Colors.bodyBackColor,
+                        marginRight: 5,
+                      }}
+                    >
+                      Let's Meditate!
+                    </Text>
+                    <View>
+                      <Image
+                        source={require("../../assets/images/icons/gem.png")}
+                        style={{
+                          position: "relative",
+                          top: 2,
+                          width:
+                            (20.0 * width) / 414 > 30
+                              ? 30
+                              : (20.0 * width) / 414,
+                          height:
+                            (20.0 * width) / 414 > 30
+                              ? 30
+                              : (20.0 * width) / 414,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </View>
+                  </>
+                </AwesomeButton>
+              </>
+            ) : (
+              <>
+                <AwesomeButton
+                  key={3}
+                  onPressIn={onPrevButtonPress}
+                  style={[
+                    styles.loginButtonStyle,
+                    currentQuestionIndex == 0
+                      ? { display: "none" }
+                      : { display: "flex" },
+                  ]}
+                  backgroundColor="#ffc802"
+                  raiseLevel={3}
+                  width={width * 0.4}
+                  borderRadius={20}
+                  height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
+                  backgroundDarker="#e7a60b"
+                  backgroundShadow="#e7a60b"
+                >
+                  <FontAwesome
+                    name="chevron-left"
+                    color={Colors.whiteColor}
+                    size={20}
+                  />
+                </AwesomeButton>
+                <AwesomeButton
+                  key={4}
+                  onPressIn={onNextButtonPress}
+                  style={styles.loginButtonStyle}
+                  backgroundColor={
+                    tooManyChars || noteEnoughChars ? "#bababa" : "#ffc802"
+                  }
+                  raiseLevel={3}
+                  width={width * 0.4}
+                  borderRadius={20}
+                  height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
+                  backgroundDarker={
+                    tooManyChars || noteEnoughChars ? "#dbdee8" : "#e7a60b"
+                  }
+                  backgroundShadow={
+                    tooManyChars || noteEnoughChars ? "#dcdfe7" : "#e7a60b"
+                  }
+                  disabled={tooManyChars || noteEnoughChars}
+                >
+                  <FontAwesome
+                    name="chevron-right"
+                    color={Colors.whiteColor}
+                    size={20}
+                  />
+                </AwesomeButton>
+              </>
+            )}
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </>
   );
 
   function topBar() {
