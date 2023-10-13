@@ -41,7 +41,6 @@ export const AuthProvider = ({ children }) => {
   const [revenueCatCustomerInfo, setRevenueCatCustomerInfo] = useState(null);
   const [planWasChecked, setPlanWasChecked] = useState("");
   const [userValues, setUserValues] = useState({});
-  const dbRef = ref(db);
   const [isWaitingOnEmailVerification, setIsWaitingOnEmailVerification] =
     useState(false);
   const [revenueCatInitialized, setRevenueCatInitialized] = useState(false);
@@ -137,6 +136,20 @@ export const AuthProvider = ({ children }) => {
     } catch (e) {}
   };
 
+  const getSubscriptionWithPrevDateFromAsyncStorage = async () => {
+    try {
+      const value = await AsyncStorage.getItem("subscriptionWithPrevDate");
+      if (value !== null) {
+        setCreditsObj((prevCreditsObj) => {
+          return {
+            ...prevCreditsObj,
+            subscriptionWithPrevDate: JSON.parse(value),
+          };
+        });
+      }
+    } catch (e) {}
+  };
+
   const pushLogsToServer = (userLogs) => {
     if (Object.keys(userLogs).length > 0) {
       update(userLogsRef, userLogs);
@@ -180,6 +193,7 @@ export const AuthProvider = ({ children }) => {
     getDayMode();
     getDeviceUUID();
     getLogsFromAsyncStorage();
+    getSubscriptionWithPrevDateFromAsyncStorage();
   }, []);
 
   useEffect(() => {
@@ -214,16 +228,18 @@ export const AuthProvider = ({ children }) => {
               setTimeout(() => {
                 Purchases.getOfferings()
                   .then((offerings) => {
+                    setCurrentOffering(offerings.current);
                     Purchases.syncPurchases();
                   })
                   .catch((err) => {
                     addToUserLogs(`Error getting offerings again: ${err}.`);
                     showMessage({
-                      message: "There was an error fetching in app purchases.",
-                      type: "danger",
+                      message:
+                        "There was a network error while fetching in app purchases. Try reloading app.",
+                      type: "warning",
                     });
                   });
-              }, 300);
+              }, 450);
             });
 
           Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
@@ -501,6 +517,10 @@ export const AuthProvider = ({ children }) => {
             // Modal not currently displayed
             setCreditsObj(data.modalDisplay);
             setCheckIfUserHasCreditsCalled(false);
+            AsyncStorage.setItem(
+              "subscriptionWithPrevDate",
+              JSON.stringify(data.modalDisplay.subscriptionWithPrevDate)
+            );
           });
         } else {
           if (isTryAgain <= 3) {

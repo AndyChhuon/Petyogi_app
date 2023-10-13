@@ -143,7 +143,7 @@ const ShopScreen = ({ navigation }) => {
 
   const onUpgradeClick = () => {
     addToUserLogs("Upgrade modal clicked with accountplan: " + accountPlan);
-    if (accountPlan == "free") {
+    if (accountPlan == "free" || tutorialShouldShow) {
       navigation.navigate("Verification");
     } else if (accountPlan == "freeVerifiedTrial") {
       handlePurchase(
@@ -288,8 +288,11 @@ const ShopScreen = ({ navigation }) => {
               <Text
                 style={[Fonts.purchaseScreenDescription, { fontSize: 16.5 }]}
               >
-                {purchaseScreenCTA[accountPlan]?.noCreditsText}
+                {tutorialShouldShow
+                  ? "You have no credits left. Verify your email and get 2 free credits."
+                  : purchaseScreenCTA[accountPlan]?.noCreditsText}
                 {subscriptionWithPrevDate[0] != "noSubscription" &&
+                  !tutorialShouldShow &&
                   ` Less than ${timeRemaining} before your next credit fill.`}
               </Text>
               <TouchableOpacity
@@ -306,7 +309,9 @@ const ShopScreen = ({ navigation }) => {
                     { fontSize: 17, color: "#42c2fa", marginTop: 9 },
                   ]}
                 >
-                  {purchaseScreenCTA[accountPlan]?.noCreditsCTA}
+                  {tutorialShouldShow
+                    ? "VERIFY ACCOUNT"
+                    : purchaseScreenCTA[accountPlan]?.noCreditsCTA}
                 </Text>
                 {tutorialShouldShow && (
                   <FloatingAnimation
