@@ -317,7 +317,6 @@ export const Fonts = {
     fontFamily: "SF_Compact_Display_SemiBold",
   },
   generateQuestionsText: {
-    // color: "#f2a758",
     color: "#0ea0e5",
     fontSize: 15,
     fontFamily: "Inter_Black",

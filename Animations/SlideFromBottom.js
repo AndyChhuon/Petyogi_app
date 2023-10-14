@@ -78,9 +78,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     zIndex: 1,
-    backgroundColor: "#dbb780",
+    backgroundColor: "#fbbd69",
     borderRadius: 16,
-  }, //dbb780
+  },
 });
 
 export default BottomSheet;

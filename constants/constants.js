@@ -361,11 +361,11 @@ export const meditationLotties = [
 
 export const meditationQuestionsByType = {
   Visualization: {
-    3: {
+    4: {
       Question: "What would you like to visualize throughout this meditation?",
       Answer: "",
     },
-    4: {
+    5: {
       Question:
         "Is there a specific setting, smell, or emotion you would like to visualize?",
       Answer: "",
@@ -373,11 +373,11 @@ export const meditationQuestionsByType = {
     },
   },
   "Positive Affirmation": {
-    3: {
+    4: {
       Question: "What is the purpose of this meditation?",
       Answer: "",
     },
-    4: {
+    5: {
       Question:
         "Is there specific affirmations/topics you would like to include?",
       Answer: "",
@@ -385,11 +385,11 @@ export const meditationQuestionsByType = {
     },
   },
   Mindfulness: {
-    3: {
+    4: {
       Question: "What is the purpose of this meditation?",
       Answer: "",
     },
-    4: {
+    5: {
       Question:
         "Is there a specific question, topic, or scenario you would like to explore?",
       Answer: "",
@@ -397,46 +397,46 @@ export const meditationQuestionsByType = {
     },
   },
   "Loving Kindness": {
-    3: {
+    4: {
       Question:
         "Express love and gratitude to yourself, like you were talking to someone else.",
       Answer: "",
       maxChars: 400,
     },
-    4: {
+    5: {
       Question: "Identify and express love and gratitude to some you love.",
       Answer: "",
       maxChars: 400,
     },
-    5: {
+    6: {
       Question:
         "Identify and express love and gratitude to a person you occasionally see.",
       Answer: "",
       maxChars: 400,
     },
-    6: {
+    7: {
       Question: "Identify and express love and gratitude to a total stranger.",
       Answer: "",
       maxChars: 400,
     },
   },
   "Contemplative Prayer": {
-    3: {
+    4: {
       Question: "What is the purpose of this prayer?",
       Answer: "",
       maxChars: 400,
     },
-    4: {
+    5: {
       Question: "Express your love and gratitude to God.",
       Answer: "",
       maxChars: 400,
     },
-    5: {
+    6: {
       Question: "Ask God for guidance and blessings, feeling his presence.",
       Answer: "",
       maxChars: 400,
     },
-    6: {
+    7: {
       Question:
         "Express to God your shortcomings and ask for strength and forgiveness.",
       Answer: "",
@@ -583,12 +583,19 @@ export const initMeditationQuestionsJson = {
       "Freely write down your thoughts and emotions. why are you feeling ",
     Answer: "",
   },
-  3: { Question: "Why is it on your mind?", Answer: "" },
+  3: {
+    Question: "Choose any number of the following journal prompts:",
+    Answer: "",
+  },
   4: {
     Question: "",
     Answer: "",
   },
   5: {
+    Question: "",
+    Answer: "",
+  },
+  6: {
     Question: "",
     Answer: "",
   },

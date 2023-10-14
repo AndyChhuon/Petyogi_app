@@ -35,7 +35,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const [isLastModal, setIsLastModal] = useState(false);
   const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
     useState(0);
-  const { generateNewMeditation, user } = useAuth();
+  const { generateNewMeditation, user, userValues } = useAuth();
 
   const {
     initMeditationQuestionsJson,
@@ -57,7 +57,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
 
   useEffect(() => {
     let timeoutId;
-    if (flatListRef?.current && currentQuestionIndex <= 1) {
+    if (
+      flatListRef?.current &&
+      (currentQuestionIndex <= 1 || isDisplayQuestionPrompts)
+    ) {
       timeoutId = setTimeout(() => {
         flatListRef?.current?.scrollToEnd({ animated: true });
       }, 800);
@@ -78,6 +81,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     (currentQuestionIndex + 1) / Object.keys(meditationQuestionsJson).length;
   const meditationTypeQuestionIndex = 1;
   const emotionsQuestion = initMeditationQuestionsJson[2].Question;
+  const isDisplayQuestionPrompts = currentQuestionIndex == 3;
 
   const handleTextBoxFocus = () => {
     setIsTextBoxFocused(true);
@@ -107,12 +111,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   };
 
   const charCount = meditationAnswer.length;
+
   const maxChars = meditationQuestionsJson[currentQuestionIndex].maxChars
     ? meditationQuestionsJson[currentQuestionIndex].maxChars
     : 500;
   const tooManyChars = charCount > maxChars;
   const noteEnoughChars = charCount < 1;
-
+  // const questionsPromptsGenerated = userValues.questionsPromptsGenerated;
+  const questionsPromptsGenerated = [
+    "What is your favorite color?",
+    "What is your favorite animal?",
+    "What is your favorite food?",
+  ];
   useEffect(() => {
     setLoadingClicked(false);
   }, [currentQuestionIndex, isLastModal]);
@@ -227,6 +237,57 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     }
   };
 
+  const onButtonPressJournal = (text, isChosen, currentQuestionIndex) => {
+    if (isChosen) {
+      setMeditationQuestionsJson((meditationQuestionsJson) => {
+        const meditationJsonToKeep = {};
+
+        let jsonArray = Object.values(meditationQuestionsJson);
+        jsonArray[currentQuestionIndex].Answer = jsonArray[
+          currentQuestionIndex
+        ].Answer.filter((item) => item != text);
+        jsonArray = jsonArray.filter((item) => item.Question != text);
+
+        count = 0;
+        // jsonArray to json
+        jsonArray.forEach((item) => {
+          meditationJsonToKeep[count] = item;
+          count += 1;
+        });
+
+        return meditationJsonToKeep;
+      });
+    } else {
+      setMeditationQuestionsJson((meditationQuestionsJson) => {
+        const chosenQuestions =
+          meditationQuestionsJson[currentQuestionIndex].Answer;
+
+        const newChosenQuestions = [...chosenQuestions, text];
+
+        const meditationJsonToKeep = {};
+
+        const jsonArray = Object.values(meditationQuestionsJson);
+        jsonArray[currentQuestionIndex].Answer = newChosenQuestions;
+
+        const indexBeforeMeditationQuestion = 3 + chosenQuestions.length + 1;
+
+        jsonArray.splice(indexBeforeMeditationQuestion, 0, {
+          Question: text,
+          Answer: "",
+        });
+
+        count = 0;
+        // jsonArray to json
+        jsonArray.forEach((item) => {
+          meditationJsonToKeep[count] = item;
+          count += 1;
+        });
+
+        return meditationJsonToKeep;
+      });
+    }
+  };
+
   const onMeditateButtonPress = (text, isChosen, currentQuestionIndex) => {
     if (isChosen) {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
@@ -241,31 +302,32 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       });
     } else {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
+        const chosenQuestions = meditationQuestionsJson[3].Answer;
         const meditationJsonToKeep = {};
 
-        Object.keys(meditationQuestionsJson).forEach((key) => {
-          if (key == 0 || key == 1 || key == 2) {
-            meditationJsonToKeep[key] = meditationQuestionsJson[key];
-          } else {
-            // Keep same number of questions
-            if (key in meditationQuestionsByType[text]) {
-              // if questions are the same
-              if (
-                meditationQuestionsJson[key].Question ==
-                meditationQuestionsByType[text][key].Question
-              ) {
-                meditationJsonToKeep[key] = meditationQuestionsJson[key];
-              } else {
-                // if questions are different
-                meditationJsonToKeep[key] =
-                  meditationQuestionsByType[text][key];
-              }
-            }
-          }
+        const jsonArray = Object.values(meditationQuestionsJson);
+
+        const indexBeforeMeditationQuestion = 3 + chosenQuestions.length + 1;
+
+        const meditationQuestionsArray = Object.values(
+          meditationQuestionsByType[text]
+        );
+
+        // combine json array and meditationQuestionsArray
+        jsonArray.splice(
+          indexBeforeMeditationQuestion,
+          jsonArray.length - indexBeforeMeditationQuestion,
+          ...meditationQuestionsArray
+        );
+
+        count = 0;
+        // jsonArray to json
+        jsonArray.forEach((item) => {
+          meditationJsonToKeep[count] = item;
+          count += 1;
         });
 
         return {
-          ...meditationQuestionsByType[text],
           ...meditationJsonToKeep,
           [currentQuestionIndex]: {
             ...meditationQuestionsJson[currentQuestionIndex],
@@ -425,6 +487,43 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     );
   };
 
+  const RenderJournalQuestions = ({ questionString, initIsChosen }) => {
+    const [isChosen, setIsChosen] = useState(initIsChosen);
+
+    return (
+      <View style={styles.multipleChoiceButtonContainer}>
+        <AwesomeButton
+          width={0.9 * width}
+          backgroundColor={isChosen ? "#fcc695" : "#ffffff"}
+          height={(70 * width) / 414}
+          paddingHorizontal={0}
+          raiseLevel={4}
+          borderRadius={8}
+          onPress={() => {
+            if (!readOnly) {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setIsChosen(!isChosen);
+              onButtonPressJournal(
+                questionString,
+                isChosen,
+                currentQuestionIndex
+              );
+            }
+          }}
+        >
+          <Text
+            style={[
+              Fonts.musicMeditationText,
+              { color: "white", fontSize: 14 },
+            ]}
+          >
+            {questionString}
+          </Text>
+        </AwesomeButton>
+      </View>
+    );
+  };
+
   const initButtons = React.useMemo(() => {
     return multipleChoiceButtons.map((item) => ({
       id: item.id,
@@ -440,6 +539,22 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       ),
     }));
   }, [currentQuestionIndex]);
+
+  const initPromptQuestions = React.useMemo(() => {
+    return questionsPromptsGenerated?.map((questionString, index) => ({
+      id: index,
+      component: (
+        <RenderJournalQuestions
+          questionString={questionString}
+          key={index}
+          initIsChosen={meditationQuestionsJson[currentQuestionIndex][
+            "Answer"
+          ].includes(questionString)}
+          currentQuestionIndex={currentQuestionIndex}
+        />
+      ),
+    }));
+  }, [currentQuestionIndex, questionsPromptsGenerated]);
 
   const initMeditationTypeButtons = meditationTypeButtons.map((item) => ({
     id: item.id,
@@ -469,17 +584,19 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     if (loadingClicked) {
       return;
     }
+    handlePressOutsideTextBox();
     if (
       currentQuestionIndex <
       Object.keys(meditationQuestionsJson).length - 1
     ) {
-      if (currentQuestionIndex == 2) {
+      if (
+        currentQuestionIndex == 2 &&
+        !readOnly &&
+        !questionsPromptsGenerated
+      ) {
         setDisplayGenerateQuestionModal(true);
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        handlePressOutsideTextBox();
       } else {
         setLoadingClicked(true);
-        handlePressOutsideTextBox();
         setTimeout(() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           setCurrentQuestionIndex((index) => index + 1);
@@ -488,7 +605,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     } else if (!isLastModal) {
       setLoadingClicked(true);
       setIsTextBoxFocused(false);
-      handlePressOutsideTextBox();
       setTimeout(() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setIsLastModal(true);
@@ -555,6 +671,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     if (currentQuestionIndex == 2) {
       setIsTextBoxFocused(false);
     }
+    handlePressOutsideTextBox();
 
     if (isLastModal) {
       setTimeout(() => {
@@ -667,6 +784,19 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               borderWidth={1}
               borderColor="#719cc9"
               borderRadius={8}
+              onPress={() => {
+                setDisplayGenerateQuestionModal(false);
+                Haptics.notificationAsync(
+                  Haptics.NotificationFeedbackType.Success
+                );
+                if (!questionsPromptsGenerated) {
+                  // generate questions
+                }
+                setTimeout(() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setCurrentQuestionIndex((index) => index + 1);
+                }, 150);
+              }}
             >
               <View>
                 <Text style={Fonts.generateQuestionsText}>
@@ -711,7 +841,9 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                     textAlign: "center",
                     paddingHorizontal: 4,
                   },
-                  meditationQuestion.length > 50 ? { fontSize: 17 } : {},
+                  meditationQuestion.length > 50 && !isDisplayQuestionPrompts
+                    ? { fontSize: 17 }
+                    : {},
                 ]}
               >
                 {isLastModal ? "Let's Meditate!" : meditationQuestion}
@@ -763,6 +895,16 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                   keyExtractor={(item) => item.id.toString()}
                   renderItem={renderItem}
                   numColumns={2}
+                />
+              </View>
+            ) : isDisplayQuestionPrompts ? (
+              <View style={[styles.meditationBoxContainer]}>
+                <FlatList
+                  ref={flatListRef}
+                  data={initPromptQuestions}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={renderItem}
+                  numColumns={1}
                 />
               </View>
             ) : (
@@ -896,13 +1038,28 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                       ? { display: "none" }
                       : { display: "flex" },
                   ]}
-                  backgroundColor="#ffc802"
+                  backgroundColor={
+                    isDisplayQuestionPrompts && !questionsPromptsGenerated
+                      ? "#bababa"
+                      : "#ffc802"
+                  }
                   raiseLevel={3}
                   width={width * 0.4}
                   borderRadius={20}
                   height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
-                  backgroundDarker="#e7a60b"
-                  backgroundShadow="#e7a60b"
+                  backgroundDarker={
+                    isDisplayQuestionPrompts && !questionsPromptsGenerated
+                      ? "#dbdee8"
+                      : "#e7a60b"
+                  }
+                  backgroundShadow={
+                    isDisplayQuestionPrompts && !questionsPromptsGenerated
+                      ? "#dcdfe7"
+                      : "#e7a60b"
+                  }
+                  disabled={
+                    isDisplayQuestionPrompts && !questionsPromptsGenerated
+                  }
                 >
                   <FontAwesome
                     name="chevron-left"
@@ -1033,8 +1190,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backArrowWrapStyle: {
-    width: 40.0,
-    height: 40.0,
+    width: 35.0,
+    height: 35.0,
     borderRadius: 20.0,
     backgroundColor: "rgba(255,255,255,0.05)",
     alignItems: "center",
