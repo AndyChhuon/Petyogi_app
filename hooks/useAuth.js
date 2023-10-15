@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }) => {
   const [revenueCatInitialized, setRevenueCatInitialized] = useState(false);
   const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
   const [initDayMode, setDayMode] = useState(false);
+  const [questionsAreGenerating, setQuestionsAreGenerating] = useState(false);
   const APIKeys = {
     apple: "appl_mTTdHSJWtMTIsPypmaQXWiXGVzs",
     google: "",
@@ -216,7 +217,6 @@ export const AuthProvider = ({ children }) => {
               appUserID: user.uid,
             });
           }
-
           Purchases.getOfferings()
             .then((offerings) => {
               setCurrentOffering(offerings.current);
@@ -347,6 +347,64 @@ export const AuthProvider = ({ children }) => {
       };
     }
   }, [appInitialized]);
+
+  const generateMeditationQuestions = (prompt) => {
+    addToUserLogs("Called generateMeditationQuestions with prompt " + prompt);
+    setQuestionsAreGenerating(true);
+    const meditationQuestionsRef = ref(
+      db,
+      `userValues/${user.uid}/questionsPromptsGenerated`
+    );
+
+    const unsubscribe = onValue(meditationQuestionsRef, (snapshot) => {
+      const questionsPromptsGenerated = snapshot.val();
+
+      setUserValues((prevUserValues) => {
+        return {
+          ...prevUserValues,
+          questionsPromptsGenerated: questionsPromptsGenerated,
+        };
+      });
+    });
+
+    getIdToken(user, true).then((idToken) => {
+      fetch(
+        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/generateQuestions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+            prompt: prompt,
+          }),
+        }
+      ).then((response) => {
+        setQuestionsAreGenerating(false);
+        if (response.ok) {
+          return response.text().then((data) => {
+            addToUserLogs("Successfully generated questions.");
+            setTimeout(() => {
+              unsubscribe();
+            }, 1000);
+          });
+        } else {
+          response.text().then((text) => {
+            addToUserLogs(`Error generating questions: ${text}.`);
+            setTimeout(() => {
+              unsubscribe();
+            }, 1000);
+
+            showMessage({
+              message: "There was an error generating journaling questions.",
+              type: "danger",
+            });
+          });
+        }
+      });
+    });
+  };
 
   const generateNewMeditation = (
     user,
@@ -730,7 +788,9 @@ export const AuthProvider = ({ children }) => {
       initDayMode,
       pushLogsToServer,
       addToUserLogs,
+      questionsAreGenerating,
       userLogs,
+      generateMeditationQuestions,
     }),
     [
       user,
@@ -769,6 +829,8 @@ export const AuthProvider = ({ children }) => {
       pushLogsToServer,
       addToUserLogs,
       userLogs,
+      questionsAreGenerating,
+      generateMeditationQuestions,
     ]
   );
 

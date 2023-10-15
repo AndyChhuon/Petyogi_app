@@ -29,13 +29,20 @@ import Lottie from "lottie-react-native";
 import useAuth from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SlideInFromBottom from "../../Animations/SlideFromBottom";
+import { set } from "firebase/database";
 
 const MeditationQuestionModal = ({ navigation, route }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
   const [isLastModal, setIsLastModal] = useState(false);
   const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
     useState(0);
-  const { generateNewMeditation, user, userValues } = useAuth();
+  const {
+    generateNewMeditation,
+    user,
+    userValues,
+    questionsAreGenerating,
+    generateMeditationQuestions,
+  } = useAuth();
 
   const {
     initMeditationQuestionsJson,
@@ -49,18 +56,28 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const [loadingClicked, setLoadingClicked] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [meditationQuestionsJson, setMeditationQuestionsJson] = useState(
-    initMeditationQuestionsJson
+    JSON.parse(JSON.stringify(initMeditationQuestionsJson))
   );
   const [meditationPreferences, setMeditationPreferences] = useState({});
   const [displayGenerateQuestionModal, setDisplayGenerateQuestionModal] =
     useState(false);
 
+  const [hasShownScroll, setHasShownScroll] = useState({});
+
   useEffect(() => {
     let timeoutId;
     if (
       flatListRef?.current &&
-      (currentQuestionIndex <= 1 || isDisplayQuestionPrompts)
+      (currentQuestionIndex <= 1 || isDisplayQuestionPrompts) &&
+      !readOnly &&
+      !hasShownScroll[currentQuestionIndex]
     ) {
+      setHasShownScroll((hasShownScroll) => {
+        return {
+          ...hasShownScroll,
+          [currentQuestionIndex]: true,
+        };
+      });
       timeoutId = setTimeout(() => {
         flatListRef?.current?.scrollToEnd({ animated: true });
       }, 800);
@@ -80,8 +97,9 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const progress =
     (currentQuestionIndex + 1) / Object.keys(meditationQuestionsJson).length;
   const meditationTypeQuestionIndex = 1;
+  const JournalQuestionIndex = 2;
   const emotionsQuestion = initMeditationQuestionsJson[2].Question;
-  const isDisplayQuestionPrompts = currentQuestionIndex == 3;
+  const isDisplayQuestionPrompts = currentQuestionIndex == 3 && !readOnly;
 
   const handleTextBoxFocus = () => {
     setIsTextBoxFocused(true);
@@ -117,12 +135,8 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     : 500;
   const tooManyChars = charCount > maxChars;
   const noteEnoughChars = charCount < 1;
-  // const questionsPromptsGenerated = userValues.questionsPromptsGenerated;
-  const questionsPromptsGenerated = [
-    "What is your favorite color?",
-    "What is your favorite animal?",
-    "What is your favorite food?",
-  ];
+  const questionsPromptsGenerated = userValues.questionsPromptsGenerated;
+
   useEffect(() => {
     setLoadingClicked(false);
   }, [currentQuestionIndex, isLastModal]);
@@ -489,19 +503,30 @@ const MeditationQuestionModal = ({ navigation, route }) => {
 
   const RenderJournalQuestions = ({ questionString, initIsChosen }) => {
     const [isChosen, setIsChosen] = useState(initIsChosen);
-
     return (
       <View style={styles.multipleChoiceButtonContainer}>
         <AwesomeButton
           width={0.9 * width}
-          backgroundColor={isChosen ? "#fcc695" : "#ffffff"}
-          height={(70 * width) / 414}
-          paddingHorizontal={0}
+          backgroundColor={isChosen ? "#213632" : "#121f24"}
+          backgroundDarker={isChosen ? "#9fa541" : "#38464f"}
+          borderColor={isChosen ? "#9fa541" : "#38464f"}
+          borderWidth={3}
+          disabled={questionString == "generating..."}
+          height={
+            questionString.length > 70
+              ? questionString.length > 120
+                ? questionString.length > 170
+                  ? (115 * width) / 414
+                  : (100 * width) / 414
+                : (85 * width) / 414
+              : (70 * width) / 414
+          }
+          paddingHorizontal={10}
           raiseLevel={4}
-          borderRadius={8}
-          onPress={() => {
+          borderRadius={14}
+          onPressIn={() => {
             if (!readOnly) {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               setIsChosen(!isChosen);
               onButtonPressJournal(
                 questionString,
@@ -511,14 +536,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             }
           }}
         >
-          <Text
-            style={[
-              Fonts.musicMeditationText,
-              { color: "white", fontSize: 14 },
-            ]}
-          >
-            {questionString}
-          </Text>
+          {questionString != "generating..." && (
+            <Text
+              style={[
+                Fonts.journalPromptQuestions,
+                { color: "white", fontSize: 14 },
+                questionString.length > 50 ? { fontSize: 13 } : {},
+                questionString.length > 70 ? { fontSize: 12 } : {},
+              ]}
+            >
+              {questionString}
+            </Text>
+          )}
         </AwesomeButton>
       </View>
     );
@@ -541,6 +570,12 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   }, [currentQuestionIndex]);
 
   const initPromptQuestions = React.useMemo(() => {
+    if (questionsAreGenerating) {
+      questionsPromptsGenerated?.filter((item) => item != "generating...");
+      questionsPromptsGenerated?.push("generating...");
+    } else {
+      questionsPromptsGenerated?.filter((item) => item != "generating...");
+    }
     return questionsPromptsGenerated?.map((questionString, index) => ({
       id: index,
       component: (
@@ -554,7 +589,11 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         />
       ),
     }));
-  }, [currentQuestionIndex, questionsPromptsGenerated]);
+  }, [
+    currentQuestionIndex,
+    userValues.questionsPromptsGenerated,
+    questionsAreGenerating,
+  ]);
 
   const initMeditationTypeButtons = meditationTypeButtons.map((item) => ({
     id: item.id,
@@ -652,9 +691,20 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       }
       // Generate new meditation
       else {
+        const jsonArray = Object.values(meditationQuestionsJson);
+        // remove index 3
+        jsonArray.splice(3, 1);
+        // jsonArray to json
+        const newMeditationQuestionsJson = {};
+        count = 0;
+        jsonArray.forEach((item) => {
+          newMeditationQuestionsJson[count] = item;
+          count += 1;
+        });
+
         generateNewMeditation(
           user,
-          meditationQuestionsJson,
+          newMeditationQuestionsJson,
           meditationQuestionsJson[meditationTypeQuestionIndex].Answer,
           number,
           setLoadingClicked,
@@ -784,15 +834,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               borderWidth={1}
               borderColor="#719cc9"
               borderRadius={8}
-              onPress={() => {
-                setDisplayGenerateQuestionModal(false);
-                Haptics.notificationAsync(
-                  Haptics.NotificationFeedbackType.Success
-                );
+              onPressIn={() => {
                 if (!questionsPromptsGenerated) {
                   // generate questions
+                  generateMeditationQuestions(
+                    meditationQuestionsJson[JournalQuestionIndex].Answer
+                  );
                 }
                 setTimeout(() => {
+                  setDisplayGenerateQuestionModal(false);
+                  Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success
+                  );
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   setCurrentQuestionIndex((index) => index + 1);
                 }, 150);
@@ -1006,24 +1059,26 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                     >
                       Let's Meditate!
                     </Text>
-                    <View>
-                      <Image
-                        source={require("../../assets/images/icons/gem.png")}
-                        style={{
-                          position: "relative",
-                          top: 2,
-                          width:
-                            (20.0 * width) / 414 > 30
-                              ? 30
-                              : (20.0 * width) / 414,
-                          height:
-                            (20.0 * width) / 414 > 30
-                              ? 30
-                              : (20.0 * width) / 414,
-                          resizeMode: "contain",
-                        }}
-                      />
-                    </View>
+                    {!readOnly && (
+                      <View>
+                        <Image
+                          source={require("../../assets/images/icons/gem.png")}
+                          style={{
+                            position: "relative",
+                            top: 2,
+                            width:
+                              (20.0 * width) / 414 > 30
+                                ? 30
+                                : (20.0 * width) / 414,
+                            height:
+                              (20.0 * width) / 414 > 30
+                                ? 30
+                                : (20.0 * width) / 414,
+                            resizeMode: "contain",
+                          }}
+                        />
+                      </View>
+                    )}
                   </>
                 </AwesomeButton>
               </>

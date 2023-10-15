@@ -335,6 +335,11 @@ export const Fonts = {
     fontSize: 16,
     fontFamily: "SF_Compact_Display_Regular",
   },
+  journalPromptQuestions: {
+    color: "#f1f7fc",
+    fontSize: 18,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
 };
 
 export const Colors = {

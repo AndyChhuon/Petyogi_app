@@ -585,7 +585,7 @@ export const initMeditationQuestionsJson = {
   },
   3: {
     Question: "Choose any number of the following journal prompts:",
-    Answer: "",
+    Answer: [],
   },
   4: {
     Question: "",

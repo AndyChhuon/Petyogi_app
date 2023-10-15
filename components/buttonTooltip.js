@@ -41,7 +41,6 @@ function Button(props) {
   const dbRef = ref(db);
 
   const buttonRef = useRef();
-
   const getPastMeditationJson = () => {
     get(child(dbRef, `meditations/${userId}/${number}`))
       .then((snapshot) => {
