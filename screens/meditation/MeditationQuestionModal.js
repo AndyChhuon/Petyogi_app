@@ -29,7 +29,6 @@ import Lottie from "lottie-react-native";
 import useAuth from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SlideInFromBottom from "../../Animations/SlideFromBottom";
-import { set } from "firebase/database";
 
 const MeditationQuestionModal = ({ navigation, route }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
@@ -51,6 +50,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     meditationUrls,
     finishedGenerating,
     number,
+    asyncStoredMeditationJson,
   } = route.params;
 
   const [loadingClicked, setLoadingClicked] = useState(false);
@@ -61,6 +61,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const [meditationPreferences, setMeditationPreferences] = useState({});
   const [displayGenerateQuestionModal, setDisplayGenerateQuestionModal] =
     useState(false);
+  const [
+    updatedAsyncStoredMeditationJson,
+    setUpdatedAsyncStoredMeditationJson,
+  ] = useState(asyncStoredMeditationJson ? asyncStoredMeditationJson : {});
 
   const [hasShownScroll, setHasShownScroll] = useState({});
 
@@ -80,7 +84,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       });
       timeoutId = setTimeout(() => {
         flatListRef?.current?.scrollToEnd({ animated: true });
-      }, 800);
+      }, 700);
     }
 
     return () => {
@@ -96,10 +100,118 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const meditationAnswer = meditationQuestionsJson[currentQuestionIndex].Answer;
   const progress =
     (currentQuestionIndex + 1) / Object.keys(meditationQuestionsJson).length;
+  const emotionsQuestionIndex = 0;
   const meditationTypeQuestionIndex = 1;
   const JournalQuestionIndex = 2;
+  const JournalSelectionIndex = 3;
   const emotionsQuestion = initMeditationQuestionsJson[2].Question;
   const isDisplayQuestionPrompts = currentQuestionIndex == 3 && !readOnly;
+
+  const updateAsyncStoredMeditationJson = async (question, answer) => {
+    try {
+      AsyncStorage.setItem(
+        "AsyncStoredMeditationJson",
+        JSON.stringify({
+          ...updatedAsyncStoredMeditationJson,
+          [question]: answer,
+        })
+      );
+    } catch (e) {}
+    setUpdatedAsyncStoredMeditationJson((updatedAsyncStoredMeditationJson) => {
+      return {
+        ...updatedAsyncStoredMeditationJson,
+        [question]: answer,
+      };
+    });
+  };
+
+  useEffect(() => {
+    if (!readOnly && asyncStoredMeditationJson) {
+      const newMeditationQuestionsJson = {};
+      const newMeditationQuestionsJsonArray = [];
+      count = 0;
+      while (count <= JournalSelectionIndex) {
+        newMeditationQuestionsJsonArray.push(meditationQuestionsJson[count]);
+        count += 1;
+      }
+
+      // emotion index
+      if (
+        meditationQuestionsJson[emotionsQuestionIndex].Question in
+        asyncStoredMeditationJson
+      ) {
+        const emotionsArray =
+          asyncStoredMeditationJson[
+            meditationQuestionsJson[emotionsQuestionIndex].Question
+          ];
+
+        if (emotionsArray.length > 0) {
+          newMeditationQuestionsJsonArray[JournalQuestionIndex].Question +=
+            emotionsArray[0].toLowerCase() + "?";
+        }
+      }
+
+      // journal question index
+      if (
+        meditationQuestionsJson[JournalSelectionIndex].Question in
+        asyncStoredMeditationJson
+      ) {
+        // if journal question stored in async, populate with questions
+        asyncStoredMeditationJson[
+          meditationQuestionsJson[JournalSelectionIndex].Question
+        ].forEach((journalQuestion, index) => {
+          newMeditationQuestionsJsonArray.push({
+            Question: journalQuestion,
+            Answer: "",
+          });
+        });
+      }
+
+      // meditationType index
+      if (
+        meditationQuestionsJson[meditationTypeQuestionIndex].Question in
+        asyncStoredMeditationJson
+      ) {
+        // if meditationType stored in async, populate with questions
+        const meditationType =
+          asyncStoredMeditationJson[
+            meditationQuestionsJson[meditationTypeQuestionIndex].Question
+          ];
+
+        const meditationQuestionsObj =
+          meditationQuestionsByType[meditationType];
+        // push questions in array
+        Object.values(meditationQuestionsObj).forEach((item) => {
+          newMeditationQuestionsJsonArray.push(item);
+        });
+      } else {
+        // meditationType not stored in async, populate with 3 empty questions
+        for (let i = 0; i < 3; i++) {
+          newMeditationQuestionsJsonArray.push({
+            Question: "",
+            Answer: "",
+          });
+        }
+      }
+
+      // check if each question's answer is in async
+      newMeditationQuestionsJsonArray.forEach((item, index) => {
+        if (item.Question != "" && item.Question in asyncStoredMeditationJson) {
+          newMeditationQuestionsJsonArray[index] = {
+            Question: item.Question,
+            Answer: asyncStoredMeditationJson[item.Question],
+          };
+        }
+      });
+
+      // newMediationQuestionsJsonArray to json
+      newMeditationQuestionsJsonArray.forEach((item, index) => {
+        newMeditationQuestionsJson[index] = item;
+      });
+
+      setMeditationQuestionsJson(newMeditationQuestionsJson);
+    }
+  }, [asyncStoredMeditationJson]);
 
   const handleTextBoxFocus = () => {
     setIsTextBoxFocused(true);
@@ -553,10 +665,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     );
   };
 
-  const initButtons = React.useMemo(() => {
-    return multipleChoiceButtons.map((item) => ({
-      id: item.id,
-      component: (
+  const initButtons = multipleChoiceButtons.map((item) => ({
+    id: item.id,
+    component: React.useMemo(() => {
+      return (
         <RenderMultipleChoiceButtons
           item={item}
           key={item.id}
@@ -565,11 +677,17 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           ].includes(item.text)}
           currentQuestionIndex={currentQuestionIndex}
         />
+      );
+    }, [
+      currentQuestionIndex,
+      meditationQuestionsJson[currentQuestionIndex]["Answer"].includes(
+        item.text
       ),
-    }));
-  }, [currentQuestionIndex]);
+    ]),
+  }));
 
   const initPromptQuestions = React.useMemo(() => {
+    if (!questionsPromptsGenerated) return;
     if (questionsAreGenerating) {
       questionsPromptsGenerated?.filter((item) => item != "generating...");
       questionsPromptsGenerated?.push("generating...");
@@ -628,6 +746,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       currentQuestionIndex <
       Object.keys(meditationQuestionsJson).length - 1
     ) {
+      if (
+        meditationQuestionsJson[currentQuestionIndex].Answer !=
+          updatedAsyncStoredMeditationJson[
+            meditationQuestionsJson[currentQuestionIndex].Question
+          ] &&
+        !readOnly
+      ) {
+        updateAsyncStoredMeditationJson(
+          meditationQuestionsJson[currentQuestionIndex].Question,
+          meditationQuestionsJson[currentQuestionIndex].Answer
+        );
+      }
       if (
         currentQuestionIndex == 2 &&
         !readOnly &&
@@ -729,6 +859,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         setIsLastModal(false);
       }, 150);
     } else if (currentQuestionIndex > 0) {
+      if (
+        meditationQuestionsJson[currentQuestionIndex].Answer !=
+          updatedAsyncStoredMeditationJson[
+            meditationQuestionsJson[currentQuestionIndex].Question
+          ] &&
+        !readOnly
+      ) {
+        updateAsyncStoredMeditationJson(
+          meditationQuestionsJson[currentQuestionIndex].Question,
+          meditationQuestionsJson[currentQuestionIndex].Answer
+        );
+      }
       setLoadingClicked(true);
       setTimeout(() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -778,7 +920,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       <SlideInFromBottom
         show={displayGenerateQuestionModal}
         onOuterClick={() => setDisplayGenerateQuestionModal(false)}
-        height={height * 0.55}
+        height={height > 700 ? height * 0.55 : height * 0.6}
       >
         <View style={{ flex: 1.5, alignItems: "center" }}>
           <View

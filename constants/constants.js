@@ -580,7 +580,7 @@ export const initMeditationQuestionsJson = {
   1: { Question: "Choose today's meditation:", Answer: "" },
   2: {
     Question:
-      "Freely write down your thoughts and emotions. why are you feeling ",
+      "Freely write down your thoughts and emotions. Why are you feeling ",
     Answer: "",
   },
   3: {

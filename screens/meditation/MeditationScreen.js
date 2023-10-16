@@ -139,7 +139,7 @@ const MeditationScreen = ({ navigation, route }) => {
 
   const [showMenu, setShowMenu] = useState(false);
 
-  const timeBetweenPhrases = 2500;
+  const timeBetweenPhrases = 3000;
 
   const tutorialShouldShow = meditationInfo.tutorialShouldShow ? true : false;
 

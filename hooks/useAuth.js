@@ -434,6 +434,7 @@ export const AuthProvider = ({ children }) => {
           return res.json().then((data) => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
             addToUserLogs("Successfully generating meditation.");
+            AsyncStorage.removeItem("AsyncStoredMeditationJson");
 
             const tutorialShouldShow = number == 1;
 

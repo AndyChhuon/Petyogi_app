@@ -1,5 +1,5 @@
 import AwesomeButton from "react-native-really-awesome-button";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Dimensions,
@@ -11,13 +11,14 @@ import {
 } from "react-native";
 import { Colors, Fonts } from "../constants/styles";
 import { initMeditationQuestionsJson } from "../constants/constants";
-
+import { showMessage } from "react-native-flash-message";
 import { db } from "../config/firebaseConfig";
 import { ref, child, get } from "firebase/database";
 import ScaleInOut from "../Animations/ScaleInOut";
 import FloatingAnimation from "../Animations/FloatingAnimation";
 import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
@@ -39,6 +40,7 @@ function Button(props) {
   } = props;
 
   const dbRef = ref(db);
+  const [shouldDisplayTopTooltip, setShouldDisplayTopTooltip] = useState(false);
 
   const buttonRef = useRef();
   const getPastMeditationJson = () => {
@@ -96,7 +98,6 @@ function Button(props) {
 
   const onPress = () => {
     onButtonpress(number);
-
     buttonsViewRef.current.measure((fx, fy, width, height, px, py) => {
       buttonRef.current.measure(
         (fxButton, fyButton, widthButton, heightButton, pxButton, pyButton) => {
@@ -119,12 +120,22 @@ function Button(props) {
     if (currentMeditation > number) {
       getPastMeditationJson();
     } else {
-      setTimeout(() => {
+      setTimeout(async () => {
         if (isOutOfCredits) {
           navigation.navigate("PurchaseScreen");
           setMeditateButtonIsPressed(false);
           return;
         }
+
+        let asyncStoredMeditationJson = {};
+        try {
+          const asyncStoredMeditationJsonString = await AsyncStorage.getItem(
+            "AsyncStoredMeditationJson"
+          );
+          asyncStoredMeditationJson = JSON.parse(
+            asyncStoredMeditationJsonString
+          );
+        } catch (e) {}
 
         const propsToPass = {
           initMeditationQuestionsJson: initMeditationQuestionsJson,
@@ -133,6 +144,9 @@ function Button(props) {
           finishedGenerating: null,
           number: number,
           readOnly: false,
+          asyncStoredMeditationJson: asyncStoredMeditationJson
+            ? asyncStoredMeditationJson
+            : {},
         };
         navigation.navigate("Meditation", propsToPass);
         setMeditateButtonIsPressed(false);
@@ -142,10 +156,20 @@ function Button(props) {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
+  useEffect(() => {
+    if (showTopTooltip) {
+      setTimeout(() => {
+        setShouldDisplayTopTooltip(true);
+      }, 200);
+    } else {
+      setShouldDisplayTopTooltip(false);
+    }
+  }, [showTopTooltip]);
+
   return (
     currentMeditation < number + 40 && (
       <>
-        {showTopTooltip ? (
+        {shouldDisplayTopTooltip ? (
           <FloatingAnimation
             style={{
               zIndex: 9999,
@@ -165,9 +189,9 @@ function Button(props) {
                   }}
                 >
                   <ScaleInOut
-                    visible={showTopTooltip}
+                    visible={shouldDisplayTopTooltip}
                     style={
-                      showTopTooltip
+                      shouldDisplayTopTooltip
                         ? {
                             ...styles.topTooltipDisplay,
                             backgroundColor: dayMode
@@ -210,11 +234,11 @@ function Button(props) {
                 marginLeft: `${leftMargin}%`,
               }}
             >
-              {showTopTooltip ? (
+              {shouldDisplayTopTooltip ? (
                 <FloatingAnimation style={{ zIndex: 2, position: "relative" }}>
                   <ScaleInOut
                     delayIn={150}
-                    visible={showTopTooltip}
+                    visible={shouldDisplayTopTooltip}
                     style={{
                       ...styles.topTooltipTip,
                       borderTopColor: dayMode ? "#fbb855" : "black",

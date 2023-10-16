@@ -262,6 +262,7 @@ const HomeScreen = ({ navigation }) => {
               ref={scrollViewRef}
               onScroll={handleScroll}
               scrollEventThrottle={1}
+              collapsable={false}
             >
               <View
                 style={{ flex: 1 }}
@@ -277,6 +278,7 @@ const HomeScreen = ({ navigation }) => {
                     marginBottom: 180,
                   }}
                   ref={buttonsViewRef}
+                  collapsable={false}
                 >
                   {buttonTooltips}
                 </View>
