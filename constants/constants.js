@@ -75,42 +75,51 @@ export const meditationScreenCustomizeables = {
       id: "1",
       image: require("../assets/background_svg/fireplace_preview.png"),
       lottie: require("../assets/background_svg/fireplace.json"),
+      textColor: "#aca8a6",
     },
     {
       id: "2",
       image: require("../assets/background_svg/frosty_snowman_preview.png"),
       lottie: require("../assets/background_svg/frosty_snowman.json"),
+      isLight: true,
+      textColor: "#1d5fad",
     },
     {
       id: "3",
       image: require("../assets/background_svg/jungle_preview.png"),
       lottie: require("../assets/background_svg/jungle.json"),
+      textColor: "#c58331",
     },
     {
       id: "4",
       image: require("../assets/background_svg/mountain_preview.png"),
       lottie: require("../assets/background_svg/mountain.json"),
+      textColor: "#ad6f8f",
     },
     {
       id: "5",
       image: require("../assets/background_svg/rosy_blur_preview.png"),
       lottie: require("../assets/background_svg/rosy_blur.json"),
+      textColor: "#7f31c5",
     },
     {
       id: "6",
       image: require("../assets/background_svg/space_preview.png"),
       lottie: require("../assets/background_svg/space.json"),
+      textColor: "#8d5395",
     },
     {
       id: "7",
       image: require("../assets/background_svg/starry_night_preview.png"),
       lottie: require("../assets/background_svg/starry_night.json"),
+      textColor: "#639aba",
     },
 
     {
       id: "8",
       image: require("../assets/background_svg/train_preview.png"),
       lottie: require("../assets/background_svg/train.json"),
+      textColor: "#694286",
     },
     {
       id: "9",
@@ -121,17 +130,20 @@ export const meditationScreenCustomizeables = {
       id: "10",
       image: require("../assets/background_svg/rainbow_strips_preview.png"),
       lottie: require("../assets/background_svg/rainbow_strips.json"),
+      textColor: "#e0b6b5",
     },
     {
       id: "11",
       image: require("../assets/background_svg/plants_preview.png"),
       lottie: require("../assets/background_svg/plants.json"),
+      textColor: "#469386",
     },
     {
       id: "12",
       image: require("../assets/background_svg/magenta_blur_preview.png"),
       lottie: require("../assets/background_svg/magenta_blur.json"),
       title: "",
+      textColor: "#d84b8f",
     },
   ],
   music: [

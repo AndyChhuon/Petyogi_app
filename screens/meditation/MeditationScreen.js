@@ -22,10 +22,12 @@ import Lottie from "lottie-react-native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import ScaleInOut from "../../Animations/ScaleInOut";
+import { Bar as ProgressBar } from "react-native-progress";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import FloatingAnimation from "../../Animations/FloatingAnimation";
 import useAuth from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { get, set } from "firebase/database";
 
 const { width, height } = Dimensions.get("window");
 
@@ -47,6 +49,8 @@ const MeditationScreen = ({ navigation, route }) => {
     setUpdateTutorialModalVisible,
     updateTutorialModalVisible,
   } = useAuth();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [totalSteps, setTotalSteps] = useState(4);
 
   const updateMusicStorage = async (musicMeditation) => {
     try {
@@ -94,6 +98,7 @@ const MeditationScreen = ({ navigation, route }) => {
           id: "7",
           image: require("../../assets/background_svg/starry_night_preview.png"),
           lottie: require("../../assets/background_svg/starry_night.json"),
+          textColor: "#639aba",
         }
   );
 
@@ -139,7 +144,7 @@ const MeditationScreen = ({ navigation, route }) => {
 
   const [showMenu, setShowMenu] = useState(false);
 
-  const timeBetweenPhrases = 3000;
+  const timeBetweenPhrases = 1500;
 
   const tutorialShouldShow = meditationInfo.tutorialShouldShow ? true : false;
 
@@ -170,6 +175,10 @@ const MeditationScreen = ({ navigation, route }) => {
     : true;
 
   const lottieRef = useRef(null);
+  const diamondRef = useRef(null);
+  const [nbGems, setNbGems] = useState(0);
+  const [obtainedGemsColor, setObtainedGemsColor] = useState("#FFD369");
+  const [gemSize, setGemSize] = useState(25);
 
   const onNextButtonPress = () => {
     if (isPlayingPrerecordedOutro) return;
@@ -285,6 +294,7 @@ const MeditationScreen = ({ navigation, route }) => {
           intervalId = setTimeout(incrementPhrase, timeBetweenPhrases);
           setPauseInterval(intervalId);
           setLastTimePaused(Date.now());
+          reveivedGems();
         }
       };
 
@@ -295,6 +305,7 @@ const MeditationScreen = ({ navigation, route }) => {
           setIsPlayingPrerecordedOutro(false);
           setCurrentPhrase(0);
           setInitValue(0);
+          reveivedGems();
         }
       };
 
@@ -466,6 +477,31 @@ const MeditationScreen = ({ navigation, route }) => {
     }
   }, [musicVolume]);
 
+  function getRandomNumber() {
+    const randomValue = Math.random(); // Generates a random number between 0 and 1
+
+    if (randomValue < 0.7) {
+      return 1; // 70% chance
+    } else if (randomValue < 0.9) {
+      return 2; // 20% chance
+    } else {
+      return 3; // 10% chance
+    }
+  }
+
+  const reveivedGems = () => {
+    diamondRef.current?.play();
+    setObtainedGemsColor("#7ac7cc");
+    setGemSize(30);
+    setTimeout(() => {
+      diamondRef.current?.reset();
+      setObtainedGemsColor("#FFD369");
+      setGemSize(25);
+    }, 2000);
+
+    setNbGems(nbGems + getRandomNumber());
+  };
+
   return (
     <>
       <Lottie
@@ -477,6 +513,7 @@ const MeditationScreen = ({ navigation, route }) => {
           width: "100%",
           height: "100%",
           aspectRatio: width / height,
+          backgroundColor: "#341c72",
         }}
         speed={0.5}
         autoPlay
@@ -498,8 +535,100 @@ const MeditationScreen = ({ navigation, route }) => {
             flex: 1,
           }}
         >
-          {closeButton()}
-          {sidebarMenu()}
+          <View
+            style={{
+              position: "absolute",
+              display: "flex",
+              flexDirection: "row",
+              zIndex: 2,
+              flex: 1,
+              width: "100%",
+              height: showMenu ? "100%" : "auto",
+            }}
+          >
+            {closeButton()}
+            <View
+              style={[
+                {
+                  flexGrow: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                },
+                showMenu
+                  ? {
+                      display: "none",
+                    }
+                  : {},
+              ]}
+            >
+              <Text
+                style={[
+                  {
+                    minHeight: (25.0 * width) / 414,
+                    textAlign: "center",
+                    marginTop: 6,
+                  },
+                  Fonts.meditationTitle,
+                  lottieBackground?.textColor
+                    ? { color: lottieBackground?.textColor }
+                    : {},
+                ]}
+              >
+                Part {currentStep} :{" "}
+                {currentStep == 0
+                  ? "The Journey Begins!"
+                  : currentStep == 1
+                  ? "A few special words for you"
+                  : currentStep == 2
+                  ? "Visualization exercise"
+                  : "A few mantras to remember"}
+              </Text>
+              <ProgressBar
+                progress={currentStep / totalSteps}
+                animationType="timing"
+                color={
+                  lottieBackground?.textColor
+                    ? lottieBackground?.textColor
+                    : "#98eab7"
+                }
+                borderColor="#3a4754"
+                unfilledColor="#30404c"
+                width={null}
+                height={18}
+                borderWidth={3}
+                borderRadius={8}
+              ></ProgressBar>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  height: gemSize,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text
+                  style={[
+                    Fonts.meditationTitle,
+                    {
+                      color: obtainedGemsColor,
+                      fontSize: 13.5,
+                      marginRight: 3,
+                    },
+                  ]}
+                >
+                  Collected: {nbGems}
+                </Text>
+                <Lottie
+                  style={{ height: gemSize }}
+                  source={require("../../assets/Meditation/diamond.json")}
+                  ref={diamondRef}
+                  speed={2}
+                ></Lottie>
+              </View>
+            </View>
+            {sidebarMenu()}
+          </View>
           <View
             style={{
               flex: 1,
@@ -524,30 +653,36 @@ const MeditationScreen = ({ navigation, route }) => {
             <View
               style={[
                 styles.meditationText,
-                lottieBackground.id == "2"
-                  ? {
-                      backgroundColor:
-                        Platform.OS === "android"
-                          ? "rgba(255, 255, 255, 0.92)"
-                          : "rgba(255, 255, 255, 0.86)",
-                    }
-                  : {
-                      backgroundColor:
-                        Platform.OS === "android"
-                          ? "rgba(32, 32, 34, 0.42)"
-                          : "rgba(32, 32, 34, 0.52)",
-                    },
+                {
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: 80,
+                },
               ]}
             >
               <Text
                 style={[
                   Fonts.meditationText,
                   {
-                    color:
-                      lottieBackground.id == "2"
-                        ? Colors.bodyBackColor
-                        : Colors.whiteColor,
+                    color: lottieBackground?.isLight
+                      ? Colors.bodyBackColor
+                      : Colors.whiteColor,
+                    textAlign: "center",
+                    padding: 10,
                   },
+                  lottieBackground?.isLight
+                    ? {
+                        backgroundColor:
+                          Platform.OS === "android"
+                            ? "rgba(255, 255, 255, 0.92)"
+                            : "rgba(255, 255, 255, 0.86)",
+                      }
+                    : {
+                        backgroundColor:
+                          Platform.OS === "android"
+                            ? "rgba(32, 32, 34, 0.42)"
+                            : "rgba(32, 32, 34, 0.52)",
+                      },
                 ]}
               >
                 {preRecordedAudioShouldBePlaying
@@ -565,7 +700,7 @@ const MeditationScreen = ({ navigation, route }) => {
                   : meditationInfo?.phrases[currentPhrase]}
               </Text>
             </View>
-            <View style={{ marginBottom: height > 1200 ? "3%" : "14%" }}>
+            <View style={{ marginBottom: "3%" }}>
               <View style={styles.playMeditationStyle}>
                 <Slider
                   style={{
@@ -660,7 +795,7 @@ const MeditationScreen = ({ navigation, route }) => {
       <View
         style={[
           styles.sidebarMenuWrap,
-          showMenu ? { height: "100%", width: "100%" } : {},
+          showMenu ? { height: "100%", width: "100%", paddingRight: 0 } : {},
         ]}
       >
         {sideMenu()}
@@ -1041,15 +1176,11 @@ const styles = StyleSheet.create({
     borderWidth: (1.5 * width) / 414,
   },
   sidebarMenuWrap: {
-    position: "absolute",
-    zIndex: 3,
+    paddingRight: (10.0 * width) / 414,
     display: "flex",
     flexDirection: "row",
-    right: 0,
-    paddingHorizontal: (10.0 * width) / 414,
   },
   sideBarWrapStyle: {
-    marginLeft: "auto",
     alignItems: "center",
     borderRadius: 12,
     height: (42.0 * width * 3) / 414 + 35,
@@ -1072,9 +1203,9 @@ const styles = StyleSheet.create({
         : "rgba(32, 32, 34, 0.52)",
   },
   closeButtonStyle: {
-    position: "absolute",
     marginLeft: (20.0 * width) / 414,
-    marginTop: (20.0 * width) / 414,
+    paddingRight: (10.0 * width) / 414,
+    marginTop: (25.0 * width) / 414,
     zIndex: 4,
   },
   BackgroundImage: {

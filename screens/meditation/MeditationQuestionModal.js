@@ -127,6 +127,20 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   };
 
   useEffect(() => {
+    //TODO: remove this
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+    const propsToPass = {
+      phrases: phrases,
+      meditationUrls: meditationUrls,
+      shouldListenRealTime: false,
+      number: number,
+      meditationPreferences: meditationPreferences,
+    };
+
+    navigation.navigate("MeditationScreen", propsToPass);
+    setLoadingClicked(false);
+    return;
     if (!readOnly && asyncStoredMeditationJson) {
       const newMeditationQuestionsJson = {};
       const newMeditationQuestionsJsonArray = [];

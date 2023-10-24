@@ -222,8 +222,8 @@ export const Fonts = {
     fontFamily: "SF_Compact_Display_Medium",
   },
   meditationText: {
-    fontSize: 11,
-    fontFamily: "SF_Compact_Display_Medium",
+    fontSize: 14,
+    fontFamily: "Play_Bold",
   },
   musicMeditationText: {
     fontSize: 13,
@@ -338,6 +338,11 @@ export const Fonts = {
   journalPromptQuestions: {
     color: "#f1f7fc",
     fontSize: 18,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
+  meditationTitle: {
+    color: "#3a4754",
+    fontSize: 15,
     fontFamily: "SF_Compact_Display_Bold",
   },
 };
