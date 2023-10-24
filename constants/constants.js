@@ -310,28 +310,28 @@ export const streaksSavedImage = [
 export const meditationTypeButtons = [
   {
     id: "1",
-    text: "Visualization",
+    textArr: ["Manifestation", "Visualization"],
     lottie: require("../assets/meditation_lottie/visualization.json"),
   },
   {
     id: "2",
-    text: "Positive Affirmation",
+    textArr: ["Mind Positivity", "Positive Affirmation"],
     lottie: require("../assets/meditation_lottie/positiveAffirmation.json"),
   },
   {
     id: "3",
-    text: "Mindfulness",
+    textArr: ["Stress Less", "Mindfulness"],
     lottie: require("../assets/meditation_lottie/mindfulness.json"),
   },
   {
     id: "4",
-    text: "Loving Kindness",
+    textArr: ["Love & Gratitude", "Loving Kindness"],
     lottie: require("../assets/meditation_lottie/lovingKindness.json"),
   },
   {
     id: "5",
-    text: "Contemplative Prayer",
-    lottie: require("../assets/meditation_lottie/godsPresence.json"),
+    textArr: ["Better sleep", "Contemplative Prayer"],
+    lottie: require("../assets/Lottie/sleeping_koala.json"),
   },
 ];
 
@@ -358,92 +358,6 @@ export const meditationLotties = [
   },
 ];
 0;
-
-export const meditationQuestionsByType = {
-  Visualization: {
-    4: {
-      Question: "What would you like to visualize throughout this meditation?",
-      Answer: "",
-    },
-    5: {
-      Question:
-        "Is there a specific setting, smell, or emotion you would like to visualize?",
-      Answer: "",
-      maxChars: 350,
-    },
-  },
-  "Positive Affirmation": {
-    4: {
-      Question: "What is the purpose of this meditation?",
-      Answer: "",
-    },
-    5: {
-      Question:
-        "Is there specific affirmations/topics you would like to include?",
-      Answer: "",
-      maxChars: 350,
-    },
-  },
-  Mindfulness: {
-    4: {
-      Question: "What is the purpose of this meditation?",
-      Answer: "",
-    },
-    5: {
-      Question:
-        "Is there a specific question, topic, or scenario you would like to explore?",
-      Answer: "",
-      maxChars: 350,
-    },
-  },
-  "Loving Kindness": {
-    4: {
-      Question:
-        "Express love and gratitude to yourself, like you were talking to someone else.",
-      Answer: "",
-      maxChars: 400,
-    },
-    5: {
-      Question: "Identify and express love and gratitude to some you love.",
-      Answer: "",
-      maxChars: 400,
-    },
-    6: {
-      Question:
-        "Identify and express love and gratitude to a person you occasionally see.",
-      Answer: "",
-      maxChars: 400,
-    },
-    7: {
-      Question: "Identify and express love and gratitude to a total stranger.",
-      Answer: "",
-      maxChars: 400,
-    },
-  },
-  "Contemplative Prayer": {
-    4: {
-      Question: "What is the purpose of this prayer?",
-      Answer: "",
-      maxChars: 400,
-    },
-    5: {
-      Question: "Express your love and gratitude to God.",
-      Answer: "",
-      maxChars: 400,
-    },
-    6: {
-      Question: "Ask God for guidance and blessings, feeling his presence.",
-      Answer: "",
-      maxChars: 400,
-    },
-    7: {
-      Question:
-        "Express to God your shortcomings and ask for strength and forgiveness.",
-      Answer: "",
-      maxChars: 400,
-    },
-  },
-};
 
 export const prerecordedAudioUrls = {
   intro: {
@@ -577,7 +491,7 @@ export const purchaseScreenCTA = {
 
 export const initMeditationQuestionsJson = {
   0: { Question: "How are you feeling?", Answer: [] },
-  1: { Question: "Choose today's meditation:", Answer: "" },
+  1: { Question: "Select a goal for this meditation:", Answer: "" },
   2: {
     Question:
       "Freely write down your thoughts and emotions. Why are you feeling ",
@@ -586,17 +500,5 @@ export const initMeditationQuestionsJson = {
   3: {
     Question: "Choose any number of the following journal prompts:",
     Answer: [],
-  },
-  4: {
-    Question: "",
-    Answer: "",
-  },
-  5: {
-    Question: "",
-    Answer: "",
-  },
-  6: {
-    Question: "",
-    Answer: "",
   },
 };

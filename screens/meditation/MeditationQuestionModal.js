@@ -19,7 +19,6 @@ import {
   multipleChoiceButtons,
   meditationTypeButtons,
   meditationLotties,
-  meditationQuestionsByType,
 } from "../../constants/constants";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import AwesomeButton from "react-native-really-awesome-button";
@@ -93,9 +92,11 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   }, [currentQuestionIndex]);
 
   const flatListRef = useRef();
-
+  console.log(meditationQuestionsJson);
+  console.log(currentQuestionIndex);
+  console.log(meditationQuestionsJson[currentQuestionIndex].Question);
   const meditationQuestion =
-    meditationQuestionsJson[currentQuestionIndex].Question;
+    meditationQuestionsJson[currentQuestionIndex]?.Question;
 
   const meditationAnswer = meditationQuestionsJson[currentQuestionIndex].Answer;
   const progress =
@@ -104,7 +105,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const meditationTypeQuestionIndex = 1;
   const JournalQuestionIndex = 2;
   const JournalSelectionIndex = 3;
-  const emotionsQuestion = initMeditationQuestionsJson[2].Question;
+  const emotionsQuestion = initMeditationQuestionsJson[2]?.Question;
   const isDisplayQuestionPrompts = currentQuestionIndex == 3 && !readOnly;
 
   const updateAsyncStoredMeditationJson = async (question, answer) => {
@@ -145,7 +146,12 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             meditationQuestionsJson[emotionsQuestionIndex].Question
           ];
 
-        if (emotionsArray.length > 0) {
+        if (
+          emotionsArray.length > 0 &&
+          !newMeditationQuestionsJsonArray[
+            JournalQuestionIndex
+          ].Question.endsWith("?")
+        ) {
           newMeditationQuestionsJsonArray[JournalQuestionIndex].Question +=
             emotionsArray[0].toLowerCase() + "?";
         }
@@ -165,33 +171,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             Answer: "",
           });
         });
-      }
-
-      // meditationType index
-      if (
-        meditationQuestionsJson[meditationTypeQuestionIndex].Question in
-        asyncStoredMeditationJson
-      ) {
-        // if meditationType stored in async, populate with questions
-        const meditationType =
-          asyncStoredMeditationJson[
-            meditationQuestionsJson[meditationTypeQuestionIndex].Question
-          ];
-
-        const meditationQuestionsObj =
-          meditationQuestionsByType[meditationType];
-        // push questions in array
-        Object.values(meditationQuestionsObj).forEach((item) => {
-          newMeditationQuestionsJsonArray.push(item);
-        });
-      } else {
-        // meditationType not stored in async, populate with 3 empty questions
-        for (let i = 0; i < 3; i++) {
-          newMeditationQuestionsJsonArray.push({
-            Question: "",
-            Answer: "",
-          });
-        }
       }
 
       // check if each question's answer is in async
@@ -428,33 +407,8 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       });
     } else {
       setMeditationQuestionsJson((meditationQuestionsJson) => {
-        const chosenQuestions = meditationQuestionsJson[3].Answer;
-        const meditationJsonToKeep = {};
-
-        const jsonArray = Object.values(meditationQuestionsJson);
-
-        const indexBeforeMeditationQuestion = 3 + chosenQuestions.length + 1;
-
-        const meditationQuestionsArray = Object.values(
-          meditationQuestionsByType[text]
-        );
-
-        // combine json array and meditationQuestionsArray
-        jsonArray.splice(
-          indexBeforeMeditationQuestion,
-          jsonArray.length - indexBeforeMeditationQuestion,
-          ...meditationQuestionsArray
-        );
-
-        count = 0;
-        // jsonArray to json
-        jsonArray.forEach((item) => {
-          meditationJsonToKeep[count] = item;
-          count += 1;
-        });
-
         return {
-          ...meditationJsonToKeep,
+          ...meditationQuestionsJson,
           [currentQuestionIndex]: {
             ...meditationQuestionsJson[currentQuestionIndex],
             Question: meditationQuestionsJson[currentQuestionIndex].Question,
@@ -464,13 +418,13 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       });
     }
   };
-
   const RenderMeditationButtons = ({
     item,
     isChosen,
     currentQuestionIndex,
   }) => {
     const lottieRef = useRef(null);
+    const text = item.textArr[0];
     useEffect(() => {
       if (isChosen) {
         setTimeout(() => lottieRef.current?.play());
@@ -501,7 +455,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           onPressOut={() => {
             if (!readOnly) {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              onMeditateButtonPress(item.text, isChosen, currentQuestionIndex);
+              onMeditateButtonPress(text, isChosen, currentQuestionIndex);
             }
           }}
         >
@@ -538,7 +492,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             { color: "white", fontSize: 15.5, marginTop: 6 },
           ]}
         >
-          {item.text}
+          {text}
         </Text>
       </View>
     );
@@ -721,14 +675,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           item={item}
           key={item.id}
           isChosen={
-            meditationQuestionsJson[currentQuestionIndex]["Answer"] ===
-            item.text
+            meditationQuestionsJson[currentQuestionIndex]["Answer"] &&
+            item.textArr.includes(
+              meditationQuestionsJson[currentQuestionIndex]["Answer"]
+            )
           }
           currentQuestionIndex={currentQuestionIndex}
         />
       );
     }, [
-      meditationQuestionsJson[currentQuestionIndex]["Answer"] === item.text,
+      item.textArr.includes(
+        meditationQuestionsJson[currentQuestionIndex]["Answer"]
+      ),
       currentQuestionIndex,
     ]),
   }));
@@ -822,8 +780,11 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       // Generate new meditation
       else {
         const jsonArray = Object.values(meditationQuestionsJson);
-        // remove index 3
-        jsonArray.splice(3, 1);
+        // remove meditation question index
+        jsonArray.splice(meditationTypeQuestionIndex, 1);
+
+        // remove index JournalSelectionIndex
+        jsonArray.splice(JournalSelectionIndex, 1);
         // jsonArray to json
         const newMeditationQuestionsJson = {};
         count = 0;

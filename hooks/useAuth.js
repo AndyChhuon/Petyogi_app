@@ -396,6 +396,8 @@ export const AuthProvider = ({ children }) => {
               unsubscribe();
             }, 1000);
 
+            console.log(text);
+
             showMessage({
               message: "There was an error generating journaling questions.",
               type: "danger",
