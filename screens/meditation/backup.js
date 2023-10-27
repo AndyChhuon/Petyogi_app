@@ -27,6 +27,7 @@ import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import FloatingAnimation from "../../Animations/FloatingAnimation";
 import useAuth from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { get, set } from "firebase/database";
 
 const { width, height } = Dimensions.get("window");
 
@@ -43,10 +44,10 @@ const MeditationScreen = ({ navigation, route }) => {
   const [musicSound, setMusicSound] = useState(null);
   const [initialVolume, setInitialVolume] = useState(0.3);
   const [musicVolume, setMusicVolume] = useState(initialVolume);
+  const [introShouldPlay, setIntroShouldPlay] = useState(true);
   const [introOutroWasInitialized, setIntroOutroWasInitialized] =
     useState(false);
   const [conclusionWasSet, setConclusionWasSet] = useState(false);
-  const [meditationHasStarted, setMeditationHasStarted] = useState(false);
   const {
     listenMeditationUpdate,
     setUpdateTutorialModalVisible,
@@ -207,6 +208,7 @@ const MeditationScreen = ({ navigation, route }) => {
   const promptIndexEnd2 = promptIndexes?.promptIndexEnd2
     ? promptIndexes?.promptIndexEnd2 + deltaIntroOutro
     : 9999;
+  console.log(promptIndexEnd2);
   const currentStep =
     preRecordedAudioShouldBePlaying || currentPhrase < introIndexEnd
       ? 0
@@ -225,23 +227,35 @@ const MeditationScreen = ({ navigation, route }) => {
   const [gemSize, setGemSize] = useState(25);
 
   const onNextButtonPress = () => {
+    if (isPlayingPrerecordedOutro) return;
+    if (preRecordedAudioShouldBePlaying && maxNumPhrases != 0) {
+      setCurrentPhrase(currentPhrase + 1);
+      setInitValue(currentPhrase + 1);
+      setIsPlayingPrerecordedOutro(true);
+      setIntroShouldPlay(false);
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     // THe first line has not been generated yet, increment pre recorded audio
     if (preRecordedAudioShouldBePlaying) {
       setCurrentPhrase(currentPhrase + 1);
       setInitValue(currentPhrase + 1);
-      console.log("nextButtonPressed prerercorded");
     } else {
       if (currentPhrase < maxNumPhrases) {
         setCurrentPhrase(currentPhrase + 1);
         setInitValue(currentPhrase + 1);
-        console.log("nextButtonPressed");
       }
     }
-    console.log("ctest");
   };
 
   const onBackButtonPress = () => {
+    if (isPlayingPrerecordedOutro) return;
+    if (preRecordedAudioShouldBePlaying && maxNumPhrases != 0) {
+      setCurrentPhrase(currentPhrase - 1);
+      setInitValue(currentPhrase - 1);
+      setIsPlayingPrerecordedOutro(true);
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (currentPhrase > 0) {
       setCurrentPhrase(currentPhrase - 1);
@@ -253,6 +267,7 @@ const MeditationScreen = ({ navigation, route }) => {
   const incrementPhrase = () => {
     // THe first line has not been generated yet, increment pre recorded audio
     if (preRecordedAudioShouldBePlaying) {
+      if (maxNumPhrases != 0) setIsPlayingPrerecordedOutro(true);
       setCurrentPhrase((prevPhrase) => prevPhrase + 1);
       setInitValue(currentPhrase + 1);
     } else {
@@ -316,6 +331,7 @@ const MeditationScreen = ({ navigation, route }) => {
       }
 
       newUrlsObj.count = meditationInfo.meditationUrls.count + increment;
+      console.log(newUrlsObj);
       setMeditationInfo({
         ...meditationInfo,
         phrases: newPhrasesObj,
@@ -342,6 +358,7 @@ const MeditationScreen = ({ navigation, route }) => {
         newPrerecordedAudioPhrases.outro[phraseIncrement] = phrase;
         phraseIncrement++;
       });
+      console.log(newPrerecordedAudioUrls);
       setPrerecordedAudioUrls(newPrerecordedAudioUrls);
       setPrerecordedAudioPhrases(newPrerecordedAudioPhrases);
     }
@@ -371,10 +388,11 @@ const MeditationScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (introOutroWasInitialized) {
+      setMusicMeditation(initMusic);
+
       setTimeout(() => {
         if (!playing) {
           setPlaying(true);
-          setMusicMeditation(initMusic);
         }
       }, 1000);
     }
@@ -393,7 +411,12 @@ const MeditationScreen = ({ navigation, route }) => {
         introUrlArr,
         outroUrlArr
       );
+    } else if (!meditationInfo.shouldListenRealTime && unsubscribe) {
+      unsubscribe();
+      console.log("else if unsubscribe");
     }
+
+    console.log("unsubscribe", unsubscribe);
 
     return () => {
       // Unsubscribe from the event listener when the component unmounts
@@ -409,19 +432,6 @@ const MeditationScreen = ({ navigation, route }) => {
       }
 
       loadingAudioRef.current = true;
-      let tempPreRecordedAudioShouldBePlaying = preRecordedAudioShouldBePlaying;
-      // change preRecordedAudioShouldBePlaying to false
-      if (maxNumPhrases > 0 && preRecordedAudioShouldBePlaying) {
-        tempPreRecordedAudioShouldBePlaying = false;
-        setPreRecordedAudioShouldBePlaying(false);
-
-        if (currentPhrase >= introIndexEnd) {
-          setCurrentPhrase(introIndexEnd - 1);
-          setInitValue(introIndexEnd - 1);
-          loadingAudioRef.current = false;
-          return;
-        }
-      }
 
       if (sound) {
         await sound.unloadAsync();
@@ -443,6 +453,7 @@ const MeditationScreen = ({ navigation, route }) => {
       const onOutroEndUpdate = (status) => {
         if (status.didJustFinish) {
           // Move on to the generated meditation
+          setPreRecordedAudioShouldBePlaying(false);
           setIsPlayingPrerecordedOutro(false);
           if (currentPhrase > introIndexEnd) setCurrentPhrase(introIndexEnd);
           setInitValue(0);
@@ -450,18 +461,19 @@ const MeditationScreen = ({ navigation, route }) => {
         }
       };
 
-      const url =
-        preRecordedAudioShouldBePlaying && tempPreRecordedAudioShouldBePlaying
-          ? currentPhrase > Object.keys(prerecordedAudioUrls.intro).length
-            ? prerecordedAudioUrls.meditations[
-                ((currentPhrase + randomNumberFirstMeditation) %
-                  Object.keys(prerecordedAudioUrls.meditations).length) +
-                  1
-              ]
-            : prerecordedAudioUrls.intro[currentPhrase]
-          : meditationInfo.meditationUrls
-          ? meditationInfo.meditationUrls[currentPhrase]?.url
-          : null;
+      const url = preRecordedAudioShouldBePlaying
+        ? isPlayingPrerecordedOutro
+          ? prerecordedAudioUrls.outro["1"]
+          : currentPhrase > Object.keys(prerecordedAudioUrls.intro).length
+          ? prerecordedAudioUrls.meditations[
+              ((currentPhrase + randomNumberFirstMeditation) %
+                Object.keys(prerecordedAudioUrls.meditations).length) +
+                1
+            ]
+          : prerecordedAudioUrls.intro[currentPhrase]
+        : meditationInfo.meditationUrls
+        ? meditationInfo.meditationUrls[currentPhrase]?.url
+        : null;
 
       if (url) {
         const { sound: newSound } = await Audio.Sound.createAsync(
@@ -567,8 +579,7 @@ const MeditationScreen = ({ navigation, route }) => {
     if (waitingForNextLine) {
       incrementPhrase();
     }
-    console.log("meditationINfoShould", meditationInfo.shouldListenRealTime);
-  }, [meditationInfo.shouldListenRealTimee]);
+  }, [maxNumPhrases]);
 
   // Case where maxNumPhrases increments while last sentence is playing (stays stuck bc of setInterval)
   useEffect(() => {
@@ -602,8 +613,6 @@ const MeditationScreen = ({ navigation, route }) => {
         { shouldPlay: playing, volume: musicVolume, isLooping: true }
       );
       setMusicSound(newSound);
-      if (!meditationHasStarted) setMeditationHasStarted(true);
-
       loadingMusicRef.current = false;
     };
 
@@ -926,7 +935,6 @@ const MeditationScreen = ({ navigation, route }) => {
           color={Colors.whiteColor}
           size={32}
           onPress={() => {
-            if (!meditationHasStarted) return;
             if (sound) sound.unloadAsync();
             if (musicSound) musicSound.unloadAsync();
             if (pauseInterval) clearTimeout(pauseInterval);

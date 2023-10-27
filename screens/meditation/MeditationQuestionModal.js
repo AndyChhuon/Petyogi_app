@@ -19,6 +19,8 @@ import {
   multipleChoiceButtons,
   meditationTypeButtons,
   meditationLotties,
+  prerecordedPhrases,
+  prerecordedUrls,
 } from "../../constants/constants";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import AwesomeButton from "react-native-really-awesome-button";
@@ -50,6 +52,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     finishedGenerating,
     number,
     asyncStoredMeditationJson,
+    promptIndexes,
   } = route.params;
 
   const [loadingClicked, setLoadingClicked] = useState(false);
@@ -108,6 +111,31 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const emotionsQuestion = initMeditationQuestionsJson[2]?.Question;
   const isDisplayQuestionPrompts = currentQuestionIndex == 3 && !readOnly;
 
+  function getRandomIndexFromArray(arr) {
+    if (arr.length === 0) {
+      return null; // Return null if the array is empty
+    }
+    const randomIndex = Math.floor(Math.random() * arr.length);
+    console.log("randomIndex", randomIndex);
+    return randomIndex;
+  }
+
+  const randomlyPickIntroAndOutro = (
+    introUrlArr,
+    introPhraseArr,
+    prerecordedType
+  ) => {
+    console.log("introUrlArr", introUrlArr);
+    // randomly pick intro
+    for (const [key, value] of Object.entries(
+      prerecordedPhrases[prerecordedType]
+    )) {
+      const randomIndex = getRandomIndexFromArray(value);
+      introPhraseArr.push(value[randomIndex]);
+      introUrlArr.push(prerecordedUrls[prerecordedType][key][randomIndex]);
+    }
+  };
+
   const updateAsyncStoredMeditationJson = async (question, answer) => {
     try {
       AsyncStorage.setItem(
@@ -129,13 +157,42 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   useEffect(() => {
     //TODO: remove this
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    const introUrlArr = [];
+    const introPhraseArr = [];
+    const outroUrlArr = [];
+    const outroPhraseArr = [];
+    const conclusionUrlArr = [];
+    const conclusionPhraseArr = [];
 
+    randomlyPickIntroAndOutro(introUrlArr, introPhraseArr, "intro");
+    randomlyPickIntroAndOutro(outroUrlArr, outroPhraseArr, "outro");
+    randomlyPickIntroAndOutro(
+      conclusionUrlArr,
+      conclusionPhraseArr,
+      "conclusion"
+    );
+    console.log("introUrlArr", introUrlArr);
+    console.log("introPhraseArr", introPhraseArr);
+    console.log("outroUrlArr", outroUrlArr);
+    console.log("outroPhraseArr", outroPhraseArr);
+    console.log("conclusionUrlArr", conclusionUrlArr);
+    console.log("conclusionPhraseArr", conclusionPhraseArr);
     const propsToPass = {
-      phrases: phrases,
-      meditationUrls: meditationUrls,
-      shouldListenRealTime: false,
+      initMeditationInfo: {
+        phrases: phrases,
+        meditationUrls: meditationUrls,
+        shouldListenRealTime: true,
+        promptIndexes: promptIndexes,
+      },
+
       number: number,
       meditationPreferences: meditationPreferences,
+      introUrlArr: introUrlArr,
+      introPhraseArr: introPhraseArr,
+      outroUrlArr: outroUrlArr,
+      outroPhraseArr: outroPhraseArr,
+      conclusionUrlArr: conclusionUrlArr,
+      conclusionPhraseArr: conclusionPhraseArr,
     };
 
     navigation.navigate("MeditationScreen", propsToPass);
@@ -752,6 +809,20 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       }, 150);
     } else {
       setLoadingClicked(true);
+      const introUrlArr = [];
+      const introPhraseArr = [];
+      const outroUrlArr = [];
+      const outroPhraseArr = [];
+      const conclusionUrlArr = [];
+      const conclusionPhraseArr = [];
+
+      randomlyPickIntroAndOutro(introUrlArr, introPhraseArr, "intro");
+      randomlyPickIntroAndOutro(outroUrlArr, outroPhraseArr, "outro");
+      randomlyPickIntroAndOutro(
+        conclusionUrlArr,
+        conclusionPhraseArr,
+        "conclusion"
+      );
       // Meditation generation was already called
       if (readOnly) {
         setTimeout(() => {
@@ -764,11 +835,20 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
             const propsToPass = {
-              phrases: phrases,
-              meditationUrls: meditationUrls,
-              shouldListenRealTime: false,
+              initMeditationInfo: {
+                phrases: phrases,
+                meditationUrls: meditationUrls,
+                shouldListenRealTime: false,
+                promptIndexes: promptIndexes,
+              },
               number: number,
               meditationPreferences: meditationPreferences,
+              introUrlArr: introUrlArr,
+              introPhraseArr: introPhraseArr,
+              outroUrlArr: outroUrlArr,
+              outroPhraseArr: outroPhraseArr,
+              conclusionUrlArr: conclusionUrlArr,
+              conclusionPhraseArr: conclusionPhraseArr,
             };
 
             navigation.navigate("MeditationScreen", propsToPass);
@@ -779,11 +859,21 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
 
             const propsToPass = {
-              phrases: phrases,
-              meditationUrls: meditationUrls,
-              shouldListenRealTime: true,
+              initMeditationInfo: {
+                phrases: phrases,
+                meditationUrls: meditationUrls,
+                shouldListenRealTime: true,
+                promptIndexes: promptIndexes,
+              },
+
               number: number,
               meditationPreferences: meditationPreferences,
+              introUrlArr: introUrlArr,
+              introPhraseArr: introPhraseArr,
+              outroUrlArr: outroUrlArr,
+              outroPhraseArr: outroPhraseArr,
+              conclusionUrlArr: conclusionUrlArr,
+              conclusionPhraseArr: conclusionPhraseArr,
             };
 
             navigation.navigate("MeditationScreen", propsToPass);
@@ -813,7 +903,15 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           meditationQuestionsJson[meditationTypeQuestionIndex].Answer,
           number,
           setLoadingClicked,
-          meditationPreferences
+          meditationPreferences,
+          {
+            introUrlArr: introUrlArr,
+            introPhraseArr: introPhraseArr,
+            outroUrlArr: outroUrlArr,
+            outroPhraseArr: outroPhraseArr,
+            conclusionUrlArr: conclusionUrlArr,
+            conclusionPhraseArr: conclusionPhraseArr,
+          }
         );
       }
     }

@@ -52,6 +52,7 @@ function Button(props) {
             phrases: snapshot.val().phrases,
             meditationUrls: snapshot.val().meditationUrls,
             finishedGenerating: snapshot.val().finishedGenerating,
+            promptIndexes: snapshot.val().promptIndexes,
             number: number,
             readOnly: true,
           };
@@ -144,6 +145,7 @@ function Button(props) {
           finishedGenerating: null,
           number: number,
           readOnly: false,
+          promptIndexes: null,
           asyncStoredMeditationJson: asyncStoredMeditationJson
             ? asyncStoredMeditationJson
             : {},

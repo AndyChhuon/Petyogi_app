@@ -369,51 +369,215 @@ export const meditationLotties = [
     speed: 0.8,
   },
 ];
-0;
 
-export const prerecordedAudioUrls = {
+export const prerecordedPhrases = {
   intro: {
-    1: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1.wav",
-    2: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/2.wav",
-    3: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/3.wav",
-    4: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/4.wav",
-    5: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/5.wav",
+    1: [
+      "Greetings to you, my beautiful Yogi. Welcome, once again, to your sacred space, with me Pet Yogi!",
+      "Greetings to you, my favourite Yogi. Welcome back to your sacred place, with me PetYogi!",
+      "Greetings to you, my fellow Yogi. Welcome, once again, to your sacred meditation session, with me Pet Yogi!",
+      "Welcome back, my beautiful Yogi, to another wonderful meditation, with me Pet Yogi!",
+      "Welcome back, my favourite Yogi, to another beautiful meditation, with me Pet Yogi!",
+      "Welcome back, my lovely Yogi, to another calming personalized meditation, with me Pet Yogi.",
+      "What a delight, to have you back, my lovely Yogi, to another calming personalized meditation, with me Pet Yogi.",
+    ],
+    2: [
+      "I am infinitely grateful to have you meditate with me today, dear yogi.",
+      "I greatly appreciate you Yogi, for taking the time to meditate with me today.",
+      "I sincerely would like to thank you, for taking the time to be with me today.",
+      "I thank you and greatly appreciate you, for being present with me today.",
+      "I would like to express to you, my greatest gratitude, for being here with me today.",
+      "I would like to take a moment, to thank you for joining me today.",
+    ],
+    3: [
+      "Allow gratitude to fill your heart for the kindness you bestow upon yourself, a gratitude that I would like to express towards you.",
+      "I know it's not easy to find time, in your busy schedule. But I appreciate you, for dedicating this time to care for yourself.",
+      "I want you to know that you are deeply loved, and I appreciate you for making the commitment to meditating with me, every day.",
+      "I want you to know that you are deserving of this moment of serenity and self love.",
+      "Your commitment to inner well-being is a beautiful gift to yourself, and I thank you for that.",
+      "Your presence here is a testament to your self worth and for that, let us express the greatest gratitude.",
+    ],
+    4: [
+      "I cherish the opportunity to be part of this moment with you, and I'm committed to helping you find peace and joy.",
+      "I'm always delighted to be a part of this special moment with you, contributing to your happiness and serenity.",
+      "It's always a delight, to be by your side in this moment, and contribute to the peace and joy in your life.",
+      "It's always an honour to share this moment with you, and help you bring peace and joy to your life.",
+      "Sharing this moment with you fills me with gratitude, and I'm committed to assisting you in finding peace and joy.",
+      "Sharing this moment with you is a privilege, and I'm here to assist in bringing happiness and tranquility to your life.",
+    ],
   },
-  meditations: {
-    1: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/5.wav",
-    2: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/1.wav",
-    3: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/6.wav",
-    4: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/2.wav",
-    5: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/3.wav",
-    6: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/4.wav",
-    7: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/7.wav",
-    8: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditations/8.wav",
-  },
+
   outro: {
-    1: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Outro/1.wav",
+    1: [
+      "Now, let's get into the beautiful meditation I have made, specially for my favourite yogi.",
+      "Now, let's get into the special meditation I have made, specifically for my favourite yogi.",
+      "Now, my beloved yogi, let's begin the meditation I have made, just for you.",
+      "Now, my treasured yogi, let's begin the beautiful meditation I have made, just for you.",
+      "That being said, my lovely yogi, let's begin the beautiful meditation I have made, just for you.",
+    ],
+  },
+
+  conclusion: {
+    1: [
+      "As we finish this meditation, I want to take a moment to express my appreciation, for your being here.",
+      "As we gently wrap up this meditation, I want to express my gratitude for your presence.",
+      "As we reach the end of this meditation, I want to express my sincere appreciation for your presence.",
+      "Now, as we bring our meditation to a conclusion, I wish to express my gratitude for your presence.",
+      "Now, As we bring this meditation to a close, I would like to thank you, for your presence throughout this meditation.",
+      "Now, as we finish this meditation, I extend my heartfelt thanks for your company.",
+    ],
+    2: [
+      "Begin to transition back to your everyday state of mind, carrying the stillness and mindfulness you've cultivated into the rest of your day.",
+      "Begin to transition back to your everyday state of mind, maintaining a sense of calm and mindfulness as you do so.",
+      "Embrace the inner peace you've cultivated, and let it guide you through your journey.",
+      "Prepare to re engage with the world outside of this meditation, with a renewed sense of clarity and purpose.",
+      "Slowly return to the world around you, allowing the sounds, and sensations of your environment to gently enter your awareness.",
+      "Start to reawaken your senses, beginning with the awareness of the ground beneath you, the support of the surface you're on.",
+    ],
+    3: [
+      "And don't forget, in moments of stress or sorrow, Pet Yogi is just a message away to offer you the comfort you need.",
+      "And remember, if ever you're feeling stressed or sad, Pet Yogi will always be here, ready to help you.",
+      "And remember, if you ever experience stress or the blues, Pet Yogi is your trusted ally, always ready to help.",
+      "Don't forget, whenever stress or sadness creeps in, Pet Yogi is your reliable source of comfort.",
+      "If you're ever overwhelmed or feeling sad, remember that Pet Yogi is always there for you, ready to lend a hand.",
+    ],
+    4: [
+      "I wish you a beautiful day, filled with peace and joy, my favourite yogi, and I hope to see you again very soon.",
+      "I wish you a fantastic day, my dear yogi, and I look forward to our next meditation session together.",
+      "I'm sending you all the positive vibes for the day, and I'm really looking forward to our next meditation, my dear yogi.",
+      "May your day be filled with positivity, dear yogi, and I eagerly await our next meditation session.",
+      "May your day be infused with tranquility, my fellow yogi, and I'm excited for our upcoming meditation together, hopefully very soon.",
+    ],
   },
 };
 
-export const prerecordedAudioPhrases = {
+export const prerecordedUrls = {
   intro: {
-    1: "Greetings to you, my favourite Yogi. Welcome back to your sacred place, with me PetYogi!",
-    2: "Thank you for joining me in this new personalized meditation, made specially for you.",
-    3: "It's always an honour to share this moment with you, and help you bring peace and joy to your life.",
-    4: "I want you to know that you are deeply loved, and I appreciate you for making the commitment to meditating with me every day.",
-    5: "Now, while your meditation is being generated, let's meditate on a few meditation tips that I want you to understand deeply.",
-  },
-  meditations: {
-    1: "Meditation is like a gym, in which you develop the powerful mental muscles of calm and insight.",
-    2: "A most useful approach to meditation practice is to schedule it as you would an extremely important appointment, and unfailingly keep your appointment with the infinite.",
-    3: "Meditation is not spacing out or running away. In fact, it is being totally honest with ourselves.",
-    4: "It is indeed a radical act of love just to sit down and be quiet for a time by yourself.",
-    5: "Learn to be calm and you will always be happy.",
-    6: "Meditation is allowing what is.",
-    7: "Remember the blue sky. It may at times, be obscured by clouds, but it is always there.",
-    8: "When meditation is mastered, the mind is unwavering like the flame of a candle in a windless place.",
+    1: [
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1/1.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1/2.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1/3.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1/4.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1/5.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1/6.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1/7.wav",
+    ],
+    2: [
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/2/1.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/2/2.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/2/3.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/2/4.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/2/5.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/2/6.wav",
+    ],
+    3: [
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/3/1.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/3/2.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/3/3.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/3/4.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/3/5.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/3/6.wav",
+    ],
+    4: [
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/4/1.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/4/2.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/4/3.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/4/4.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/4/5.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/4/6.wav",
+    ],
   },
   outro: {
-    1: "We are now ready to start your meditation, so let us begin.",
+    1: [
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Outros_2/1.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Outros_2/2.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Outros_2/3.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Outros_2/4.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Outros_2/5.wav",
+    ],
+  },
+
+  conclusion: {
+    1: [
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/1/1.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/1/2.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/1/3.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/1/4.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/1/5.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/1/6.wav",
+    ],
+    2: [
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/2/1.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/2/2.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/2/3.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/2/4.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/2/5.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/2/6.wav",
+    ],
+    3: [
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/3/1.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/3/2.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/3/3.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/3/4.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/3/5.wav",
+    ],
+    4: [
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/4/1.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/4/2.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/4/3.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/4/4.wav",
+      "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Conclusion/4/5.wav",
+    ],
+  },
+};
+
+export const initPrerecordedAudioUrls = {
+  intro: {
+    1: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/1/1.wav",
+    2: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/2/1.wav",
+    3: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/3/1.wav",
+    4: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Intro/4/1.wav",
+    5: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_transition/1.wav",
+  },
+  meditations: {
+    1: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/1.wav",
+    2: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/2.wav",
+    3: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/3.wav",
+    4: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/4.wav",
+    5: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/5.wav",
+    6: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/6.wav",
+    7: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/7.wav",
+    8: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/8.wav",
+    9: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/10.wav",
+    10: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Meditation_loop/11.wav",
+  },
+  outro: {
+    1: "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Prerecorded/Outros_2/1.wav",
+  },
+};
+
+export const initPrerecordedAudioPhrases = {
+  intro: {
+    1: "Greetings to you, my beautiful Yogi. Welcome, once again, to your sacred space, with me Pet Yogi!",
+    2: "I am infinitely grateful to have you meditate with me today, dear yogi.",
+    3: "Allow gratitude to fill your heart for the kindness you bestow upon yourself, a gratitude that I would like to express towards you.",
+    4: "I cherish the opportunity to be part of this moment with you, and I'm committed to helping you find peace and joy.",
+    5: "While your meditation is getting started, let's take a few seconds to get settled into your space of tranquility and inner peace.",
+  },
+  meditations: {
+    1: "Your inner strength, like a mighty oak, provides you with support and stability as you weather life's storms.",
+    2: "Allow your mind to gently settle, like a calm pond on a peaceful day.",
+    3: "Let go of any tension in your body, as you prepare for stillness.",
+    4: "Remember, that you are deserving of this time of self care, and self love.",
+    5: "In this sacred moment, I invite you to pause and reflect upon the unique tapestry of experiences, talents, beauty, and potential that make you so wonderful.",
+    6: "Embrace the kindness that flows from your heart, for your capacity to love, to empathize, and to spread warmth to the world around you is a remarkable gift that we celebrate and appreciate today.",
+    7: "As you settle into this space of meditation, I invite you to recognize and celebrate the inner strength that you possess, the inner warrior that has carried you through life's challenges and brought you to this moment of serenity.",
+    8: "In this moment, let your heart be filled with gratitude for the endless opportunities that lie ahead, for the boundless potential that rests within you, waiting to be unlocked and harnessed for your highest good.",
+    9: "Take a moment to celebrate the wonderful person that you are, to appreciate the unique blend of qualities, experiences, and dreams that make you a truly remarkable individual. You are a work of art in progress.",
+    10: "Know that you are enough just as you are, a beautiful and evolving soul on a journey of self-discovery, self-love, and self-improvement.",
+  },
+  outro: {
+    1: "Now, let's get into the beautiful meditation I have made, specially for my favourite yogi.",
   },
 };
 

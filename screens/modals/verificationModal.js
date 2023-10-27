@@ -38,6 +38,7 @@ const VerificationModal = () => {
         finishedGenerating: null,
         number: userValues.numMeditations + 1,
         readOnly: false,
+        promptIndexes: null,
       };
       navigation.navigate("Meditation", propsToPass);
     }

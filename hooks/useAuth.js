@@ -414,7 +414,8 @@ export const AuthProvider = ({ children }) => {
     meditationType,
     number,
     setLoadingClicked,
-    meditationPreferences
+    meditationPreferences,
+    IntroOutroJson
   ) => {
     getIdToken(user, true).then((idToken) => {
       //post request
@@ -441,10 +442,13 @@ export const AuthProvider = ({ children }) => {
             const tutorialShouldShow = number == 1;
 
             const propsToPass = {
-              shouldListenRealTime: true,
-              tutorialShouldShow: tutorialShouldShow,
+              initMeditationInfo: {
+                shouldListenRealTime: true,
+                tutorialShouldShow: tutorialShouldShow,
+              },
               number: number,
               meditationPreferences: meditationPreferences,
+              ...IntroOutroJson,
             };
             setUserValues(data.userValues);
             setStreakObj(data.streakObj);
@@ -653,13 +657,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const listenMeditationUpdate = (number, setMeditationInfo) => {
+  const listenMeditationUpdate = (
+    number,
+    setMeditationInfo,
+    introPhraseArr,
+    outroPhraseArr,
+    introUrlArr,
+    outroUrlArr
+  ) => {
     const meditationRef = ref(db, `meditations/${user.uid}/${number}`);
 
     return onValue(meditationRef, (snapshot) => {
       const phrases = snapshot.val()?.phrases;
       const meditationUrls = snapshot.val()?.meditationUrls;
       const finishedGenerating = snapshot.val()?.finishedGenerating;
+      const promptIndexes = snapshot.val()?.promptIndexes;
 
       const shouldListenRealTime = !(
         finishedGenerating &&
@@ -668,13 +680,59 @@ export const AuthProvider = ({ children }) => {
         meditationUrls.count in meditationUrls
       );
 
-      const propsToPass = {
+      const maxNumPhrases = meditationUrls
+        ? meditationUrls
+          ? Object.keys(meditationUrls).length - 1
+          : Object.keys(meditationUrls).length
+        : 0;
+
+      // First line has not been generated, play pre recorded audio
+      const isWaitingOnFirstLineGeneration = maxNumPhrases == 0;
+      let propsToPass = {
         phrases: phrases,
         meditationUrls: meditationUrls,
         shouldListenRealTime: shouldListenRealTime,
-        number: number,
+        promptIndexes: promptIndexes,
       };
 
+      if (!isWaitingOnFirstLineGeneration) {
+        const increment = introPhraseArr.length + outroPhraseArr.length;
+        const newPhrasesObj = {};
+        const newUrlsObj = {};
+        let phraseIncrement = 1;
+
+        introPhraseArr.forEach((phrase, index) => {
+          newPhrasesObj[phraseIncrement] = phrase;
+          newUrlsObj[phraseIncrement] = { url: introUrlArr[index] };
+          phraseIncrement++;
+        });
+
+        outroPhraseArr.forEach((phrase, index) => {
+          newPhrasesObj[phraseIncrement] = phrase;
+          newUrlsObj[phraseIncrement] = { url: outroUrlArr[index] };
+          phraseIncrement++;
+        });
+
+        for (const key in phrases) {
+          if (phrases.hasOwnProperty(key)) {
+            const newKey = parseInt(key) + increment;
+            newPhrasesObj[newKey] = phrases[key];
+          }
+          if (meditationUrls.hasOwnProperty(key)) {
+            const newKey = parseInt(key) + increment;
+            newUrlsObj[newKey] = meditationUrls[key];
+          }
+        }
+
+        newUrlsObj.count = meditationUrls.count + increment;
+
+        propsToPass = {
+          phrases: newPhrasesObj,
+          meditationUrls: newUrlsObj,
+          shouldListenRealTime: shouldListenRealTime,
+          promptIndexes: promptIndexes,
+        };
+      }
       setMeditationInfo(propsToPass);
     });
   };
