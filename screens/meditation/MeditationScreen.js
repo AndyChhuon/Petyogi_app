@@ -568,7 +568,7 @@ const MeditationScreen = ({ navigation, route }) => {
       incrementPhrase();
     }
     console.log("meditationINfoShould", meditationInfo.shouldListenRealTime);
-  }, [meditationInfo.shouldListenRealTimee]);
+  }, [meditationInfo.shouldListenRealTime]);
 
   // Case where maxNumPhrases increments while last sentence is playing (stays stuck bc of setInterval)
   useEffect(() => {
