@@ -99,6 +99,17 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+  function formatNumber(num) {
+    if (!num) return 0;
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(2) + "M";
+    } else if (num >= 10000) {
+      return (num / 1000).toFixed(2) + "k";
+    } else {
+      return num.toString();
+    }
+  }
+
   const timeRemaining =
     subscriptionWithPrevDate[0] != "noSubscription" && !newlyPurchased
       ? getTimeRemaining(
@@ -500,7 +511,9 @@ const ProfileScreen = ({ navigation }) => {
                       justifyContent: "center",
                     }}
                   >
-                    <Text style={Fonts.streakNumberText2}>{coins}</Text>
+                    <Text style={Fonts.streakNumberText2}>
+                      {formatNumber(coins)}
+                    </Text>
                     <Text style={Fonts.streakSecondaryText2}>
                       yogi crystals
                     </Text>

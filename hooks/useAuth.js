@@ -17,7 +17,7 @@ import {
   updateProfile,
   signOut,
 } from "firebase/auth";
-import { ref, onValue, update } from "firebase/database";
+import { ref, onValue, update, set } from "firebase/database";
 import { useNavigation, StackActions } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   const [verificationModalVisible, setVerificationModalVisible] =
     useState(false);
   const [updateTutorialModalVisible, setUpdateTutorialModalVisible] =
-    useState(false);
+    useState("none");
   const [loadingModalVisible, setLoadingModalVisible] = useState(false);
   const [checkIfUserHasCreditsCalled, setCheckIfUserHasCreditsCalled] =
     useState(false);
@@ -479,6 +479,85 @@ export const AuthProvider = ({ children }) => {
     addToUserLogs(`User logged out.`);
   };
 
+  const claimGems = (amountGems) => {
+    getIdToken(user).then((idToken) => {
+      //post request
+      fetch(
+        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/claimGems",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+            amountGems: amountGems,
+          }),
+        }
+      ).then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            addToUserLogs("Claim gems successful.");
+            setUserValues(data.userValues);
+            setUpdateTutorialModalVisible("gem" + amountGems);
+            console.log("Claim gems successful.");
+          });
+        } else {
+          res.text().then((text) => {
+            addToUserLogs(`Error claiming gems: ${text}.`);
+          });
+        }
+      });
+    });
+  };
+
+  const purchaseItem = (purchaseId, purchaseType, setMessage) => {
+    addToUserLogs(
+      "Purchasing item with gems with id " +
+        purchaseId +
+        " and type " +
+        purchaseType
+    );
+    getIdToken(user)
+      .then((idToken) => {
+        //post request
+        fetch(
+          "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/purchaseWithGems",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              idToken: idToken,
+              purchaseId: purchaseId,
+              purchaseType: purchaseType,
+            }),
+          }
+        ).then((res) => {
+          if (res.ok) {
+            return res.json().then((data) => {
+              addToUserLogs("Purchase with gems successful.");
+              setUserValues(data.userValues);
+              setMessage("success");
+              setLoadingModalVisible(false);
+            });
+          } else {
+            res.text().then((text) => {
+              addToUserLogs(`Error purchasing item: ${text}.`);
+              setMessage("There was an error purchasing this item.");
+              setLoadingModalVisible(false);
+            });
+          }
+        });
+      })
+      .catch((err) => {
+        addToUserLogs(`Error purchasing item: ${err}.`);
+        setMessage("There was an error purchasing this item.");
+        setLoadingModalVisible(false);
+      });
+  };
+
   const checkStreaks = () => {
     getIdToken(user).then((idToken) => {
       //post request
@@ -852,6 +931,8 @@ export const AuthProvider = ({ children }) => {
       questionsAreGenerating,
       userLogs,
       generateMeditationQuestions,
+      claimGems,
+      purchaseItem,
     }),
     [
       user,
@@ -892,6 +973,8 @@ export const AuthProvider = ({ children }) => {
       userLogs,
       questionsAreGenerating,
       generateMeditationQuestions,
+      claimGems,
+      purchaseItem,
     ]
   );
 

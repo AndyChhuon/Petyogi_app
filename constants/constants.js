@@ -72,10 +72,20 @@ export const multipleChoiceButtons = [
 export const meditationScreenCustomizeables = {
   background: [
     {
+      id: "7",
+      image: require("../assets/background_svg/starry_night_preview.png"),
+      lottie: require("../assets/background_svg/starry_night.json"),
+      textColor: "#639aba",
+      gems: "Free",
+      name: "Starry Night",
+    },
+    {
       id: "1",
       image: require("../assets/background_svg/fireplace_preview.png"),
       lottie: require("../assets/background_svg/fireplace.json"),
       textColor: "#aca8a6",
+      gems: 1500,
+      name: "Fireplace",
     },
     {
       id: "2",
@@ -83,36 +93,40 @@ export const meditationScreenCustomizeables = {
       lottie: require("../assets/background_svg/frosty_snowman.json"),
       isLight: true,
       textColor: "#1d5fad",
-    },
-    {
-      id: "3",
-      image: require("../assets/background_svg/jungle_preview.png"),
-      lottie: require("../assets/background_svg/jungle.json"),
-      textColor: "#c58331",
+      gems: 1500,
+      name: "Cozy Cabin",
     },
     {
       id: "4",
       image: require("../assets/background_svg/mountain_preview.png"),
       lottie: require("../assets/background_svg/mountain.json"),
       textColor: "#ad6f8f",
+      gems: 1500,
+      name: "Mount Calm",
+    },
+    {
+      id: "3",
+      image: require("../assets/background_svg/jungle_preview.png"),
+      lottie: require("../assets/background_svg/jungle.json"),
+      textColor: "#c58331",
+      gems: 1500,
+      name: "Jungle",
     },
     {
       id: "5",
       image: require("../assets/background_svg/rosy_blur_preview.png"),
       lottie: require("../assets/background_svg/rosy_blur.json"),
       textColor: "#7f31c5",
+      gems: 1500,
+      name: "Rosy Blur",
     },
     {
       id: "6",
       image: require("../assets/background_svg/space_preview.png"),
       lottie: require("../assets/background_svg/space.json"),
       textColor: "#8d5395",
-    },
-    {
-      id: "7",
-      image: require("../assets/background_svg/starry_night_preview.png"),
-      lottie: require("../assets/background_svg/starry_night.json"),
-      textColor: "#639aba",
+      gems: 1500,
+      name: "Still Space",
     },
 
     {
@@ -120,23 +134,31 @@ export const meditationScreenCustomizeables = {
       image: require("../assets/background_svg/train_preview.png"),
       lottie: require("../assets/background_svg/train.json"),
       textColor: "#694286",
+      gems: 1500,
+      name: "Tranquil Train",
     },
     {
       id: "9",
       image: require("../assets/background_svg/colorful_bubbles_preview.png"),
       lottie: require("../assets/background_svg/colorful_bubbles.json"),
+      gems: 1500,
+      name: "Bubbles",
     },
     {
       id: "10",
       image: require("../assets/background_svg/rainbow_strips_preview.png"),
       lottie: require("../assets/background_svg/rainbow_strips.json"),
       textColor: "#e0b6b5",
+      gems: 1500,
+      name: "Rainbow",
     },
     {
       id: "11",
       image: require("../assets/background_svg/plants_preview.png"),
       lottie: require("../assets/background_svg/plants.json"),
       textColor: "#469386",
+      gems: 1500,
+      name: "Plants",
     },
     {
       id: "12",
@@ -144,6 +166,8 @@ export const meditationScreenCustomizeables = {
       lottie: require("../assets/background_svg/magenta_blur.json"),
       title: "",
       textColor: "#d84b8f",
+      gems: 1500,
+      name: "Magenta Blur",
     },
   ],
   music: [
@@ -151,20 +175,7 @@ export const meditationScreenCustomizeables = {
       id: "1",
       image: null,
       title: "No music",
-    },
-    {
-      id: "2",
-      image: require("../assets/music/tranquil_rainfall_preview.jpg"),
-      title: "Nature Sounds - Rainfall",
-      sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/tranquil_rainfall.mp3",
-    },
-    {
-      id: "3",
-      image: require("../assets/music/waterstream_preview.png"),
-      title: "Nature Sounds - Water Stream",
-      sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/waterstream.mp3",
+      gems: "Free",
     },
     {
       id: "4",
@@ -172,6 +183,26 @@ export const meditationScreenCustomizeables = {
       title: "Peaceful Thoughts",
       sound:
         "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/peaceful_thoughts.mp3",
+      name: "Peaceful Thoughts",
+      gems: "Free",
+    },
+    {
+      id: "2",
+      image: require("../assets/music/tranquil_rainfall_preview.jpg"),
+      title: "Nature Sounds - Rainfall",
+      sound:
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/tranquil_rainfall.mp3",
+      name: "Rainfall",
+      gems: 800,
+    },
+    {
+      id: "3",
+      image: require("../assets/music/waterstream_preview.png"),
+      title: "Nature Sounds - Water Stream",
+      sound:
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/waterstream.mp3",
+      name: "Water Stream",
+      gems: 800,
     },
     {
       id: "5",
@@ -179,6 +210,8 @@ export const meditationScreenCustomizeables = {
       title: "Piano Valley",
       sound:
         "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/piano_valley.mp3",
+      name: "Piano Valley",
+      gems: 800,
     },
     {
       id: "6",
@@ -186,6 +219,8 @@ export const meditationScreenCustomizeables = {
       title: "Nature Sounds - Ocean Waves",
       sound:
         "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/ocean_waves.mp3",
+      name: "Ocean Waves",
+      gems: 800,
     },
     {
       id: "7",
@@ -193,6 +228,8 @@ export const meditationScreenCustomizeables = {
       title: "Meditation Bowls",
       sound:
         "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/quartz_bowl.mp3",
+      name: "Quartz Bowl",
+      gems: 800,
     },
     {
       id: "8",
@@ -200,6 +237,8 @@ export const meditationScreenCustomizeables = {
       title: "Earth's Chimes",
       sound:
         "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/earth_chimes.mp3",
+      name: "Earth Chimes",
+      gems: 800,
     },
     {
       id: "9",
@@ -207,6 +246,8 @@ export const meditationScreenCustomizeables = {
       title: "Handpan Harmonies",
       sound:
         "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/handpan_harmonies.mp3",
+      name: "Handpan Harmonies",
+      gems: 800,
     },
     {
       id: "10",
@@ -214,6 +255,8 @@ export const meditationScreenCustomizeables = {
       title: "Flute of Enchantments",
       sound:
         "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/flute_enchantments.mp3",
+      name: "Flute of Enchantments",
+      gems: 800,
     },
     {
       id: "11",
@@ -221,6 +264,8 @@ export const meditationScreenCustomizeables = {
       title: "Mind's Wonderland",
       sound:
         "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/Mind_wonderland.mp3",
+      name: "Mind's Wonderland",
+      gems: 800,
     },
   ],
   meditation: [
@@ -228,48 +273,75 @@ export const meditationScreenCustomizeables = {
       id: "1",
       image: require("../assets/Meditation/monkey.png"),
       lottie: require("../assets/Meditation/monkey.json"),
+      gems: "Free",
+      name: "Monkie",
+      backgroundColor: "#14547a",
     },
     {
       id: "2",
       image: require("../assets/Meditation/sloth.png"),
       lottie: require("../assets/Meditation/sloth.json"),
+      gems: "Free",
+      name: "Mellow",
+      backgroundColor: "#ffd6ac",
     },
     {
       id: "3",
       image: require("../assets/Meditation/tiger.png"),
       lottie: require("../assets/Meditation/tiger.json"),
+      gems: 1200,
+      name: "Saber",
+      backgroundColor: "#ffcb77",
     },
     {
       id: "4",
       image: require("../assets/Meditation/turtle.png"),
       lottie: require("../assets/Meditation/turtle.json"),
+      gems: 1850,
+      name: "Moss",
+      backgroundColor: "#b6e29d",
     },
     {
       id: "5",
       image: require("../assets/Meditation/koala.png"),
       lottie: require("../assets/Meditation/koala.json"),
+      gems: 2550,
+      name: "Twiggy",
+      backgroundColor: "#e3ce9d",
     },
     {
       id: "6",
       image: require("../assets/Meditation/fox.png"),
       lottie: require("../assets/Meditation/fox.json"),
+      gems: 3150,
+      name: "Wilde",
+      backgroundColor: "#e3b29d",
     },
     {
       id: "7",
       image: require("../assets/Meditation/blob.png"),
       lottie: require("../assets/Meditation/blob.json"),
+      gems: 4200,
+      name: "Calm",
+      backgroundColor: "#6a47b9",
     },
     {
       id: "8",
       image: require("../assets/Meditation/meditation_ring_1.png"),
       lottie: require("../assets/Meditation/meditation_ring_1.json"),
       speed: 1,
+      gems: 6500,
+      name: "Zen",
+      backgroundColor: "#7ea8d9",
     },
     {
-      id: "8",
+      id: "9",
       image: require("../assets/Meditation/rabbit.png"),
       lottie: require("../assets/Meditation/rabbit.json"),
       speed: 0.5,
+      gems: 9250,
+      name: "Hopps",
+      backgroundColor: "#ffcdcd",
     },
   ],
 };
@@ -316,6 +388,30 @@ export const streaksSavedImage = [
   },
   {
     image: require("../assets/images/streaksModal/happy_monkey.png"),
+  },
+];
+
+export const surprisedImage = [
+  {
+    image: require("../assets/images/surprisedImages/bear.jpg"),
+  },
+  {
+    image: require("../assets/images/surprisedImages/bear2.jpg"),
+  },
+  {
+    image: require("../assets/images/surprisedImages/dinosaur.jpg"),
+  },
+  {
+    image: require("../assets/images/surprisedImages/koala.jpg"),
+  },
+  {
+    image: require("../assets/images/surprisedImages/lion.jpg"),
+  },
+  {
+    image: require("../assets/images/surprisedImages/sloth.jpg"),
+  },
+  {
+    image: require("../assets/images/surprisedImages/unicorn.jpg"),
   },
 ];
 
@@ -373,19 +469,19 @@ export const meditationLotties = [
 export const prerecordedPhrases = {
   intro: {
     1: [
-      "Greetings to you, my beautiful Yogi. Welcome, once again, to your sacred space, with me Pet Yogi!",
-      "Greetings to you, my favourite Yogi. Welcome back to your sacred place, with me PetYogi!",
-      "Greetings to you, my fellow Yogi. Welcome, once again, to your sacred meditation session, with me Pet Yogi!",
-      "Welcome back, my beautiful Yogi, to another wonderful meditation, with me Pet Yogi!",
-      "Welcome back, my favourite Yogi, to another beautiful meditation, with me Pet Yogi!",
-      "Welcome back, my lovely Yogi, to another calming personalized meditation, with me Pet Yogi.",
-      "What a delight, to have you back, my lovely Yogi, to another calming personalized meditation, with me Pet Yogi.",
+      "Greetings to you, my beautiful Yogi. Welcome, once again, to your sacred space, with me PetYogi!",
+      "Greetings to you, my wonderful Yogi. Welcome back to your meditative space, with me PetYogi!",
+      "Greetings to you, my fellow Yogi. Welcome, once again, to your sacred meditation session, with me PetYogi!",
+      "Welcome back, my beautiful Yogi, to another splendid meditation, with me PetYogi!",
+      "Welcome back, my favourite Yogi, to another beautiful meditation, with me PetYogi!",
+      "Welcome back, my lovely Yogi, to another calming personalized meditation, with me PetYogi.",
+      "What a delight, to have you back, my lovely Yogi, to another calming personalized meditation, with me PetYogi.",
     ],
     2: [
       "I am infinitely grateful to have you meditate with me today, dear yogi.",
-      "I greatly appreciate you Yogi, for taking the time to meditate with me today.",
-      "I sincerely would like to thank you, for taking the time to be with me today.",
-      "I thank you and greatly appreciate you, for being present with me today.",
+      "With open hearts and abundant gratitude, I welcome you to this meditation practice.",
+      "I want you to know that you are deeply loved, and I appreciate you for making the commitment to meditating with me, every day.",
+      "I want you to know that I'm here for you, and I'm here to listen and support you in any way you need.",
       "I would like to express to you, my greatest gratitude, for being here with me today.",
       "I would like to take a moment, to thank you for joining me today.",
     ],
@@ -666,8 +762,12 @@ export const purchaseScreenCTA = {
 };
 
 export const initMeditationQuestionsJson = {
-  0: { Question: "How are you feeling?", Answer: [] },
-  1: { Question: "Select a goal for this meditation:", Answer: "" },
+  0: { Question: "How are you feeling?", Answer: [], type: "small_buttons" },
+  1: {
+    Question: "Select a goal for this meditation:",
+    Answer: "",
+    type: "large_buttons",
+  },
   2: {
     Question:
       "Freely write down your thoughts and emotions. Why are you feeling ",
@@ -676,5 +776,6 @@ export const initMeditationQuestionsJson = {
   3: {
     Question: "Choose any number of the following journal prompts:",
     Answer: [],
+    type: "wide_buttons",
   },
 };

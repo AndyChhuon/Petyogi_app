@@ -8,7 +8,10 @@ import {
   Image,
   StyleSheet,
   Text,
+  ScrollView,
+  TouchableOpacity,
 } from "react-native";
+import { meditationScreenCustomizeables } from "../../constants/constants";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Fonts } from "../../constants/styles";
 const { width } = Dimensions.get("window");
@@ -17,6 +20,278 @@ import useAuth from "../../hooks/useAuth";
 const ShopScreen = ({ navigation }) => {
   const { userValues } = useAuth();
   const nbGems = userValues.coins;
+
+  function formatNumber(num) {
+    if (!num) return 0;
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(2) + "M";
+    } else if (num >= 10000) {
+      return (num / 1000).toFixed(2) + "k";
+    } else {
+      return num.toString();
+    }
+  }
+
+  const petYogis = meditationScreenCustomizeables?.meditation?.map((item) => ({
+    id: item.id,
+    component: (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => {
+          navigation.navigate("PurchaseWithGems", {
+            id: item.id,
+            type: "meditation",
+            amount: item.gems,
+          });
+        }}
+        style={{
+          width: width / 3.3,
+          paddingTop: 8,
+          borderRadius: 10,
+          borderWidth: 3,
+          borderColor: "#39474f",
+          marginTop: 9,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginRight: 5,
+        }}
+        key={item.id}
+      >
+        <Image
+          style={{
+            width: width / 4,
+            height: width / 4,
+            borderRadius: 10,
+          }}
+          source={item.image}
+        ></Image>
+        <Text style={[Fonts.purchaseScreenSubtitle, { marginTop: 5 }]}>
+          {item.name}
+        </Text>
+        {item.gems == "Free" ||
+        userValues?.customizeables?.["meditation"]?.[item.id] ? (
+          <Text
+            style={[
+              Fonts.purchaseScreenSubtitle,
+              { marginBottom: 5, color: Colors.successColor, fontSize: 12 },
+            ]}
+          >
+            Owned
+          </Text>
+        ) : (
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
+          >
+            <Text
+              style={[
+                Fonts.purchaseScreenSubtitle,
+                { marginBottom: 5, color: "#3ec1fa" },
+              ]}
+            >
+              {item?.gems}
+            </Text>
+            <View>
+              <Image
+                source={require("../../assets/images/icons/gem.png")}
+                style={{
+                  position: "relative",
+                  width: 15,
+                  height: 15,
+                  marginBottom: 3,
+                  resizeMode: "contain",
+                  marginLeft: 2,
+                }}
+              />
+            </View>
+          </View>
+        )}
+      </TouchableOpacity>
+    ),
+  }));
+
+  const backgrounds = meditationScreenCustomizeables?.background?.map(
+    (item) => ({
+      id: item.id,
+      component: (
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => {
+            navigation.navigate("PurchaseWithGems", {
+              id: item.id,
+              type: "background",
+              amount: item.gems,
+            });
+          }}
+          style={{
+            width: width / 3,
+            paddingTop: 8,
+            borderRadius: 10,
+            borderWidth: 3,
+            borderColor: "#39474f",
+            marginTop: 9,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: 5,
+          }}
+          key={item.id}
+        >
+          <Image
+            style={{
+              width: width / 3.5,
+              aspectRatio: 2 / 3,
+              height: undefined,
+              borderRadius: 10,
+            }}
+            source={item.image}
+          ></Image>
+          <Text style={[Fonts.purchaseScreenSubtitle, { marginTop: 5 }]}>
+            {item?.name}
+          </Text>
+          {item.gems == "Free" ||
+          userValues?.customizeables?.["background"]?.[item.id] ? (
+            <Text
+              style={[
+                Fonts.purchaseScreenSubtitle,
+                { marginBottom: 5, color: Colors.successColor, fontSize: 12 },
+              ]}
+            >
+              Owned
+            </Text>
+          ) : (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                marginLeft: 10,
+              }}
+            >
+              <Text
+                style={[
+                  Fonts.purchaseScreenSubtitle,
+                  { marginBottom: 5, color: "#3ec1fa" },
+                ]}
+              >
+                {item?.gems}
+              </Text>
+              <Image
+                source={require("../../assets/images/icons/gem.png")}
+                style={{
+                  position: "relative",
+                  width: 15,
+                  height: 15,
+                  marginBottom: 3,
+                  resizeMode: "contain",
+                  marginLeft: 2,
+                }}
+              />
+            </View>
+          )}
+        </TouchableOpacity>
+      ),
+    })
+  );
+
+  const music = meditationScreenCustomizeables?.music
+    ?.filter((item) => {
+      return item.title !== "No music";
+    })
+    .map((item) => ({
+      id: item.id,
+      component: (
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => {
+            navigation.navigate("PurchaseWithGems", {
+              id: item.id,
+              type: "music",
+              amount: item.gems,
+            });
+          }}
+          style={{
+            width: width / 3,
+            paddingTop: 8,
+            borderRadius: 10,
+            borderWidth: 3,
+            borderColor: "#39474f",
+            marginTop: 9,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: 5,
+          }}
+          key={item.id}
+        >
+          <Image
+            style={{
+              width: width / 3.5,
+              height: undefined,
+              aspectRatio: 4 / 3,
+              borderRadius: 10,
+            }}
+            source={item.image}
+          ></Image>
+          <Text
+            style={[
+              Fonts.purchaseScreenSubtitle,
+              { marginTop: 5, textAlign: "center" },
+            ]}
+          >
+            {item?.name}
+          </Text>
+          {item.gems == "Free" ||
+          userValues?.customizeables?.["music"]?.[item.id] ? (
+            <Text
+              style={[
+                Fonts.purchaseScreenSubtitle,
+                { marginBottom: 5, color: Colors.successColor, fontSize: 12 },
+              ]}
+            >
+              Owned
+            </Text>
+          ) : (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                marginLeft: 10,
+              }}
+            >
+              <Text
+                style={[
+                  Fonts.purchaseScreenSubtitle,
+                  {
+                    marginBottom: 5,
+                    color: "#3ec1fa",
+                  },
+                ]}
+              >
+                {item?.gems}
+              </Text>
+              <Image
+                source={require("../../assets/images/icons/gem.png")}
+                style={{
+                  position: "relative",
+                  width: 15,
+                  height: 15,
+                  marginBottom: 3,
+                  resizeMode: "contain",
+                  marginLeft: 2,
+                }}
+              />
+            </View>
+          )}
+        </TouchableOpacity>
+      ),
+    }));
 
   return (
     <Fragment>
@@ -33,7 +308,7 @@ const ShopScreen = ({ navigation }) => {
         <View
           style={{
             backgroundColor: "#15a2de",
-            paddingBottom: 28,
+            paddingBottom: 20,
             borderBottomWidth: 2,
             borderBottomColor: "#121f24",
           }}
@@ -70,7 +345,7 @@ const ShopScreen = ({ navigation }) => {
                 justifyContent: "center",
               }}
             >
-              <Text style={Fonts.streakNumberText}>{nbGems}</Text>
+              <Text style={Fonts.streakNumberText}>{formatNumber(nbGems)}</Text>
               <Text style={Fonts.streakSecondaryText}>yogi crystals</Text>
             </View>
             <View
@@ -91,16 +366,59 @@ const ShopScreen = ({ navigation }) => {
             </View>
           </View>
         </View>
-        <View
+        <ScrollView
           style={{
             flexGrow: 1,
             backgroundColor: Colors.bodyBackColor2,
-            alignItems: "center",
-            paddingTop: 30,
           }}
         >
-          <Text style={Fonts.streakPrimaryText}>Shop coming soon!</Text>
-        </View>
+          <View
+            style={{
+              backgroundColor: Colors.bodyBackColor2,
+              paddingTop: 18,
+              paddingLeft: 5,
+              minHeight: width / 3.5,
+            }}
+          >
+            <Text style={[Fonts.purchaseScreenTitle, { marginLeft: 8 }]}>
+              Pet Yogis
+            </Text>
+            <ScrollView horizontal={true}>
+              {petYogis.map((item) => item.component)}
+            </ScrollView>
+          </View>
+          <View
+            style={{
+              backgroundColor: Colors.bodyBackColor2,
+              paddingTop: 14,
+              paddingLeft: 5,
+              minHeight: width / 3.5,
+            }}
+          >
+            <Text style={[Fonts.purchaseScreenTitle, { marginLeft: 8 }]}>
+              Sounds
+            </Text>
+            <ScrollView horizontal={true}>
+              {music.map((item) => item.component)}
+            </ScrollView>
+          </View>
+          <View
+            style={{
+              backgroundColor: Colors.bodyBackColor2,
+              paddingTop: 14,
+              paddingLeft: 5,
+              minHeight: width / 3.5,
+              paddingBottom: 20,
+            }}
+          >
+            <Text style={[Fonts.purchaseScreenTitle, { marginLeft: 8 }]}>
+              Backgrounds
+            </Text>
+            <ScrollView horizontal={true}>
+              {backgrounds.map((item) => item.component)}
+            </ScrollView>
+          </View>
+        </ScrollView>
       </SafeAreaView>
       <SafeAreaView
         style={{ flex: 0, backgroundColor: Colors.bodyBackColor2 }}

@@ -23,6 +23,7 @@ import CreditsModal from "./modals/creditsModal";
 import VerificationModal from "./modals/verificationModal";
 import SplashScreenModal from "./modals/splashScreenModal";
 import TutorialModal from "./modals/tutorialModal";
+import PurchaseWithGems from "./displayScreens/purchaseWithGems";
 import { StatusBar } from "expo-status-bar";
 
 const Stack = createStackNavigator();
@@ -86,6 +87,11 @@ const AppContent = () => {
             <Stack.Screen
               name="Meditation"
               component={MeditationQuestionModal}
+            />
+            <Stack.Screen
+              name="PurchaseWithGems"
+              component={PurchaseWithGems}
+              options={{ ...TransitionPresets.DefaultTransition }}
             />
           </>
         ) : (

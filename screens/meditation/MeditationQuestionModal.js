@@ -155,49 +155,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    //TODO: remove this
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    const introUrlArr = [];
-    const introPhraseArr = [];
-    const outroUrlArr = [];
-    const outroPhraseArr = [];
-    const conclusionUrlArr = [];
-    const conclusionPhraseArr = [];
-
-    randomlyPickIntroAndOutro(introUrlArr, introPhraseArr, "intro");
-    randomlyPickIntroAndOutro(outroUrlArr, outroPhraseArr, "outro");
-    randomlyPickIntroAndOutro(
-      conclusionUrlArr,
-      conclusionPhraseArr,
-      "conclusion"
-    );
-    console.log("introUrlArr", introUrlArr);
-    console.log("introPhraseArr", introPhraseArr);
-    console.log("outroUrlArr", outroUrlArr);
-    console.log("outroPhraseArr", outroPhraseArr);
-    console.log("conclusionUrlArr", conclusionUrlArr);
-    console.log("conclusionPhraseArr", conclusionPhraseArr);
-    const propsToPass = {
-      initMeditationInfo: {
-        phrases: phrases,
-        meditationUrls: meditationUrls,
-        shouldListenRealTime: true,
-        promptIndexes: promptIndexes,
-      },
-
-      number: number,
-      meditationPreferences: meditationPreferences,
-      introUrlArr: introUrlArr,
-      introPhraseArr: introPhraseArr,
-      outroUrlArr: outroUrlArr,
-      outroPhraseArr: outroPhraseArr,
-      conclusionUrlArr: conclusionUrlArr,
-      conclusionPhraseArr: conclusionPhraseArr,
-    };
-
-    navigation.navigate("MeditationScreen", propsToPass);
-    setLoadingClicked(false);
-    return;
     if (!readOnly && asyncStoredMeditationJson) {
       const newMeditationQuestionsJson = {};
       const newMeditationQuestionsJsonArray = [];
@@ -350,6 +307,22 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     } catch (e) {}
   };
 
+  const getSpeedStorage = async () => {
+    try {
+      const value = await AsyncStorage.getItem("meditationSpeed");
+
+      if (value !== null) {
+        // string to json
+        setMeditationPreferences((meditationPreferences) => {
+          return {
+            ...meditationPreferences,
+            meditationSpeed: parseFloat(value),
+          };
+        });
+      }
+    } catch (e) {}
+  };
+
   useEffect(() => {
     setCreateMeditationLottieIndex(
       Math.floor(Math.random() * meditationLotties.length)
@@ -357,6 +330,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     getMusicStorage();
     getLottieMeditationStorage();
     getLottieBackgroundStorage();
+    getSpeedStorage();
   }, []);
 
   const onButtonPress = (text, isChosen, currentQuestionIndex) => {
@@ -801,6 +775,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         }, 150);
       }
     } else if (!isLastModal) {
+      if (
+        meditationQuestionsJson[currentQuestionIndex].Answer !=
+          updatedAsyncStoredMeditationJson[
+            meditationQuestionsJson[currentQuestionIndex].Question
+          ] &&
+        !readOnly
+      ) {
+        updateAsyncStoredMeditationJson(
+          meditationQuestionsJson[currentQuestionIndex].Question,
+          meditationQuestionsJson[currentQuestionIndex].Answer
+        );
+      }
       setLoadingClicked(true);
       setIsTextBoxFocused(false);
       setTimeout(() => {
@@ -884,11 +870,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       // Generate new meditation
       else {
         const jsonArray = Object.values(meditationQuestionsJson);
-        // remove meditation question index
-        jsonArray.splice(meditationTypeQuestionIndex, 1);
 
         // remove index JournalSelectionIndex
         jsonArray.splice(JournalSelectionIndex, 1);
+
         // jsonArray to json
         const newMeditationQuestionsJson = {};
         count = 0;
@@ -896,6 +881,8 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           newMeditationQuestionsJson[count] = item;
           count += 1;
         });
+
+        console.log("newMeditationQuestionsJson", newMeditationQuestionsJson);
 
         generateNewMeditation(
           user,
@@ -1274,26 +1261,24 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                     >
                       Let's Meditate!
                     </Text>
-                    {!readOnly && (
-                      <View>
-                        <Image
-                          source={require("../../assets/images/icons/gem.png")}
-                          style={{
-                            position: "relative",
-                            top: 2,
-                            width:
-                              (20.0 * width) / 414 > 30
-                                ? 30
-                                : (20.0 * width) / 414,
-                            height:
-                              (20.0 * width) / 414 > 30
-                                ? 30
-                                : (20.0 * width) / 414,
-                            resizeMode: "contain",
-                          }}
-                        />
-                      </View>
-                    )}
+                    <View>
+                      <Image
+                        source={require("../../assets/images/icons/gem.png")}
+                        style={{
+                          position: "relative",
+                          top: 2,
+                          width:
+                            (20.0 * width) / 414 > 30
+                              ? 30
+                              : (20.0 * width) / 414,
+                          height:
+                            (20.0 * width) / 414 > 30
+                              ? 30
+                              : (20.0 * width) / 414,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </View>
                   </>
                 </AwesomeButton>
               </>

@@ -16,12 +16,13 @@ import ScaleInOut from "../../Animations/ScaleInOut";
 import * as Haptics from "expo-haptics";
 import { useNavigationState } from "@react-navigation/native";
 import Purchases from "react-native-purchases";
+import { surprisedImage } from "../../constants/constants";
 
 const { width, height } = Dimensions.get("window");
 
 const TutorialModal = () => {
   const [currentModal, setCurrentModal] = useState(null);
-  const [displayTutorial, setDisplayTutorial] = useState(true);
+  const [displayTutorial, setDisplayTutorial] = useState(false);
   const [lastCheck, setLastCheck] = useState(Date.now());
   const [shouldCheckUpdateCredits, setShouldCheckUpdateCredits] =
     useState(false);
@@ -59,6 +60,8 @@ const TutorialModal = () => {
     : ["noSubscription", new Date()];
 
   const creditsDelay = 200;
+  const [nbGemsToDisplay, setNbGemsToDisplay] = useState(0);
+  const [newGemsImageIndex, setNewGemsImageIndex] = useState(0);
 
   const tutorialObj = {
     welcome: {
@@ -67,6 +70,14 @@ const TutorialModal = () => {
       bottomText: "Let me introduce you!",
       image: require("../../assets/images/icons/heart.png"),
       nextModal: "verifyEmailHome",
+      displayType: "center",
+    },
+
+    gem: {
+      title: "PetYogi found new gems!",
+      text: `Claimed: ${nbGemsToDisplay}`,
+      bottomText: "Thank you for meditating!",
+      image: require("../../assets/images/icons/gem.png"),
       displayType: "center",
     },
 
@@ -248,7 +259,7 @@ const TutorialModal = () => {
     }
 
     // check tutorial modal
-    if (isTutorial) {
+    if (isTutorial && updateTutorialModalVisible == "none") {
       if (routeName == "BottomTabBar") {
         const bottomTabIndex = routeObj?.state?.index
           ? routeObj?.state?.index
@@ -304,7 +315,7 @@ const TutorialModal = () => {
     }
 
     return () => {
-      if (isTutorial && currentModal) {
+      if (isTutorial && currentModal && updateTutorialModalVisible == "none") {
         setDisplayTutorial(false);
       }
     };
@@ -312,9 +323,22 @@ const TutorialModal = () => {
 
   useEffect(() => {
     if (updateTutorialModalVisible) {
-      setCurrentModal(updateTutorialModalVisible);
+      if (updateTutorialModalVisible?.includes("gem")) {
+        setCurrentModal("gem");
+        setNbGemsToDisplay(
+          typeof updateTutorialModalVisible === "string" &&
+            updateTutorialModalVisible?.split("gem")[1]
+            ? updateTutorialModalVisible?.split("gem")[1]
+            : 0
+        );
+        setNewGemsImageIndex(Math.floor(Math.random() * surprisedImage.length));
+      } else {
+        setCurrentModal(updateTutorialModalVisible);
+      }
       if (updateTutorialModalVisible != "none") {
         setDisplayTutorial(true);
+      } else {
+        setDisplayTutorial(false);
       }
     }
   }, [updateTutorialModalVisible]);
@@ -323,7 +347,11 @@ const TutorialModal = () => {
     if (displayTutorial) {
       setTimeout(
         () => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          if (currentModal?.includes("gem")) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          } else {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          }
         },
         currentModal == "welcome" ? 1000 : creditsDelay
       );
@@ -353,7 +381,7 @@ const TutorialModal = () => {
                 !displayTutorial &&
                 currentModal != "none" &&
                 currentModal != "meditationTutorialQuestions" &&
-                !updateTutorialModalVisible
+                updateTutorialModalVisible != "none"
                   ? "flex"
                   : "none",
             },
@@ -385,7 +413,11 @@ const TutorialModal = () => {
         </TouchableOpacity>
         <ScaleInOut
           visible={displayTutorial && currentModal != "none"}
-          delayIn={currentModal == "welcome" ? 1000 : creditsDelay}
+          delayIn={
+            currentModal == "welcome" || currentModal?.includes("gem")
+              ? 1000
+              : creditsDelay
+          }
           style={[
             {
               display: displayTutorial ? "flex" : "none",
@@ -396,7 +428,7 @@ const TutorialModal = () => {
               justifyContent: "center",
               zIndex: 20,
             },
-            currentModal == "welcome"
+            currentModal == "welcome" || currentModal?.includes("gem")
               ? { paddingBottom: "15%", height: "100%" }
               : {
                   bottom: 0,
@@ -405,19 +437,21 @@ const TutorialModal = () => {
                 },
           ]}
         >
-          {currentModal == "welcome" ? (
+          {currentModal == "welcome" || currentModal?.includes("gem") ? (
             <>
               <View
                 style={{
                   width: "80%",
                   paddingVertical: (20 * height) / 880,
-                  backgroundColor: "#5ea591",
+                  backgroundColor:
+                    currentModal == "welcome" ? "#5ea591" : "#00CCBB",
                   paddingHorizontal: 5,
                   alignItems: "center",
                   borderTopLeftRadius: 10,
                   borderTopRightRadius: 10,
                   borderWidth: 0,
-                  borderBottomColor: "#5f94ae",
+                  borderBottomColor:
+                    currentModal == "welcome" ? "#5f94ae" : "#00CCBB",
                 }}
               >
                 <Text style={[Fonts.streakModalTitle, { textAlign: "center" }]}>
@@ -429,7 +463,8 @@ const TutorialModal = () => {
                 style={{
                   width: "80%",
                   alignItems: "center",
-                  backgroundColor: "#9be1cd",
+                  backgroundColor:
+                    currentModal == "welcome" ? "#9be1cd" : "#A0DED9",
                   paddingVertical: (35 * height) / 880,
                   paddingBottom: (25 * height) / 880,
                   borderBottomLeftRadius: 10,
@@ -439,7 +474,11 @@ const TutorialModal = () => {
                 }}
               >
                 <Image
-                  source={require("../../assets/images/tutorialModal/waving_penguin.png")}
+                  source={
+                    currentModal == "welcome"
+                      ? require("../../assets/images/tutorialModal/waving_penguin.png")
+                      : surprisedImage[newGemsImageIndex].image
+                  }
                   style={{
                     position: "relative",
                     width: (200.0 * width) / 414,
@@ -579,6 +618,9 @@ const TutorialModal = () => {
                 if (currentModal == "welcome") {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   setCurrentModal(tutorialObj[currentModal]?.nextModal);
+                } else if (currentModal?.includes("gem")) {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  setUpdateTutorialModalVisible("none");
                 } else if (updateTutorialModalVisible == "meditationLoading") {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   setUpdateTutorialModalVisible("meditationTutorialIcons");

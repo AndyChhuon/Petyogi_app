@@ -27,6 +27,8 @@ import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import FloatingAnimation from "../../Animations/FloatingAnimation";
 import useAuth from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import AwesomeButton from "react-native-really-awesome-button";
+import { set } from "firebase/database";
 
 const { width, height } = Dimensions.get("window");
 
@@ -47,10 +49,12 @@ const MeditationScreen = ({ navigation, route }) => {
     useState(false);
   const [conclusionWasSet, setConclusionWasSet] = useState(false);
   const [meditationHasStarted, setMeditationHasStarted] = useState(false);
+  const [displaySpeedModal, setDisplaySpeedModal] = useState(false);
   const {
     listenMeditationUpdate,
     setUpdateTutorialModalVisible,
     updateTutorialModalVisible,
+    userValues,
   } = useAuth();
 
   const updateMusicStorage = async (musicMeditation) => {
@@ -59,6 +63,12 @@ const MeditationScreen = ({ navigation, route }) => {
         "musicMeditation",
         musicMeditation.id.toString()
       );
+    } catch (e) {}
+  };
+
+  const updateSpeedStorage = async (speed) => {
+    try {
+      await AsyncStorage.setItem("meditationSpeed", speed.toString());
     } catch (e) {}
   };
 
@@ -96,6 +106,7 @@ const MeditationScreen = ({ navigation, route }) => {
   const initLottieBackgroundId = meditationPreferences?.lottieBackground;
   const initLottieMeditationId = meditationPreferences?.lottieMeditation;
   const initMusicMeditationId = meditationPreferences?.musicMeditation;
+  const initMeditationSpeed = meditationPreferences?.meditationSpeed;
   const promptIndexes = meditationInfo.promptIndexes;
   const [lottieBackground, setLottieBackground] = useState(
     initLottieBackgroundId &&
@@ -111,6 +122,12 @@ const MeditationScreen = ({ navigation, route }) => {
           lottie: require("../../assets/background_svg/starry_night.json"),
           textColor: "#639aba",
         }
+  );
+  const [speedControl, setSpeedControl] = useState(
+    initMeditationSpeed ? initMeditationSpeed : 1.5
+  );
+  const [speedControlTemp, setSpeedControlTemp] = useState(
+    initMeditationSpeed ? initMeditationSpeed : 1.5
   );
 
   const [lottieMeditation, setLottieMeditation] = useState(
@@ -155,7 +172,7 @@ const MeditationScreen = ({ navigation, route }) => {
 
   const [showMenu, setShowMenu] = useState(false);
 
-  const timeBetweenPhrases = 1500;
+  const timeBetweenPhrases = speedControl * 1000;
 
   const tutorialShouldShow = meditationInfo.tutorialShouldShow ? true : false;
 
@@ -238,7 +255,6 @@ const MeditationScreen = ({ navigation, route }) => {
         console.log("nextButtonPressed");
       }
     }
-    console.log("ctest");
   };
 
   const onBackButtonPress = () => {
@@ -277,7 +293,7 @@ const MeditationScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     configureAudioSession();
-    if (tutorialShouldShow && !updateTutorialModalVisible) {
+    if (tutorialShouldShow && updateTutorialModalVisible == "none") {
       setUpdateTutorialModalVisible("meditationLoading");
     }
 
@@ -348,6 +364,20 @@ const MeditationScreen = ({ navigation, route }) => {
 
     setIntroOutroWasInitialized(true);
   }, []);
+
+  const addGemsToAsync = async (nbGems) => {
+    if (nbGems > 0) {
+      try {
+        await AsyncStorage.setItem("claimableGems", nbGems.toString());
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+  // set claimable gems in async storage
+  useEffect(() => {
+    addGemsToAsync(nbGems);
+  }, [nbGems]);
 
   useEffect(() => {
     if (!conclusionWasSet && !generating && introOutroWasInitialized) {
@@ -564,11 +594,10 @@ const MeditationScreen = ({ navigation, route }) => {
   }, [playing]);
 
   useEffect(() => {
-    if (waitingForNextLine) {
+    if (waitingForNextLine && !conclusionWasSet) {
       incrementPhrase();
     }
-    console.log("meditationINfoShould", meditationInfo.shouldListenRealTime);
-  }, [meditationInfo.shouldListenRealTime]);
+  }, [maxNumPhrases]);
 
   // Case where maxNumPhrases increments while last sentence is playing (stays stuck bc of setInterval)
   useEffect(() => {
@@ -662,6 +691,152 @@ const MeditationScreen = ({ navigation, route }) => {
         autoPlay
         loop
       ></Lottie>
+
+      <ScaleInOut
+        visible={displaySpeedModal}
+        delayIn={200}
+        style={[
+          {
+            display: displaySpeedModal ? "flex" : "none",
+            backgroundColor: "rgba(37, 53, 66, 0.5)",
+            position: "absolute",
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 20,
+            height: "100%",
+          },
+        ]}
+      >
+        <>
+          <View
+            style={{
+              width: "80%",
+              paddingVertical: (20 * height) / 880,
+              backgroundColor: "#00CCBB",
+              paddingHorizontal: 5,
+              alignItems: "center",
+              borderTopLeftRadius: 10,
+              borderTopRightRadius: 10,
+              borderWidth: 0,
+              borderBottomColor: "#00CCBB",
+            }}
+          >
+            <Text style={[Fonts.streakModalTitle, { textAlign: "center" }]}>
+              Speed Controls
+            </Text>
+          </View>
+
+          <View
+            style={{
+              width: "80%",
+              alignItems: "center",
+              backgroundColor: "#A0DED9",
+              paddingVertical: (35 * height) / 880,
+              paddingBottom: (25 * height) / 880,
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
+              borderWidth: 0,
+              borderTopWidth: 0,
+            }}
+          >
+            <Image
+              source={require("../../assets/images/tutorialModal/speedy_chicken.jpg")}
+              style={{
+                position: "relative",
+                width: (200.0 * width) / 414,
+                height: (200.0 * width) / 414,
+                marginBottom: 30,
+                borderRadius: 10,
+                borderColor: "#C59FAA",
+                borderWidth: 2,
+              }}
+            ></Image>
+            <View
+              style={{
+                backgroundColor: Colors.whiteColor,
+                borderRadius: 10,
+                padding: 10,
+                width: "75%",
+                alignItems: "center",
+                borderColor: "#e9d076",
+                borderWidth: 1,
+              }}
+            >
+              <View style={{ width: "100%" }}>
+                <Slider
+                  style={{
+                    flexDirection: "row",
+                  }}
+                  onValueChange={(value) => {
+                    setSpeedControlTemp(value);
+                  }}
+                  minimumValue={0}
+                  maximumValue={30}
+                  step={0.5}
+                  value={speedControl}
+                  thumbTintColor="#FFD369"
+                  minimumTrackTintColor="#FFD369"
+                  maximumTrackTintColor={Colors.bodyBackColor}
+                />
+              </View>
+              <View style={{ display: "flex", flexDirection: "row" }}>
+                <Text style={[Fonts.streakModalText]}>{speedControlTemp}s</Text>
+                <Image
+                  source={require("../../assets/images/icons/clock3.png")}
+                  style={{
+                    width: 19,
+                    height: 19,
+                    resizeMode: "contain",
+                    marginLeft: 5,
+                    //grey out
+                  }}
+                />
+              </View>
+            </View>
+            <View style={{ paddingTop: 5, justifyContent: "center" }}>
+              <Text
+                style={[Fonts.streakSavecreditsText, { textAlign: "center" }]}
+              >
+                Time between each phrase
+              </Text>
+            </View>
+          </View>
+        </>
+
+        <View style={{ marginTop: 10 }}>
+          <AwesomeButton
+            paddingHorizontal={2}
+            width={(120 * width) / 414}
+            height={50}
+            backgroundColor="#e367c7"
+            backgroundDarker="#8e1979"
+            backgroundShadow="#173746"
+            raiseLevel={5}
+            borderWidth={1}
+            borderColor="#a82e92"
+            borderRadius={8}
+            onPressOut={() => {
+              setDisplaySpeedModal(false);
+              setSpeedControl(speedControlTemp);
+              updateSpeedStorage(speedControlTemp);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
+          >
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <Text style={[Fonts.streakModalButton, { fontSize: 16 }]}>
+                Let's go!
+              </Text>
+            </View>
+          </AwesomeButton>
+        </View>
+      </ScaleInOut>
 
       <SafeAreaView
         style={{
@@ -876,6 +1051,8 @@ const MeditationScreen = ({ navigation, route }) => {
                   </Text>
                 </View>
                 <View style={styles.musicControllsContainer}>
+                  <View style={{ flex: 1 }}></View>
+
                   <View style={styles.musicControlls}>
                     <TouchableOpacity onPress={() => onBackButtonPress()}>
                       <Ionicons
@@ -907,6 +1084,30 @@ const MeditationScreen = ({ navigation, route }) => {
                       />
                     </TouchableOpacity>
                   </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {
+                        setDisplaySpeedModal(true);
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      }}
+                      style={{ paddingRight: 10, padding: 5 }}
+                    >
+                      <Image
+                        source={require("../../assets/images/icons/clock3.png")}
+                        style={{
+                          width: (27.0 * width) / 414,
+                          height: (27.0 * width) / 414,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             </View>
@@ -919,7 +1120,11 @@ const MeditationScreen = ({ navigation, route }) => {
   function closeButton() {
     return (
       <View
-        style={[styles.closeButtonStyle, showMenu ? { display: "none" } : {}]}
+        style={[
+          styles.closeButtonStyle,
+          showMenu ? { display: "none" } : {},
+          displaySpeedModal ? { opacity: 0 } : {},
+        ]}
       >
         <Ionicons
           name="close"
@@ -928,11 +1133,11 @@ const MeditationScreen = ({ navigation, route }) => {
           onPress={() => {
             if (!meditationHasStarted) return;
             if (sound) sound.unloadAsync();
-            if (musicSound) musicSound.unloadAsync();
-            if (pauseInterval) clearTimeout(pauseInterval);
             if (tutorialShouldShow) {
               setUpdateTutorialModalVisible("none");
             }
+            if (musicSound) musicSound.unloadAsync();
+            if (pauseInterval) clearTimeout(pauseInterval);
             navigation.navigate("BottomTabBar");
           }}
         />
@@ -1102,15 +1307,27 @@ const MeditationScreen = ({ navigation, route }) => {
 
   function sideMenu() {
     const renderItem = ({ item }) => {
+      const isOwned =
+        item?.gems == "Free" ||
+        userValues?.customizeables?.[showMenu]?.[item.id];
       if (showMenu == "background") {
         return (
           <TouchableOpacity
-            activeOpacity={0.9}
+            activeOpacity={isOwned ? 0.9 : 0.6}
             onPress={() => {
-              setLottieBackground(item);
-              updateLottieBackgroundStorage(item);
-              setShowMenu(false);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              if (isOwned) {
+                setLottieBackground(item);
+                updateLottieBackgroundStorage(item);
+                setShowMenu(false);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              } else {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                navigation.navigate("PurchaseWithGems", {
+                  id: item.id,
+                  type: "background",
+                  amount: item.gems,
+                });
+              }
             }}
             style={{
               width: "50%",
@@ -1119,6 +1336,58 @@ const MeditationScreen = ({ navigation, route }) => {
               marginBottom: 5,
             }}
           >
+            {!isOwned && (
+              <View
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: "100%",
+                  alignItems: "center",
+                  zIndex: 1,
+                  opacity: 0.8,
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "rgba(32, 32, 34, 0.8)",
+                    padding: 2,
+                    paddingRight: 6,
+                    paddingTop: 4,
+                    borderRadius: 10,
+                    marginTop: 10,
+                  }}
+                >
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginLeft: 10,
+                    }}
+                  >
+                    <Text
+                      style={[
+                        Fonts.purchaseScreenSubtitle,
+                        { marginBottom: 5, color: "#3ec1fa" },
+                      ]}
+                    >
+                      {item?.gems}
+                    </Text>
+                    <Image
+                      source={require("../../assets/images/icons/gem.png")}
+                      style={{
+                        position: "relative",
+                        width: 15,
+                        height: 15,
+                        marginBottom: 3,
+                        resizeMode: "contain",
+                        marginLeft: 2,
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            )}
             <Image
               source={item.image}
               style={{
@@ -1126,6 +1395,7 @@ const MeditationScreen = ({ navigation, route }) => {
                 width: "100%",
                 resizeMode: "cover",
                 height: (250 * width) / 414,
+                opacity: isOwned ? 1 : 0.4,
               }}
             />
           </TouchableOpacity>
@@ -1133,12 +1403,21 @@ const MeditationScreen = ({ navigation, route }) => {
       } else if (showMenu == "meditation") {
         return (
           <TouchableOpacity
-            activeOpacity={0.9}
+            activeOpacity={isOwned ? 0.9 : 0.6}
             onPress={() => {
-              setLottieMeditation(item);
-              updateLottieMeditationStorage(item);
-              setShowMenu(false);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              if (isOwned) {
+                setLottieMeditation(item);
+                updateLottieMeditationStorage(item);
+                setShowMenu(false);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              } else {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                navigation.navigate("PurchaseWithGems", {
+                  id: item.id,
+                  type: "meditation",
+                  amount: item.gems,
+                });
+              }
             }}
             style={{
               width: "50%",
@@ -1150,6 +1429,58 @@ const MeditationScreen = ({ navigation, route }) => {
               justifyContent: "center",
             }}
           >
+            {!isOwned && (
+              <View
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: "100%",
+                  alignItems: "center",
+                  zIndex: 1,
+                  opacity: 0.8,
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "rgba(32, 32, 34, 0.8)",
+                    padding: 2,
+                    paddingRight: 6,
+                    paddingTop: 4,
+                    borderRadius: 10,
+                    marginTop: 10,
+                  }}
+                >
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginLeft: 10,
+                    }}
+                  >
+                    <Text
+                      style={[
+                        Fonts.purchaseScreenSubtitle,
+                        { marginBottom: 5, color: "#3ec1fa" },
+                      ]}
+                    >
+                      {item?.gems}
+                    </Text>
+                    <Image
+                      source={require("../../assets/images/icons/gem.png")}
+                      style={{
+                        position: "relative",
+                        width: 15,
+                        height: 15,
+                        marginBottom: 3,
+                        resizeMode: "contain",
+                        marginLeft: 2,
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            )}
             <Image
               source={item.image}
               style={{
@@ -1158,6 +1489,7 @@ const MeditationScreen = ({ navigation, route }) => {
                 height: "100%",
                 resizeMode: "cover",
                 borderRadius: 10,
+                opacity: isOwned ? 1 : 0.4,
               }}
             />
           </TouchableOpacity>
@@ -1165,16 +1497,82 @@ const MeditationScreen = ({ navigation, route }) => {
       } else if (showMenu == "music") {
         return (
           <TouchableOpacity
-            activeOpacity={0.9}
+            activeOpacity={isOwned ? 0.9 : 0.6}
             onPress={() => {
-              setMusicMeditation(item);
-              updateMusicStorage(item);
-              setInitialVolume(musicVolume);
-              setShowMenu(false);
+              if (isOwned) {
+                setMusicMeditation(item);
+                updateMusicStorage(item);
+                setInitialVolume(musicVolume);
+                setShowMenu(false);
 
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              } else {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                navigation.navigate("PurchaseWithGems", {
+                  id: item.id,
+                  type: "music",
+                  amount: item.gems,
+                  musicIsPlaying: playing,
+                  MusicRef: musicSound,
+                });
+              }
+            }}
+            style={{
+              paddingBottom: 8,
             }}
           >
+            {!isOwned && (
+              <View
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: "100%",
+                  alignItems: "center",
+                  zIndex: 1,
+                  opacity: 0.9,
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "rgba(32, 32, 34, 0.8)",
+                    padding: 2,
+                    paddingRight: 6,
+                    paddingTop: 4,
+                    borderRadius: 10,
+                    marginTop: 10,
+                  }}
+                >
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginLeft: 10,
+                    }}
+                  >
+                    <Text
+                      style={[
+                        Fonts.purchaseScreenSubtitle,
+                        { marginBottom: 5, color: "#3ec1fa" },
+                      ]}
+                    >
+                      {item?.gems}
+                    </Text>
+                    <Image
+                      source={require("../../assets/images/icons/gem.png")}
+                      style={{
+                        position: "relative",
+                        width: 15,
+                        height: 15,
+                        marginBottom: 3,
+                        resizeMode: "contain",
+                        marginLeft: 2,
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            )}
             <ImageBackground
               source={item.image}
               imageStyle={{ borderRadius: 8, height: "100%" }}
@@ -1187,6 +1585,7 @@ const MeditationScreen = ({ navigation, route }) => {
                 borderColor: "rgba(255, 255, 255, 0.52)",
                 display: "flex",
                 justifyContent: "center",
+                opacity: isOwned ? 1 : 0.4,
               }}
               resizeMode="cover"
             >

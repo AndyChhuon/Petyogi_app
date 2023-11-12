@@ -61,6 +61,17 @@ const HomeScreen = ({ navigation }) => {
     removeClickedButton();
   };
 
+  function formatNumber(num) {
+    if (!num) return 0;
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(2) + "M";
+    } else if (num >= 10000) {
+      return (num / 1000).toFixed(2) + "k";
+    } else {
+      return num.toString();
+    }
+  }
+
   useEffect(() => {
     //get daymode from async storage
     const getDayMode = async () => {
@@ -407,7 +418,7 @@ const HomeScreen = ({ navigation }) => {
                     fontSize: (20.0 * width) / 414,
                   }}
                 >
-                  {userValues.coins}
+                  {formatNumber(userValues.coins)}
                 </Text>
               </TouchableOpacity>
 
