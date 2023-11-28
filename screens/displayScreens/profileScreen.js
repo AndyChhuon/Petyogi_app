@@ -22,8 +22,6 @@ import { showMessage } from "react-native-flash-message";
 import Lottie from "lottie-react-native";
 import FloatingAnimation from "../../Animations/FloatingAnimation";
 
-const { width, height } = Dimensions.get("window");
-
 const ProfileScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
   const {
@@ -38,6 +36,26 @@ const ProfileScreen = ({ navigation }) => {
     accountSignOut,
     addToUserLogs,
   } = useAuth();
+
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]);
 
   const todayStreakCompleted =
     new Date(userValues.lastMeditationDate) >=
@@ -247,7 +265,7 @@ const ProfileScreen = ({ navigation }) => {
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => {
-              navigation.navigate("PurchaseScreen");
+              navigation.navigate("PurchaseScreen", {});
             }}
             style={{ marginHorizontal: 10 }}
           >
@@ -299,10 +317,18 @@ const ProfileScreen = ({ navigation }) => {
                       source={require("../../assets/images/icons/tiger_meditation.jpg")}
                       style={{
                         width: noCreditsLeft
-                          ? (130.0 * width) / 414
+                          ? (130.0 * width) / 414 > 200
+                            ? 200
+                            : (130.0 * width) / 414
+                          : (140.0 * width) / 414 > 210
+                          ? 210
                           : (140.0 * width) / 414,
                         height: noCreditsLeft
-                          ? (130.0 * width) / 414
+                          ? (130.0 * width) / 414 > 200
+                            ? 200
+                            : (130.0 * width) / 414
+                          : (140.0 * width) / 414 > 210
+                          ? 210
                           : (140.0 * width) / 414,
                         borderRadius: 20,
                         resizeMode: "contain",
@@ -340,8 +366,14 @@ const ProfileScreen = ({ navigation }) => {
                     <Image
                       source={require("../../assets/images/icons/bell_red.png")}
                       style={{
-                        width: (32.0 * width) / 414,
-                        height: (32.0 * width) / 414,
+                        width:
+                          (32.0 * width) / 414 > 100
+                            ? 100
+                            : (32.0 * width) / 414,
+                        height:
+                          (32.0 * width) / 414 > 100
+                            ? 100
+                            : (32.0 * width) / 414,
                         resizeMode: "contain",
                       }}
                     />
@@ -463,8 +495,14 @@ const ProfileScreen = ({ navigation }) => {
                           : require("../../assets/images/icons/streak_grey.png")
                       }
                       style={{
-                        width: (115.0 * width) / 414,
-                        height: (115.0 * width) / 414,
+                        width:
+                          (115.0 * width) / 414 > 200
+                            ? 200
+                            : (115.0 * width) / 414,
+                        height:
+                          (115.0 * width) / 414 > 200
+                            ? 200
+                            : (115.0 * width) / 414,
                         marginVertical: 10,
                         resizeMode: "contain",
                       }}
@@ -528,8 +566,14 @@ const ProfileScreen = ({ navigation }) => {
                     <Image
                       source={require("../../assets/images/icons/gem.png")}
                       style={{
-                        width: (115.0 * width) / 414,
-                        height: (115.0 * width) / 414,
+                        width:
+                          (115.0 * width) / 414 > 200
+                            ? 200
+                            : (115.0 * width) / 414,
+                        height:
+                          (115.0 * width) / 414 > 200
+                            ? 200
+                            : (115.0 * width) / 414,
                         resizeMode: "contain",
                       }}
                     />
@@ -548,8 +592,6 @@ const ProfileScreen = ({ navigation }) => {
                 width: "100%",
                 marginTop: 9,
                 display: "flex",
-                minHeight:
-                  accountPlan == "yogi_plan" ? width / 3.5 : width / 2.2,
                 backgroundColor: "#262674",
               }}
             >
@@ -613,7 +655,7 @@ const ProfileScreen = ({ navigation }) => {
                   borderRadius={8}
                   raiseLevel={3}
                   width="100%"
-                  height={width / 8}
+                  height={width / 8 > 90 ? 90 : width / 8}
                   style={
                     accountPlan == "yogi_plan"
                       ? { display: "none" }
@@ -677,8 +719,8 @@ const ProfileScreen = ({ navigation }) => {
               >
                 <Image
                   style={{
-                    width: width / 4,
-                    height: width / 4,
+                    width: width / 4 > 150 ? 150 : width / 4,
+                    height: width / 4 > 150 ? 150 : width / 4,
                     borderRadius: 10,
                   }}
                   source={require("../../assets/images/purchaseScreen/sloth_meditating.png")}
@@ -763,8 +805,8 @@ const ProfileScreen = ({ navigation }) => {
               >
                 <Image
                   style={{
-                    width: width / 4,
-                    height: width / 4,
+                    width: width / 4 > 150 ? 150 : width / 4,
+                    height: width / 4 > 150 ? 150 : width / 4,
                     borderRadius: 10,
                   }}
                   source={require("../../assets/images/purchaseScreen/turtle_meditating.png")}
@@ -842,8 +884,8 @@ const ProfileScreen = ({ navigation }) => {
               >
                 <Image
                   style={{
-                    width: width / 4,
-                    height: width / 4,
+                    width: width / 4 > 150 ? 150 : width / 4,
+                    height: width / 4 > 150 ? 150 : width / 4,
                     borderRadius: 10,
                   }}
                   source={require("../../assets/images/purchaseScreen/dog_meditating.png")}
@@ -897,13 +939,7 @@ const ProfileScreen = ({ navigation }) => {
               Credit Top-Up
               <Text style={[Fonts.purchaseScreenSubtitle]}>*</Text>
             </Text>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-              }}
-            >
+            <ScrollView horizontal={true}>
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() =>
@@ -915,7 +951,7 @@ const ProfileScreen = ({ navigation }) => {
                   )
                 }
                 style={{
-                  width: width / 3.3,
+                  width: width / 4 > 200 ? 220 : width / 3.3,
                   paddingTop: 8,
                   borderRadius: 10,
                   borderWidth: 3,
@@ -924,12 +960,13 @@ const ProfileScreen = ({ navigation }) => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  marginRight: 5,
                 }}
               >
                 <Image
                   style={{
-                    width: width / 4,
-                    height: width / 4,
+                    width: width / 4 > 200 ? 200 : width / 4,
+                    height: width / 4 > 200 ? 200 : width / 4,
                     borderRadius: 10,
                   }}
                   source={require("../../assets/images/purchaseScreen/cat_holding_bones.png")}
@@ -962,7 +999,7 @@ const ProfileScreen = ({ navigation }) => {
                   )
                 }
                 style={{
-                  width: width / 3.3,
+                  width: width / 4 > 200 ? 220 : width / 3.3,
                   paddingTop: 8,
                   borderRadius: 10,
                   borderWidth: 3,
@@ -975,9 +1012,10 @@ const ProfileScreen = ({ navigation }) => {
               >
                 <Image
                   style={{
-                    width: width / 4,
-                    height: width / 4,
+                    width: width / 4 > 200 ? 200 : width / 4,
+                    height: width / 4 > 200 ? 200 : width / 4,
                     borderRadius: 10,
+                    marginRight: 5,
                   }}
                   source={require("../../assets/images/purchaseScreen/red_panda_holding_bamboo.png")}
                 ></Image>
@@ -1009,7 +1047,7 @@ const ProfileScreen = ({ navigation }) => {
                   )
                 }
                 style={{
-                  width: width / 3.3,
+                  width: width / 4 > 200 ? 220 : width / 3.3,
                   paddingTop: 8,
                   borderRadius: 10,
                   borderWidth: 3,
@@ -1018,12 +1056,13 @@ const ProfileScreen = ({ navigation }) => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  marginRight: 5,
                 }}
               >
                 <Image
                   style={{
-                    width: width / 4,
-                    height: width / 4,
+                    width: width / 4 > 200 ? 200 : width / 4,
+                    height: width / 4 > 200 ? 200 : width / 4,
                     borderRadius: 10,
                   }}
                   source={require("../../assets/images/purchaseScreen/hamster_holding_seeds.png")}
@@ -1045,7 +1084,7 @@ const ProfileScreen = ({ navigation }) => {
                   $17.99
                 </Text>
               </TouchableOpacity>
-            </View>
+            </ScrollView>
             <Text
               style={[
                 Fonts.purchaseScreenDescription,

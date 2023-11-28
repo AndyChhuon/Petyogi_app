@@ -80,6 +80,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
     backgroundColor: "#fbbd69",
     borderRadius: 16,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
   },
 });
 

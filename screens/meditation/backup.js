@@ -208,7 +208,6 @@ const MeditationScreen = ({ navigation, route }) => {
   const promptIndexEnd2 = promptIndexes?.promptIndexEnd2
     ? promptIndexes?.promptIndexEnd2 + deltaIntroOutro
     : 9999;
-  console.log(promptIndexEnd2);
   const currentStep =
     preRecordedAudioShouldBePlaying || currentPhrase < introIndexEnd
       ? 0
@@ -331,7 +330,6 @@ const MeditationScreen = ({ navigation, route }) => {
       }
 
       newUrlsObj.count = meditationInfo.meditationUrls.count + increment;
-      console.log(newUrlsObj);
       setMeditationInfo({
         ...meditationInfo,
         phrases: newPhrasesObj,
@@ -358,7 +356,6 @@ const MeditationScreen = ({ navigation, route }) => {
         newPrerecordedAudioPhrases.outro[phraseIncrement] = phrase;
         phraseIncrement++;
       });
-      console.log(newPrerecordedAudioUrls);
       setPrerecordedAudioUrls(newPrerecordedAudioUrls);
       setPrerecordedAudioPhrases(newPrerecordedAudioPhrases);
     }
@@ -399,10 +396,8 @@ const MeditationScreen = ({ navigation, route }) => {
   }, [introOutroWasInitialized]);
 
   useEffect(() => {
-    console.log("shouldListenRealTime", meditationInfo.shouldListenRealTime);
     let unsubscribe;
     if (meditationInfo.shouldListenRealTime) {
-      console.log("listenMeditationUpdate");
       unsubscribe = listenMeditationUpdate(
         number,
         setMeditationInfo,
@@ -413,10 +408,7 @@ const MeditationScreen = ({ navigation, route }) => {
       );
     } else if (!meditationInfo.shouldListenRealTime && unsubscribe) {
       unsubscribe();
-      console.log("else if unsubscribe");
     }
-
-    console.log("unsubscribe", unsubscribe);
 
     return () => {
       // Unsubscribe from the event listener when the component unmounts

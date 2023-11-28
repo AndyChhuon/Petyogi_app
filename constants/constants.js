@@ -69,6 +69,26 @@ export const multipleChoiceButtons = [
   },
 ];
 
+export const streakRewards = [
+  {
+    id: "1",
+    image: require("../assets/images/streakRewards/20-streak-sticker.png"),
+    name: "Stickers",
+    gems: "20",
+  },
+  {
+    id: "2",
+    image: require("../assets/images/streakRewards/t_shirt_final_50.jpg"),
+    name: "T-Shirt",
+    gems: "50",
+  },
+  {
+    id: "3",
+    image: require("../assets/images/streakRewards/100_streaks.png"),
+    name: "Yogi Mug",
+    gems: "100",
+  },
+];
 export const meditationScreenCustomizeables = {
   background: [
     {
@@ -179,93 +199,113 @@ export const meditationScreenCustomizeables = {
     },
     {
       id: "4",
-      image: require("../assets/music/peaceful_thoughts_preview.jpg"),
-      title: "Peaceful Thoughts",
+      image: require("../assets/music/blue_star.jpg"),
+      title: "Star Gazing",
       sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/peaceful_thoughts.mp3",
-      name: "Peaceful Thoughts",
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/Blue+star.mp3",
+      name: "Star Gazing",
+      gems: "Free",
+    },
+    {
+      id: "3",
+      image: require("../assets/music/fiery_hope.jpg"),
+      title: "There is Hope",
+      sound:
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/There+is+hope.mp3",
+      name: "There is Hope",
       gems: "Free",
     },
     {
       id: "2",
-      image: require("../assets/music/tranquil_rainfall_preview.jpg"),
-      title: "Nature Sounds - Rainfall",
+      image: require("../assets/music/Natures_Calling.jpg"),
+      title: "Nature's Calling",
       sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/tranquil_rainfall.mp3",
-      name: "Rainfall",
-      gems: 800,
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/Inner+calling.mp3",
+      name: "Nature's Calling",
+      gems: 950,
     },
-    {
-      id: "3",
-      image: require("../assets/music/waterstream_preview.png"),
-      title: "Nature Sounds - Water Stream",
-      sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/waterstream.mp3",
-      name: "Water Stream",
-      gems: 800,
-    },
-    {
-      id: "5",
-      image: require("../assets/music/piano_valley_preview.jpg"),
-      title: "Piano Valley",
-      sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/piano_valley.mp3",
-      name: "Piano Valley",
-      gems: 800,
-    },
+
     {
       id: "6",
-      image: require("../assets/music/ocean_waves_preview.jpg"),
-      title: "Nature Sounds - Ocean Waves",
+      image: require("../assets/music/inner_light.jpg"),
+      title: "Inner Light",
       sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/ocean_waves.mp3",
-      name: "Ocean Waves",
-      gems: 800,
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/Inner+light.mp3",
+      name: "Inner Light",
+      gems: 950,
     },
+    // maybe change
     {
       id: "7",
-      image: require("../assets/music/quartz_bowl_preview.jpg"),
-      title: "Meditation Bowls",
+      image: require("../assets/music/chimes.jpg"),
+      title: "Harmony's Chimes",
       sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/quartz_bowl.mp3",
-      name: "Quartz Bowl",
-      gems: 800,
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/Harmony+within.mp3",
+      name: "Harmony's Chimes",
+      gems: 950,
     },
     {
       id: "8",
-      image: require("../assets/music/earth_chimes_preview.jpg"),
-      title: "Earth's Chimes",
+      image: require("../assets/music/music_box.jpg"),
+      title: "Memories",
       sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/earth_chimes.mp3",
-      name: "Earth Chimes",
-      gems: 800,
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/Memories.mp3",
+      name: "Memories",
+      gems: 950,
     },
     {
       id: "9",
-      image: require("../assets/music/mystical_handpan_preview.jpg"),
-      title: "Handpan Harmonies",
+      image: require("../assets/music/moonshadow.jpg"),
+      title: "Moonshadow",
       sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/handpan_harmonies.mp3",
-      name: "Handpan Harmonies",
-      gems: 800,
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/Moonshadow.mp3",
+      name: "Moonshadow",
+      gems: 950,
+    },
+    {
+      id: "5",
+      image: require("../assets/music/reiki_morning.jpg"),
+      title: "Reiki Morning",
+      sound:
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/Reiki+morning.mp3",
+      name: "Reiki Morning",
+      gems: 950,
     },
     {
       id: "10",
-      image: require("../assets/music/mystical_flute_preview.jpg"),
-      title: "Flute of Enchantments",
+      image: require("../assets/music/floating.jpg"),
+      title: "Floating",
       sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/flute_enchantments.mp3",
-      name: "Flute of Enchantments",
-      gems: 800,
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/Floating.mp3",
+      name: "Floating",
+      gems: 950,
     },
     {
       id: "11",
-      image: require("../assets/music/earthly_wonders_preview.jpg"),
-      title: "Mind's Wonderland",
+      image: require("../assets/music/new_perspective.jpg"),
+      title: "New Perspectives",
       sound:
-        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/Mind_wonderland.mp3",
-      name: "Mind's Wonderland",
-      gems: 800,
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/New+perspectives.mp3",
+      name: "New Perspectives",
+      gems: 950,
+    },
+    {
+      id: "12",
+      image: require("../assets/music/evolution.jpg"),
+      title: "Evolution",
+      sound:
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/Evolution.mp3",
+      name: "Evolution",
+      gems: 950,
+    },
+    {
+      id: "13",
+      image: require("../assets/music/fresh_start.jpg"),
+      title: "Fresh Beginnings",
+      sound:
+        "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/new/Dreamland.mp3",
+      name: "Fresh Beginnings",
+      gems: 950,
     },
   ],
   meditation: [
@@ -342,6 +382,233 @@ export const meditationScreenCustomizeables = {
       gems: 9250,
       name: "Hopps",
       backgroundColor: "#ffcdcd",
+    },
+  ],
+};
+
+export const notificationsMessages = {
+  morning: [
+    {
+      title: "Good morning Sunshine",
+      body: "Hope you are well rested and ready for the day!",
+    },
+    {
+      title: "Rise and Shine!",
+      body: "Wishing you a fantastic day ahead!",
+    },
+    {
+      title: "Morning, fellow Yogi!",
+      body: "Time to embrace the day with a smile!",
+    },
+    {
+      title: "Bonjour, World!",
+      body: "Your adventure begins now – make it great!",
+    },
+    {
+      title: "Greetings, Champion!",
+      body: "Ready to conquer today's challenges?",
+    },
+    {
+      title: "Wake up, Rockstar!",
+      body: "Your stage awaits – go dazzle the world!",
+    },
+    {
+      title: "Top of the Morning!",
+      body: "Sending all the positive vibes your way, yogi!",
+    },
+    {
+      title: "Hey there, Early Bird!",
+      body: "The early start guarantees a winning day!",
+    },
+    {
+      title: "A Bright Start!",
+      body: "May your day be as bright as the morning sun!",
+    },
+    {
+      title: "Rise like the Sun!",
+      body: "Shine on, you incredible soul!",
+    },
+    {
+      title: "Sunny vibes only!",
+      body: "Positive energy is your superpower today!",
+    },
+    {
+      title: "Wakey-wakey, Dreamer!",
+      body: "Time to turn dreams into reality.",
+    },
+    {
+      title: "Embrace the Day!",
+      body: "Today is full of opportunities waiting for you!",
+    },
+    {
+      title: "Morning Magic!",
+      body: "Your day is about to unfold with magic moments.",
+    },
+    {
+      title: "Hola, Amigo!",
+      body: "Ready for a day filled with possibilities?",
+    },
+    {
+      title: "Awaken the Awesome!",
+      body: "Unleash your awesomeness upon the world!",
+    },
+    {
+      title: "Bright and Early!",
+      body: "Seize the day with enthusiasm and joy.",
+    },
+    {
+      title: "Hey Sunshine!",
+      body: "Your positivity is contagious – spread it around!",
+    },
+    {
+      title: "New Day, New Adventures!",
+      body: "Embrace the unknown with a smile!",
+    },
+    {
+      title: "Good Vibes Morning!",
+      body: "Positive thoughts lead to positive days.",
+    },
+    {
+      title: "New day, dear yogi!",
+      body: "Today is what you make of it – make it amazing!",
+    },
+  ],
+  checkup: [
+    {
+      title: "🌮 Taco 'bout Your Day!",
+      body: "It's lunchtime! Time to spill the beans on how your day's shaping up. Any spicy updates?",
+    },
+    {
+      title: "🍣 Sushi-ously, How Are You?",
+      body: "Rolling in to ask: How's your day so far? Lettuce know!",
+    },
+    {
+      title: "🍦 Sundae of Emotions!",
+      body: "Scoop up your emotions like ice cream. How's the sundae of your day melting?",
+    },
+    {
+      title: "🌯 Wrap Up Your Thoughts!",
+      body: "Lunch is like a burrito—full of surprises! Unwrap and share your thoughts, yogi!",
+    },
+
+    {
+      title: "🥗 Salad Serenity",
+      body: "Toss your thoughts like a refreshing salad. What's the crunchiest part of your midday?",
+    },
+    {
+      title: "🍔 Burger Break",
+      body: "Flip the stress patty and savor the buns of relaxation. What's your juicy mental topping?",
+    },
+    {
+      title: "🍲 Soup & Silence",
+      body: "Let your thoughts simmer like a cozy soup. Which flavor of calm is bubbling?",
+    },
+    {
+      title: "🍕 Pizza Pause",
+      body: "Slice through the chaos and grab a peace. What toppings of peace are on your mental pizza?",
+    },
+    {
+      title: "🍜 Noodle Nirvana",
+      body: "Stir your midday with the chopsticks of serenity. Which noodle of thought are you slurping up?",
+    },
+    {
+      title: "🌮 Taco Tranquility",
+      body: "Take a break and taco 'bout your mental filling. What spicy revelations are you munching on?",
+    },
+    {
+      title: "🍱 Bento Bliss",
+      body: "Pack your thoughts in a mental bento. What compartments of calm are you opening up today?",
+    },
+    {
+      title: "🍛 Curry Calm",
+      body: "Spice up your break with a dash of relaxation. PetYogi is curry-ous to hear about your day.",
+    },
+    {
+      title: "🥪 Sandwich Siesta",
+      body: "Press pause and let's build a delicious sandwich. What layers of emotions are between your mental bread?",
+    },
+    {
+      title: "🌯 Burrito Bliss",
+      body: "Wrap your mind in the tortilla of tranquility. What fillings are stuffed in your mental burrito?",
+    },
+    {
+      title: "🍝 Pasta Peace",
+      body: "Twirl your thoughts like pasta on a fork. What sauce are you coating your mental spaghetti with?",
+    },
+    {
+      title: "🥙 Gyro Grace",
+      body: "Spin your thoughts like a gyro on a spit. What flavors of tranquility are you carving off?",
+    },
+    {
+      title: "🥞 Pancake Pause",
+      body: "Stack up your mental pancakes. What syrupy thoughts are dripping down the layers of your midday?",
+    },
+    {
+      title: "🌭 Hot Dog Harmony",
+      body: "Link your thoughts like sausages in a bun. What condiments are you topping your mental hot dog with?",
+    },
+    {
+      title: "🍚 Rice Bowl Respite",
+      body: "Bowl over your worries with a scoop of calm rice. What toppings are you sprinkling over your mental bowl?",
+    },
+    {
+      title: "🍲 Stew Serenade",
+      body: "Let your thoughts stew in a pot of serenity. What ingredients of calm are you simmering together?",
+    },
+    {
+      title: "🍣 Sashimi Silence",
+      body: "Slice through the noise and enjoy the raw beauty of your midday thoughts. What fresh insights are you savoring?",
+    },
+    {
+      title: "🍦 Sundae Siesta",
+      body: "Top your thoughts with the sweetness of a midday break. What flavors are melting in your mental sundae?",
+    },
+    {
+      title: "🧁 Cupcake Calm",
+      body: "Frost your midday with a dollop of serenity. What sprinkles of joy are decorating your mental cupcake?",
+    },
+  ],
+  nightTime: [
+    {
+      title: "How did your day go?",
+      body: "As you wind down, let's express gratitude and love for today.",
+    },
+    {
+      title: "How has my yogi been?",
+      body: "Let's unwind and let your mind become a canvas for serenity to paint upon.",
+    },
+    {
+      title: "How's today been?",
+      body: "As the day comes to a close, let us reflect on the events and emotions of today.",
+    },
+    {
+      title: "How's today been?",
+      body: "As the day comes to a close, let us reflect on the events and emotions of today.",
+    },
+    {
+      title: "Did today treat you well?",
+      body: "Take a moment to share your highs and lows, embracing the beauty of the day.",
+    },
+
+    {
+      title: "How has today treated you?",
+      body: "Let's revisit the hurdles you've overcome, and the moments that made you smile.",
+    },
+    {
+      title: "How is my yogi feeling?",
+      body: "Explore the events and experiences that defined your day.",
+    },
+    {
+      title: "Did today go well?",
+      body: "Explore the insights gained from today's experiences.",
+    },
+    {
+      title: "Did today surprise you?",
+      body: "As you end the day, let's reflect on unexpected or pleasant surprises.",
+    },
+    {
+      title: "Any small victories today?",
+      body: "Celebrate the little successes that often go unnoticed.",
     },
   ],
 };
@@ -691,6 +958,7 @@ export const purchaseScreenCTA = {
     noCreditsText:
       "You have no credits left. Verify your email and get 2 free credits.",
     noCreditsCTA: "VERIFY ACCOUNT",
+    displayCTAText: "Start your mental health journey with 2 free credits!",
   },
   freeVerifiedTrial: {
     title: "Yogi Free Plan",
@@ -705,6 +973,8 @@ export const purchaseScreenCTA = {
     noCreditsText:
       "You have no credits left. Claim your 1-week free trial and get 1 credit per day.",
     noCreditsCTA: "CLAIM FREE",
+    displayCTAText:
+      "Boost your mental health journey with Turtle Plan, for free!",
   },
   freeVerifiedNoTrial: {
     title: "You are: Free Plan",
@@ -719,6 +989,7 @@ export const purchaseScreenCTA = {
     noCreditsText:
       "You have no credits left. Upgrade your account and get daily credits.",
     noCreditsCTA: "UPGRADE PLAN",
+    displayCTAText: "Boost your mental health journey with Turtle Plan!",
   },
   sloth_plan: {
     title: "You are: Sloth Plan",
@@ -732,6 +1003,7 @@ export const purchaseScreenCTA = {
     backgroundDarker: "#62ada9",
     noCreditsText: "You have no credits left.",
     noCreditsCTA: "UPGRADE",
+    displayCTAText: "Boost your mental health journey with Turtle Plan!",
   },
   turtle_plan: {
     title: "You are: Turtle Plan",
@@ -745,6 +1017,7 @@ export const purchaseScreenCTA = {
     backgroundDarker: "#ad62a1",
     noCreditsText: "You have no credits left.",
     noCreditsCTA: "UPGRADE",
+    displayCTAText: "Super charge your mental health journey with Yogi Plan!",
   },
   yogi_plan: {
     title: "You are: Yogi Plan",

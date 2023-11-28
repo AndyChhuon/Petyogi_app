@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 
 import {
   SafeAreaView,
@@ -9,12 +9,12 @@ import {
   Image,
   StyleSheet,
   Text,
+  ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Fonts } from "../../constants/styles";
 import useAuth from "../../hooks/useAuth";
-
-const { width, height } = Dimensions.get("window");
+import { streakRewards } from "../../constants/constants";
 
 const StreakScreen = ({ navigation }) => {
   const { userValues, streakObj, setStreakObj } = useAuth();
@@ -24,6 +24,27 @@ const StreakScreen = ({ navigation }) => {
   const todayStreakCompleted =
     new Date(userValues.lastMeditationDate) >=
     new Date(new Date().toISOString().slice(0, 10));
+
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
+  const styles = createStyles(height, width);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]); // Include the dependencies for useEffect
 
   const onCTAClick = () => {
     if (streakIsSaveable) {
@@ -59,6 +80,78 @@ const StreakScreen = ({ navigation }) => {
   };
 
   const timeUntilStreakReset = getTimeUntilStreakReset();
+
+  const music = streakRewards.map((item) => ({
+    id: item.id,
+    component: (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={{
+          width: width / 3,
+          paddingTop: 8,
+          borderRadius: 10,
+          borderWidth: 3,
+          borderColor: "#39474f",
+          marginTop: 9,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginRight: 5,
+        }}
+        key={item.id}
+      >
+        <Image
+          style={{
+            width: width / 3.5,
+            height: undefined,
+            aspectRatio: 4 / 3,
+            borderRadius: 10,
+          }}
+          source={item.image}
+        ></Image>
+        <Text
+          style={[
+            Fonts.purchaseScreenSubtitle,
+            { marginTop: 5, textAlign: "center" },
+          ]}
+        >
+          {item?.name}
+        </Text>
+
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            marginLeft: 10,
+          }}
+        >
+          <Text
+            style={[
+              Fonts.purchaseScreenSubtitle,
+              {
+                marginBottom: 5,
+                color: "#fbbf00",
+              },
+            ]}
+          >
+            {item?.gems}
+          </Text>
+          <Image
+            source={require("../../assets/images/icons/streak.png")}
+            style={{
+              position: "relative",
+              width: 15,
+              height: 15,
+              marginBottom: 3,
+              resizeMode: "contain",
+              marginLeft: 2,
+            }}
+          />
+        </View>
+      </TouchableOpacity>
+    ),
+  }));
 
   return (
     <Fragment>
@@ -133,8 +226,10 @@ const StreakScreen = ({ navigation }) => {
                     : require("../../assets/images/icons/streak_grey.png")
                 }
                 style={{
-                  width: (150.0 * width) / 414,
-                  height: (150.0 * width) / 414,
+                  width:
+                    (150.0 * width) / 414 > 200 ? 200 : (150.0 * width) / 414,
+                  height:
+                    (150.0 * width) / 414 > 200 ? 200 : (150.0 * width) / 414,
                   resizeMode: "contain",
                 }}
               />
@@ -168,8 +263,8 @@ const StreakScreen = ({ navigation }) => {
               <Image
                 source={require("../../assets/images/icons/clock.png")}
                 style={{
-                  width: (42.0 * width) / 414,
-                  height: (42.0 * width) / 414,
+                  width: (42.0 * width) / 414 > 80 ? 80 : (42.0 * width) / 414,
+                  height: (42.0 * width) / 414 > 80 ? 80 : (42.0 * width) / 414,
                   resizeMode: "contain",
                 }}
               />
@@ -201,17 +296,20 @@ const StreakScreen = ({ navigation }) => {
             </View>
           </View>
         </View>
-        <View
-          style={{
-            flexGrow: 1,
-            backgroundColor: Colors.bodyBackColor2,
-            alignItems: "center",
-            paddingTop: 30,
-          }}
-        >
-          <Text style={Fonts.streakPrimaryText}>
-            Streak calendar coming soon!
-          </Text>
+        <View style={{ backgroundColor: Colors.bodyBackColor2, flexGrow: 1 }}>
+          <View
+            style={{
+              alignItems: "center",
+              paddingTop: 30,
+            }}
+          >
+            <Text style={[Fonts.purchaseScreenTitle, { marginLeft: 8 }]}>
+              Rewards coming soon!
+            </Text>
+            <ScrollView horizontal={true} style={{ marginLeft: 10 }}>
+              {music.map((item) => item.component)}
+            </ScrollView>
+          </View>
         </View>
       </SafeAreaView>
       <SafeAreaView
@@ -221,17 +319,19 @@ const StreakScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  closeButtonStyle: {
-    paddingHorizontal: (20.0 * width) / 414,
-    paddingTop: (5.0 * width) / 414,
-    paddingBottom: (12 * height) / 850,
-    zIndex: 4,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#feaa34",
-  },
-});
+function createStyles(height, width) {
+  return StyleSheet.create({
+    closeButtonStyle: {
+      paddingHorizontal: (20.0 * width) / 414,
+      paddingTop: (5.0 * width) / 414,
+      paddingBottom: (12 * height) / 850,
+      zIndex: 4,
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#feaa34",
+    },
+  });
+}
 
 export default StreakScreen;

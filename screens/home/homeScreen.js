@@ -21,11 +21,13 @@ import FloatingAnimation from "../../Animations/FloatingAnimation";
 import Lottie from "lottie-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const { width } = Dimensions.get("window");
-
 const HomeScreen = ({ navigation }) => {
   const { userValues, isWaitingOnEmailVerification, initDayMode, user } =
     useAuth();
+
+  const { width } = Dimensions.get("window");
+  const styles = createStyles(width);
+  console.log("width: " + width);
 
   const [dayMode, setDayMode] = useState(initDayMode);
   const [showButton, setShowButton] = useState(false);
@@ -109,6 +111,7 @@ const HomeScreen = ({ navigation }) => {
             isOutOfCredits={isOutOfCredits}
             userId={user.uid}
             navigation={navigation}
+            width={width}
           />
         ) : (
           <ButtonTooltip
@@ -123,6 +126,7 @@ const HomeScreen = ({ navigation }) => {
             userId={user.uid}
             tutorialMeditationShouldShow={tutorialMeditationShouldShow}
             navigation={navigation}
+            width={width}
           />
         )
       )
@@ -146,6 +150,7 @@ const HomeScreen = ({ navigation }) => {
           userId={user.uid}
           isOutOfCredits={pressedButton == currentMeditation && isOutOfCredits}
           tutorialMeditationShouldShow={tutorialMeditationShouldShow}
+          width={width}
         />
       );
       return newArray;
@@ -196,6 +201,7 @@ const HomeScreen = ({ navigation }) => {
             tutorialMeditationShouldShow={tutorialMeditationShouldShow}
             isOutOfCredits={isOutOfCredits}
             navigation={navigation}
+            width={width}
           />
         ) : (
           <ButtonTooltip
@@ -210,6 +216,7 @@ const HomeScreen = ({ navigation }) => {
             userId={user.uid}
             tutorialMeditationShouldShow={tutorialMeditationShouldShow}
             navigation={navigation}
+            width={width}
           />
         )
       ),
@@ -219,6 +226,7 @@ const HomeScreen = ({ navigation }) => {
       tutorialMeditationShouldShow,
       isOutOfCredits,
       user.uid,
+      width,
     ]
   );
 
@@ -315,14 +323,16 @@ const HomeScreen = ({ navigation }) => {
                 borderRadius={15}
                 raiseLevel={2}
                 onPress={bringToBottom}
-                width={(60 * width) / 414}
-                height={(60 * width) / 414}
+                width={(60 * width) / 414 > 120 ? 120 : (60 * width) / 414}
+                height={(60 * width) / 414 > 120 ? 120 : (60 * width) / 414}
               >
                 <Image
                   source={require("../../assets/images/icons/downArrow.png")}
                   style={{
-                    width: (30.0 * width) / 414,
-                    height: (30.0 * width) / 414,
+                    width:
+                      (30.0 * width) / 414 > 60 ? 60 : (30.0 * width) / 414,
+                    width:
+                      (30.0 * width) / 414 > 60 ? 60 : (30.0 * width) / 414,
                     resizeMode: "contain",
                     tintColor: dayMode ? "#7f76d7" : "#fbb855",
                   }}
@@ -361,7 +371,7 @@ const HomeScreen = ({ navigation }) => {
                   alignItems: "center",
                   justifyContent: "center",
                   paddingTop: 3,
-                  paddingBottom: (Sizes.fixPadding * 1.5 * width) / 414,
+                  paddingBottom: Sizes.fixPadding,
                 }}
               >
                 <Image
@@ -372,9 +382,9 @@ const HomeScreen = ({ navigation }) => {
                   }
                   style={{
                     width:
-                      (22.0 * width) / 414 > 70 ? 70 : (22.0 * width) / 414,
+                      (22.0 * width) / 414 > 60 ? 60 : (22.0 * width) / 414,
                     height:
-                      (22.0 * width) / 414 > 70 ? 70 : (22.0 * width) / 414,
+                      (22.0 * width) / 414 > 60 ? 60 : (22.0 * width) / 414,
                     resizeMode: "contain",
                   }}
                 />
@@ -382,7 +392,8 @@ const HomeScreen = ({ navigation }) => {
                   style={{
                     marginLeft: ((Sizes.fixPadding - 5.0) * width) / 414,
                     ...Fonts.whiteColor20Bold,
-                    fontSize: (20.0 * width) / 414,
+                    fontSize:
+                      (20.0 * width) / 414 > 45 ? 45 : (20.0 * width) / 414,
                   }}
                 >
                   {userValues.streak}
@@ -398,16 +409,16 @@ const HomeScreen = ({ navigation }) => {
                   alignItems: "center",
                   justifyContent: "center",
                   paddingTop: 3,
-                  paddingBottom: (Sizes.fixPadding * 1.5 * width) / 414,
+                  paddingBottom: Sizes.fixPadding,
                 }}
               >
                 <Image
                   source={require("../../assets/images/icons/gem.png")}
                   style={{
                     width:
-                      (20.0 * width) / 414 > 70 ? 70 : (20.0 * width) / 414,
+                      (20.0 * width) / 414 > 60 ? 60 : (20.0 * width) / 414,
                     height:
-                      (20.0 * width) / 414 > 70 ? 70 : (20.0 * width) / 414,
+                      (20.0 * width) / 414 > 60 ? 60 : (20.0 * width) / 414,
                     resizeMode: "contain",
                   }}
                 />
@@ -415,7 +426,8 @@ const HomeScreen = ({ navigation }) => {
                   style={{
                     marginLeft: ((Sizes.fixPadding - 2.0) * width) / 414,
                     ...Fonts.whiteColor20Bold,
-                    fontSize: (20.0 * width) / 414,
+                    fontSize:
+                      (20.0 * width) / 414 > 45 ? 45 : (20.0 * width) / 414,
                   }}
                 >
                   {formatNumber(userValues.coins)}
@@ -424,13 +436,13 @@ const HomeScreen = ({ navigation }) => {
 
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => navigation.navigate("PurchaseScreen")}
+                onPress={() => navigation.navigate("PurchaseScreen", {})}
                 style={{
                   flex: 1,
                   alignItems: "center",
                   justifyContent: "center",
                   paddingTop: 3,
-                  paddingBottom: (Sizes.fixPadding * 1.5 * width) / 414,
+                  paddingBottom: Sizes.fixPadding,
                 }}
               >
                 <View style={{ flexDirection: "row" }}>
@@ -438,9 +450,9 @@ const HomeScreen = ({ navigation }) => {
                     source={require("../../assets/images/icons/meditation.png")}
                     style={{
                       width:
-                        (28.0 * width) / 414 > 70 ? 70 : (28.0 * width) / 414,
+                        (28.0 * width) / 414 > 60 ? 60 : (28.0 * width) / 414,
                       height:
-                        (28.0 * width) / 414 > 70 ? 70 : (28.0 * width) / 414,
+                        (28.0 * width) / 414 > 60 ? 60 : (28.0 * width) / 414,
                       resizeMode: "contain",
                     }}
                   />
@@ -448,7 +460,8 @@ const HomeScreen = ({ navigation }) => {
                     style={{
                       marginLeft: ((Sizes.fixPadding - 5.0) * width) / 414,
                       ...Fonts.whiteColor20Bold,
-                      fontSize: (20.0 * width) / 414,
+                      fontSize:
+                        (20.0 * width) / 414 > 45 ? 45 : (20.0 * width) / 414,
                     }}
                   >
                     {userValues.remainingCredits}
@@ -460,7 +473,7 @@ const HomeScreen = ({ navigation }) => {
                       position: "absolute",
                       alignItems: "center",
                       justifyContent: "center",
-                      bottom: -(10.0 * width) / 414,
+                      bottom: -(25.0 * width) / 414,
                       width: "100%",
                       paddingLeft: (28.0 * width) / 414,
                     }}
@@ -510,40 +523,46 @@ const HomeScreen = ({ navigation }) => {
   }
 };
 
-const styles = StyleSheet.create({
-  notificationIconWrapStyle: {
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
-    width: (40.0 * width) / 414 > 80 ? 80 : (40.0 * width) / 414,
-    height: (40.0 * width) / 414 > 80 ? 80 : (40.0 * width) / 414,
-    marginTop: 3,
-    marginBottom:
-      (50.0 * width) / 414 < 80 ? 20 : (Sizes.fixPadding * 1.5 * width) / 414,
-  },
-  userImageStyle: {
-    width: (50.0 * width) / 414 > 80 ? 80 : (50.0 * width) / 414,
-    height: (50.0 * width) / 414 > 80 ? 80 : (50.0 * width) / 414,
-    borderRadius: (25.0 * width) / 414,
-    borderColor: Colors.primaryColor,
-    borderWidth: (1.5 * width) / 414,
-  },
-  userInfoWrapStyle: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal:
-      (Sizes.fixPadding * 1.5 * width) / 414 > 20
-        ? 20
-        : (Sizes.fixPadding * 1.5 * width) / 414,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-  },
-  BackgroundImage: {
-    flex: 1,
-    resizeMode: "cover",
-    justifyContent: "center",
-  },
-});
+function createStyles(width) {
+  return StyleSheet.create({
+    notificationIconWrapStyle: {
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(0, 0, 0, 0.05)",
+      width: (40.0 * width) / 414 > 80 ? 80 : (40.0 * width) / 414,
+      height: (40.0 * width) / 414 > 80 ? 80 : (40.0 * width) / 414,
+      marginTop: 3,
+      marginBottom:
+        (50.0 * width) / 414 < 80
+          ? 20
+          : (Sizes.fixPadding * 1.5 * width) / 414 > 20
+          ? 20
+          : (Sizes.fixPadding * 1.5 * width) / 414,
+    },
+    userImageStyle: {
+      width: (50.0 * width) / 414 > 80 ? 80 : (50.0 * width) / 414,
+      height: (50.0 * width) / 414 > 80 ? 80 : (50.0 * width) / 414,
+      borderRadius: (25.0 * width) / 414,
+      borderColor: Colors.primaryColor,
+      borderWidth: (1.5 * width) / 414,
+    },
+    userInfoWrapStyle: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal:
+        (Sizes.fixPadding * 1.5 * width) / 414 > 20
+          ? 20
+          : (Sizes.fixPadding * 1.5 * width) / 414,
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+    BackgroundImage: {
+      flex: 1,
+      resizeMode: "cover",
+      justifyContent: "center",
+    },
+  });
+}
 
 export default HomeScreen;

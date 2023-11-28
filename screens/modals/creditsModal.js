@@ -9,13 +9,30 @@ import useAuth from "../../hooks/useAuth";
 import ScaleInOut from "../../Animations/ScaleInOut";
 import * as Haptics from "expo-haptics";
 
-const { width, height } = Dimensions.get("window");
-
 const creditsModal = () => {
   const { creditsObj, setCreditsObj } = useAuth();
 
   const [creditsObtainedImageIndex, setcreditsObtainedImageIndex] = useState(0);
   const [creditsMsgState, setcreditsMsgState] = useState("nocreditsMsg");
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]);
 
   const creditsDelay = 1000;
 
@@ -48,17 +65,19 @@ const creditsModal = () => {
       <ScaleInOut
         visible={creditsMsgState != "nocreditsMsg"}
         delayIn={creditsDelay}
-        style={{
-          display: "flex",
-          backgroundColor: "rgba(37, 53, 66, 0.5)",
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 40,
-          paddingBottom: "15%",
-        }}
+        style={[
+          {
+            display: "flex",
+            backgroundColor: "rgba(37, 53, 66, 0.5)",
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 40,
+          },
+          width > height ? {} : { paddingBottom: "15%" },
+        ]}
       >
         <View
           style={{

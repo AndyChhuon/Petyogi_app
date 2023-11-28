@@ -22,6 +22,8 @@ import { useNavigation, StackActions } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+import { notificationsMessages } from "../constants/constants";
 
 const AuthContext = createContext({});
 
@@ -195,6 +197,14 @@ export const AuthProvider = ({ children }) => {
     getDeviceUUID();
     getLogsFromAsyncStorage();
     getSubscriptionWithPrevDateFromAsyncStorage();
+
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
   }, []);
 
   useEffect(() => {
@@ -261,6 +271,16 @@ export const AuthProvider = ({ children }) => {
               if (res.ok) {
                 return res.json().then(async (data) => {
                   setUserValues(data.userValues);
+
+                  //set notifications
+                  const todayStreakCompleted =
+                    new Date(data.userValues.lastMeditationDate) >=
+                    new Date(new Date().toISOString().slice(0, 10));
+                  setNotifications(
+                    !todayStreakCompleted,
+                    data.userValues.streak
+                  );
+
                   setStreakObj(data.streakObj);
                   const isNewlyVerified = data.isNewlyVerified;
                   if (isNewlyVerified) {
@@ -380,31 +400,38 @@ export const AuthProvider = ({ children }) => {
             prompt: prompt,
           }),
         }
-      ).then((response) => {
-        setQuestionsAreGenerating(false);
-        if (response.ok) {
-          return response.text().then((data) => {
-            addToUserLogs("Successfully generated questions.");
-            setTimeout(() => {
-              unsubscribe();
-            }, 1000);
-          });
-        } else {
-          response.text().then((text) => {
-            addToUserLogs(`Error generating questions: ${text}.`);
-            setTimeout(() => {
-              unsubscribe();
-            }, 1000);
+      )
+        .then((response) => {
+          setQuestionsAreGenerating(false);
 
-            console.log(text);
-
-            showMessage({
-              message: "There was an error generating journaling questions.",
-              type: "danger",
+          if (response.ok) {
+            return response.text().then((data) => {
+              addToUserLogs("Successfully generated questions.");
+              setTimeout(() => {
+                unsubscribe();
+              }, 1000);
             });
-          });
-        }
-      });
+          } else {
+            response.text().then((text) => {
+              addToUserLogs(`Error generating questions: ${text}.`);
+              setTimeout(() => {
+                unsubscribe();
+              }, 1000);
+
+              showMessage({
+                message: "There was an error generating journaling questions.",
+                type: "danger",
+              });
+            });
+          }
+        })
+        .catch((err) => {
+          setQuestionsAreGenerating(false);
+          addToUserLogs(`Error generating questions: ${err}.`);
+          setTimeout(() => {
+            unsubscribe();
+          }, 1000);
+        });
     });
   };
 
@@ -453,6 +480,7 @@ export const AuthProvider = ({ children }) => {
             setUserValues(data.userValues);
             setStreakObj(data.streakObj);
             setLoadingClicked(false);
+            setNotifications(false);
             navigation.navigate("MeditationScreen", propsToPass);
           });
         } else {
@@ -500,7 +528,6 @@ export const AuthProvider = ({ children }) => {
             addToUserLogs("Claim gems successful.");
             setUserValues(data.userValues);
             setUpdateTutorialModalVisible("gem" + amountGems);
-            console.log("Claim gems successful.");
           });
         } else {
           res.text().then((text) => {
@@ -619,6 +646,7 @@ export const AuthProvider = ({ children }) => {
             setLoadingModalVisible(false);
             setUserValues(data.userValues);
             setStreakObj(data.streakObj);
+            setNotifications(true);
           });
         } else {
           res.text().then((text) => {
@@ -632,6 +660,146 @@ export const AuthProvider = ({ children }) => {
           });
         }
       });
+    });
+  };
+
+  const returnRandomFromArray = (arr) => {
+    return arr[Math.floor(Math.random() * arr.length)];
+  };
+
+  const requestNotificationsPermission = async () => {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        return;
+      } else {
+        // set first notification
+        const todayStreakCompleted =
+          new Date(userValues?.lastMeditationDate) >=
+          new Date(new Date().toISOString().slice(0, 10));
+        setNotifications(!todayStreakCompleted);
+      }
+    }
+  };
+
+  const setNotifications = async (isSaveStreak = false, streakNb = null) => {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    if (existingStatus !== "granted") {
+      return;
+    }
+
+    await Notifications.cancelAllScheduledNotificationsAsync();
+
+    // Schedule notification for 7 am
+    await Notifications.scheduleNotificationAsync({
+      content: returnRandomFromArray(notificationsMessages["morning"]),
+      trigger: {
+        hour: 7,
+        minute: 0,
+        repeats: true,
+      },
+    });
+
+    // Schedule notification for lunch
+    await Notifications.scheduleNotificationAsync({
+      content: returnRandomFromArray(notificationsMessages["checkup"]),
+      trigger: {
+        hour: 12,
+        minute: 0,
+        repeats: true,
+      },
+    });
+
+    // Schedule notification for 10 pm
+    await Notifications.scheduleNotificationAsync({
+      content: returnRandomFromArray(notificationsMessages["nightTime"]),
+      trigger: {
+        hour: 22,
+        minute: 0,
+        repeats: true,
+      },
+    });
+
+    const increment = isSaveStreak ? 1 : 2;
+    const streak = streakNb ? streakNb : userValues?.streak;
+
+    if (streak == 0) {
+      return;
+    }
+    // Set reminder to meditate 1 hour before UTC
+
+    //date tomorrow
+    const currentUTC = new Date();
+    const midnightUTC = new Date(currentUTC);
+    midnightUTC.setDate(midnightUTC.getDate() + increment);
+    midnightUTC.setUTCHours(0, 0, 0, 0);
+
+    const minutesLeft = (midnightUTC - currentUTC) / 1000 / 60;
+
+    // date 2 hour before tomorrow
+    const minutesLeftMinusTwoHours = minutesLeft - 120;
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Don't forget to meditate today!",
+        body: "Let's take some time for yourself, Yogi.",
+      },
+      trigger: {
+        seconds: minutesLeftMinusTwoHours * 60,
+      },
+    });
+
+    // date 1 hour before tomorrow
+    const minutesLeftMinusAnHour = minutesLeft - 60;
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Only an hour left!",
+        body: streak
+          ? `Let's keep your ${streak} day streak going yogi. Your mental health is important.`
+          : "Let's keep your streak going yogi. Your mental health is important.",
+      },
+      trigger: {
+        seconds: minutesLeftMinusAnHour * 60,
+      },
+    });
+
+    // date 30 minutes before tomorrow
+    const minutesLeftMinusThirtyMinutes = minutesLeft - 30;
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "You still have 30 minutes!",
+        body: "Don't let yourself lose your streak, Yogi.",
+      },
+      trigger: {
+        seconds: minutesLeftMinusThirtyMinutes * 60,
+      },
+    });
+
+    // date 15 minutes before tomorrow
+    const minutesLeftMinusFifteenMinutes = minutesLeft - 15;
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "🚨 The last reminder!",
+        body: streak
+          ? `You have 15 minutes to extend your ${streak} day streak. Let's go!`
+          : "You have 15 minutes to extend your streak. Let's go!",
+      },
+      trigger: {
+        seconds: minutesLeftMinusFifteenMinutes * 60,
+      },
+    });
+
+    // Missed streak notification
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "😢 You lost your streak",
+        body: "It's okay! Save your streak with 300 gems.",
+      },
+      trigger: {
+        seconds: minutesLeft * 60,
+      },
     });
   };
 
@@ -933,6 +1101,7 @@ export const AuthProvider = ({ children }) => {
       generateMeditationQuestions,
       claimGems,
       purchaseItem,
+      requestNotificationsPermission,
     }),
     [
       user,
@@ -975,6 +1144,7 @@ export const AuthProvider = ({ children }) => {
       generateMeditationQuestions,
       claimGems,
       purchaseItem,
+      requestNotificationsPermission,
     ]
   );
 

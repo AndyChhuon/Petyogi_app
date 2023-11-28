@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 
 import {
   SafeAreaView,
@@ -14,12 +14,32 @@ import {
 import { meditationScreenCustomizeables } from "../../constants/constants";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Fonts } from "../../constants/styles";
-const { width } = Dimensions.get("window");
 import useAuth from "../../hooks/useAuth";
 
 const ShopScreen = ({ navigation }) => {
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
   const { userValues } = useAuth();
   const nbGems = userValues.coins;
+  const styles = createStyles(width);
+  console.log("width: " + width);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]);
 
   function formatNumber(num) {
     if (!num) return 0;
@@ -45,7 +65,7 @@ const ShopScreen = ({ navigation }) => {
           });
         }}
         style={{
-          width: width / 3.3,
+          width: width / 4 > 230 ? 250 : width / 3.3,
           paddingTop: 8,
           borderRadius: 10,
           borderWidth: 3,
@@ -60,8 +80,8 @@ const ShopScreen = ({ navigation }) => {
       >
         <Image
           style={{
-            width: width / 4,
-            height: width / 4,
+            width: width / 4 > 230 ? 230 : width / 4,
+            height: width / 4 > 230 ? 230 : width / 4,
             borderRadius: 10,
           }}
           source={item.image}
@@ -129,7 +149,7 @@ const ShopScreen = ({ navigation }) => {
             });
           }}
           style={{
-            width: width / 3,
+            width: width / 3.5 > 270 ? 290 : width / 3,
             paddingTop: 8,
             borderRadius: 10,
             borderWidth: 3,
@@ -144,7 +164,7 @@ const ShopScreen = ({ navigation }) => {
         >
           <Image
             style={{
-              width: width / 3.5,
+              width: width / 3.5 > 270 ? 270 : width / 3.5,
               aspectRatio: 2 / 3,
               height: undefined,
               borderRadius: 10,
@@ -216,7 +236,7 @@ const ShopScreen = ({ navigation }) => {
             });
           }}
           style={{
-            width: width / 3,
+            width: width / 3.5 > 250 ? 270 : width / 3,
             paddingTop: 8,
             borderRadius: 10,
             borderWidth: 3,
@@ -231,7 +251,7 @@ const ShopScreen = ({ navigation }) => {
         >
           <Image
             style={{
-              width: width / 3.5,
+              width: width / 3.5 > 250 ? 250 : width / 3.5,
               height: undefined,
               aspectRatio: 4 / 3,
               borderRadius: 10,
@@ -353,13 +373,17 @@ const ShopScreen = ({ navigation }) => {
                 flex: 1,
                 alignItems: "center",
                 justifyContent: "center",
+                paddingBottom: width > height ? 10 : 10 * (width / 414),
               }}
             >
               <Image
                 source={require("../../assets/images/icons/gem.png")}
                 style={{
-                  width: (150.0 * width) / 414,
-                  height: (150.0 * width) / 414,
+                  width:
+                    (150.0 * width) / 414 > 200 ? 200 : (150.0 * width) / 414,
+                  height:
+                    (150.0 * width) / 414 > 200 ? 200 : (150.0 * width) / 414,
+
                   resizeMode: "contain",
                 }}
               />
@@ -377,7 +401,6 @@ const ShopScreen = ({ navigation }) => {
               backgroundColor: Colors.bodyBackColor2,
               paddingTop: 18,
               paddingLeft: 5,
-              minHeight: width / 3.5,
             }}
           >
             <Text style={[Fonts.purchaseScreenTitle, { marginLeft: 8 }]}>
@@ -392,7 +415,6 @@ const ShopScreen = ({ navigation }) => {
               backgroundColor: Colors.bodyBackColor2,
               paddingTop: 14,
               paddingLeft: 5,
-              minHeight: width / 3.5,
             }}
           >
             <Text style={[Fonts.purchaseScreenTitle, { marginLeft: 8 }]}>
@@ -407,7 +429,6 @@ const ShopScreen = ({ navigation }) => {
               backgroundColor: Colors.bodyBackColor2,
               paddingTop: 14,
               paddingLeft: 5,
-              minHeight: width / 3.5,
               paddingBottom: 20,
             }}
           >
@@ -427,14 +448,16 @@ const ShopScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  closeButtonStyle: {
-    margin: (20.0 * width) / 414,
-    zIndex: 4,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-});
+function createStyles(width) {
+  return StyleSheet.create({
+    closeButtonStyle: {
+      margin: (20.0 * width) / 414 > 30 ? 30 : (20.0 * width) / 414,
+      zIndex: 4,
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+    },
+  });
+}
 
 export default ShopScreen;

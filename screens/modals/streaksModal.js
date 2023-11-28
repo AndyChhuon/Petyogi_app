@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { View, Dimensions, Image, Text } from "react-native";
+import { View, Image, Text, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Fonts } from "../../constants/styles";
 import { streaksLostImage, streaksSavedImage } from "../../constants/constants";
@@ -8,8 +8,6 @@ import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
 import ScaleInOut from "../../Animations/ScaleInOut";
 import * as Haptics from "expo-haptics";
-
-const { width, height } = Dimensions.get("window");
 
 const streaksModal = () => {
   const { streakObj, setStreakObj, userValues, saveStreak, user } = useAuth();
@@ -19,6 +17,25 @@ const streaksModal = () => {
   const [streakMsgState, setStreakMsgState] = useState("noStreakMsg");
 
   const { coins, streak } = userValues;
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]);
 
   const streakDelay = 1000;
 
@@ -90,17 +107,19 @@ const streaksModal = () => {
       <ScaleInOut
         visible={streakMsgState != "noStreakMsg"}
         delayIn={streakDelay}
-        style={{
-          display: "flex",
-          backgroundColor: "rgba(37, 53, 66, 0.5)",
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 30,
-          paddingBottom: "15%",
-        }}
+        style={[
+          {
+            display: "flex",
+            backgroundColor: "rgba(37, 53, 66, 0.5)",
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 30,
+          },
+          width > height ? {} : { paddingBottom: "15%" },
+        ]}
       >
         <View
           style={{
@@ -251,7 +270,7 @@ const streaksModal = () => {
                       resizeMode: "contain",
                     }}
                   />{" "}
-                  required.
+                  required. {"\n"}Earn more gems by revisiting meditations!
                 </Text>
               ) : (
                 <Text

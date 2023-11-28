@@ -269,6 +269,11 @@ export const Fonts = {
     fontSize: 17,
     fontFamily: "SF_Compact_Display_SemiBold",
   },
+  upgradePlan: {
+    color: "#f1f6fb",
+    fontSize: 19,
+    fontFamily: "SF_Compact_Display_Bold",
+  },
   purchaseScreenDescription: {
     color: "#dce5eb",
     fontSize: 14,

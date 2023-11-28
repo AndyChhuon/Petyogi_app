@@ -16,12 +16,10 @@ const splashScreenModal = () => {
     try {
       const claimbleGems = await AsyncStorage.getItem("claimableGems");
       if (claimbleGems) {
-        claimGems(claimbleGems);
         await AsyncStorage.removeItem("claimableGems");
+        claimGems(claimbleGems);
       }
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -32,15 +30,9 @@ const splashScreenModal = () => {
       SplashScreen.hideAsync();
     }
 
-    if (
-      routeName != "PurchaseWithGems" &&
-      routeName != "MeditationScreen" &&
-      routeName
-    ) {
+    if (routeName == "BottomTabBar") {
       claimGemsFromAsync();
     }
-
-    console.log("routeName", routeName);
 
     // if claimbleGems in async storage, claim gems
   }, [routeObj]);

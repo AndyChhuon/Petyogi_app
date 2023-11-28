@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Fonts } from "../../constants/styles";
-const { width, height } = Dimensions.get("window");
 import useAuth from "../../hooks/useAuth";
 import { meditationScreenCustomizeables } from "../../constants/constants";
 import Lottie from "lottie-react-native";
@@ -27,6 +26,29 @@ const PurchaseWithGems = ({ navigation, route }) => {
   } = useAuth();
   const nbGems = userValues.coins;
   const [music, setMusic] = useState(null);
+
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
+
+  const styles = createStyles(width);
+  console.log("width: " + width);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]);
 
   const { id, type, amount, musicIsPlaying, MusicRef } = route.params;
 
@@ -158,7 +180,9 @@ const PurchaseWithGems = ({ navigation, route }) => {
               flexGrow: 1,
               display: "flex",
               justifyContent: "center",
-              paddingBottom: "10%",
+              alignItems: "center",
+              flexShrink: 1,
+              marginTop: height > width ? (height * 0.1) / 2 : 0,
             }}
           >
             <Lottie
@@ -168,8 +192,7 @@ const PurchaseWithGems = ({ navigation, route }) => {
                   : require("../../assets/Meditation/sloth.json")
               }
               style={{
-                position: "relative",
-                top: 0,
+                resizeMode: "contain",
               }}
               speed={customizeable?.speed ? customizeable?.speed : 0.6}
               loop
@@ -180,7 +203,7 @@ const PurchaseWithGems = ({ navigation, route }) => {
         <View
           style={[
             { alignItems: "center", marginBottom: 30 },
-            type == "background" && {
+            (type == "background" || type == "music") && {
               flexGrow: 1,
               justifyContent: "flex-end",
               marginBottom: 20,
@@ -256,14 +279,16 @@ const PurchaseWithGems = ({ navigation, route }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  closeButtonStyle: {
-    margin: (20.0 * width) / 414,
-    zIndex: 4,
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-});
+function createStyles(width) {
+  return StyleSheet.create({
+    closeButtonStyle: {
+      padding: (20.0 * width) / 414,
+      zIndex: 4,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+  });
+}
 
 export default PurchaseWithGems;

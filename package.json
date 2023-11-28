@@ -47,7 +47,8 @@
     "react-native-simple-bottom-sheet": "^1.0.4",
     "react-native-snap-carousel-v4": "^1.0.1",
     "react-native-swipe-list-view": "^3.2.9",
-    "react-native-web": "~0.18.10"
+    "react-native-web": "~0.18.10",
+    "expo-notifications": "~0.18.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

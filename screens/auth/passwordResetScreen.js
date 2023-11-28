@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import {
   SafeAreaView,
-  Dimensions,
   View,
   ScrollView,
   StyleSheet,
@@ -9,14 +8,12 @@ import {
   TextInput,
   Text,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { Colors, Fonts, Sizes } from "../../constants/styles";
 import { MaterialIcons } from "@expo/vector-icons";
 import useAuth from "../../hooks/useAuth";
 import * as Haptics from "expo-haptics";
-import { set } from "react-native-reanimated";
-
-const { width } = Dimensions.get("window");
 
 const PasswordResetScreen = ({ navigation }) => {
   const [error, setError] = useState(null);
@@ -26,6 +23,9 @@ const PasswordResetScreen = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState(null);
   const [emailError, setEmailError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const { width } = Dimensions.get("window");
+  const styles = createStyles(width);
 
   const { passwordReset } = useAuth();
 
@@ -284,43 +284,45 @@ const PasswordResetScreen = ({ navigation }) => {
   }
 };
 
-const styles = StyleSheet.create({
-  backArrowWrapStyle: {
-    width: 40.0,
-    height: 40.0,
-    borderRadius: 20.0,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: Sizes.fixPadding * 3.0,
-    marginBottom: Sizes.fixPadding * 2.0,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-  },
-  verifyButtonStyle: {
-    backgroundColor: Colors.secondaryGoldColor,
-    paddingVertical: Sizes.fixPadding + 5.0,
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: Sizes.fixPadding * 2.0,
-    marginTop: Sizes.fixPadding * 4.0,
-    borderRadius: Sizes.fixPadding - 5.0,
-  },
-  dialogStyle: {
-    borderRadius: Sizes.fixPadding - 5.0,
-    width: width - 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.bodyBackColor,
-    padding: 0.0,
-  },
-  textFieldWrapStyle: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderRadius: Sizes.fixPadding - 5.0,
-    paddingHorizontal: Sizes.fixPadding + 2.0,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-  },
-});
+function createStyles(width) {
+  return StyleSheet.create({
+    backArrowWrapStyle: {
+      width: 40.0,
+      height: 40.0,
+      borderRadius: 20.0,
+      backgroundColor: "rgba(255,255,255,0.05)",
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: Sizes.fixPadding * 3.0,
+      marginBottom: Sizes.fixPadding * 2.0,
+      marginHorizontal: Sizes.fixPadding * 2.0,
+    },
+    verifyButtonStyle: {
+      backgroundColor: Colors.secondaryGoldColor,
+      paddingVertical: Sizes.fixPadding + 5.0,
+      alignItems: "center",
+      justifyContent: "center",
+      marginHorizontal: Sizes.fixPadding * 2.0,
+      marginTop: Sizes.fixPadding * 4.0,
+      borderRadius: Sizes.fixPadding - 5.0,
+    },
+    dialogStyle: {
+      borderRadius: Sizes.fixPadding - 5.0,
+      width: width - 40,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: Colors.bodyBackColor,
+      padding: 0.0,
+    },
+    textFieldWrapStyle: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "rgba(255,255,255,0.05)",
+      borderRadius: Sizes.fixPadding - 5.0,
+      paddingHorizontal: Sizes.fixPadding + 2.0,
+      marginHorizontal: Sizes.fixPadding * 2.0,
+    },
+  });
+}
 
 export default PasswordResetScreen;

@@ -3,9 +3,9 @@ import {
   View,
   Image,
   StyleSheet,
+  Dimensions,
   Text,
   BackHandler,
-  Dimensions,
 } from "react-native";
 import { Colors, Sizes, Fonts } from "../constants/styles";
 import HomeScreen from "../screens/home/homeScreen";
@@ -15,14 +15,16 @@ import { useFocusEffect } from "@react-navigation/native";
 import useAuth from "../hooks/useAuth";
 
 const Tab = createBottomTabNavigator();
-const { height } = Dimensions.get("window");
 
 const TabNavigator = ({ route }) => {
+  const { reloadUser, isWaitingOnEmailVerification } = useAuth();
+  const { height } = Dimensions.get("window");
+
+  const styles = createStyles(height);
   const backAction = () => {
     backClickCount == 1 ? BackHandler.exitApp() : _spring();
     return true;
   };
-  const { reloadUser, isWaitingOnEmailVerification } = useAuth();
 
   useEffect(() => {
     if (route.params?.isExternal && isWaitingOnEmailVerification) {
@@ -121,34 +123,35 @@ const TabNavigator = ({ route }) => {
   }
 };
 
+function createStyles(height) {
+  return StyleSheet.create({
+    bottomTabBarItemWrapStyle: {
+      width: (40.0 * height) / 880,
+      height: (40.0 * height) / 880,
+      borderRadius: 10,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    animatedView: {
+      backgroundColor: "#333333",
+      position: "absolute",
+      bottom: 40,
+      alignSelf: "center",
+      borderRadius: Sizes.fixPadding * 2.0,
+      paddingHorizontal: Sizes.fixPadding + 5.0,
+      paddingVertical: Sizes.fixPadding,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    tabBarStyle: {
+      borderTopWidth: (2 * height) / 880,
+      height: (70 * height) / 880,
+      paddingTop: 15,
+      borderTopColor: "#7b8c95",
+      elevation: (3.0 * height) / 880,
+      shadowColor: Colors.primaryColor,
+      backgroundColor: "#120d28",
+    },
+  });
+}
 export default TabNavigator;
-
-const styles = StyleSheet.create({
-  bottomTabBarItemWrapStyle: {
-    width: (40.0 * height) / 880,
-    height: (40.0 * height) / 880,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  animatedView: {
-    backgroundColor: "#333333",
-    position: "absolute",
-    bottom: 40,
-    alignSelf: "center",
-    borderRadius: Sizes.fixPadding * 2.0,
-    paddingHorizontal: Sizes.fixPadding + 5.0,
-    paddingVertical: Sizes.fixPadding,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tabBarStyle: {
-    borderTopWidth: (2 * height) / 880,
-    height: (70 * height) / 880,
-    paddingTop: 15,
-    borderTopColor: "#7b8c95",
-    elevation: (3.0 * height) / 880,
-    shadowColor: Colors.primaryColor,
-    backgroundColor: "#120d28",
-  },
-});

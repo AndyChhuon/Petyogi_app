@@ -30,12 +30,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import AwesomeButton from "react-native-really-awesome-button";
 import { set } from "firebase/database";
 
-const { width, height } = Dimensions.get("window");
-
 const MeditationScreen = ({ navigation, route }) => {
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [initValue, setInitValue] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(null);
   const [waitingForNextLine, setWaitingForNextLine] = useState(false);
   const [sound, setSound] = useState(null);
   const [pauseTime, setPauseTime] = useState(0);
@@ -43,7 +41,7 @@ const MeditationScreen = ({ navigation, route }) => {
   const [lastTimePaused, setLastTimePaused] = useState(0);
   const [phraseCurrentlyPlaying, setPhraseCurrentlyPlaying] = useState(0);
   const [musicSound, setMusicSound] = useState(null);
-  const [initialVolume, setInitialVolume] = useState(0.3);
+  const [initialVolume, setInitialVolume] = useState(0.4);
   const [musicVolume, setMusicVolume] = useState(initialVolume);
   const [introOutroWasInitialized, setIntroOutroWasInitialized] =
     useState(false);
@@ -56,6 +54,28 @@ const MeditationScreen = ({ navigation, route }) => {
     updateTutorialModalVisible,
     userValues,
   } = useAuth();
+
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]);
+
+  const styles = createStyles(width, height);
 
   const updateMusicStorage = async (musicMeditation) => {
     try {
@@ -121,6 +141,8 @@ const MeditationScreen = ({ navigation, route }) => {
           image: require("../../assets/background_svg/starry_night_preview.png"),
           lottie: require("../../assets/background_svg/starry_night.json"),
           textColor: "#639aba",
+          gems: "Free",
+          name: "Starry Night",
         }
   );
   const [speedControl, setSpeedControl] = useState(
@@ -142,6 +164,9 @@ const MeditationScreen = ({ navigation, route }) => {
           id: "2",
           image: require("../../assets/Meditation/sloth.png"),
           lottie: require("../../assets/Meditation/sloth.json"),
+          gems: "Free",
+          name: "Mellow",
+          backgroundColor: "#ffd6ac",
         }
   );
 
@@ -149,6 +174,7 @@ const MeditationScreen = ({ navigation, route }) => {
     id: "1",
     image: null,
     title: "No music",
+    gems: "Free",
   });
 
   const initMusic =
@@ -161,10 +187,12 @@ const MeditationScreen = ({ navigation, route }) => {
         )
       : {
           id: "4",
-          image: require("../../assets/music/peaceful_thoughts_preview.jpg"),
-          title: "Peaceful Thoughts",
+          image: require("../../assets/music/blue_star.jpg"),
+          title: "Star Gazing",
           sound:
-            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/peaceful_thoughts.mp3",
+            "https://petyogipublic.s3.us-east-2.amazonaws.com/meditations/Music/Blue+star.mp3",
+          name: "Star Gazing",
+          gems: "Free",
         };
 
   const loadingAudioRef = useRef(false); // Track if audio is currently loading
@@ -247,12 +275,10 @@ const MeditationScreen = ({ navigation, route }) => {
     if (preRecordedAudioShouldBePlaying) {
       setCurrentPhrase(currentPhrase + 1);
       setInitValue(currentPhrase + 1);
-      console.log("nextButtonPressed prerercorded");
     } else {
       if (currentPhrase < maxNumPhrases) {
         setCurrentPhrase(currentPhrase + 1);
         setInitValue(currentPhrase + 1);
-        console.log("nextButtonPressed");
       }
     }
   };
@@ -369,9 +395,7 @@ const MeditationScreen = ({ navigation, route }) => {
     if (nbGems > 0) {
       try {
         await AsyncStorage.setItem("claimableGems", nbGems.toString());
-      } catch (e) {
-        console.log(e);
-      }
+      } catch (e) {}
     }
   };
   // set claimable gems in async storage
@@ -400,21 +424,19 @@ const MeditationScreen = ({ navigation, route }) => {
   }, [introOutroWasInitialized, generating]);
 
   useEffect(() => {
+    setMusicMeditation(initMusic);
     if (introOutroWasInitialized) {
       setTimeout(() => {
         if (!playing) {
           setPlaying(true);
-          setMusicMeditation(initMusic);
         }
-      }, 1000);
+      }, 1500);
     }
   }, [introOutroWasInitialized]);
 
   useEffect(() => {
-    console.log("shouldListenRealTime", meditationInfo.shouldListenRealTime);
     let unsubscribe;
     if (meditationInfo.shouldListenRealTime) {
-      console.log("listenMeditationUpdate");
       unsubscribe = listenMeditationUpdate(
         number,
         setMeditationInfo,
@@ -626,9 +648,14 @@ const MeditationScreen = ({ navigation, route }) => {
         return;
       }
 
+      // playing == null means init music should be playing
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: musicMeditation.sound },
-        { shouldPlay: playing, volume: musicVolume, isLooping: true }
+        {
+          shouldPlay: playing || playing == null,
+          volume: musicVolume,
+          isLooping: true,
+        }
       );
       setMusicSound(newSound);
       if (!meditationHasStarted) setMeditationHasStarted(true);
@@ -652,12 +679,12 @@ const MeditationScreen = ({ navigation, route }) => {
   function getRandomNumber() {
     const randomValue = Math.random(); // Generates a random number between 0 and 1
 
-    if (randomValue < 0.7) {
-      return 1; // 70% chance
-    } else if (randomValue < 0.9) {
-      return 2; // 20% chance
+    if (randomValue < 0.8) {
+      return 1; // 80% chance
+    } else if (randomValue < 0.95) {
+      return 2; // 15% chance
     } else {
-      return 3; // 10% chance
+      return 3; // 5% chance
     }
   }
 
@@ -772,7 +799,7 @@ const MeditationScreen = ({ navigation, route }) => {
                     setSpeedControlTemp(value);
                   }}
                   minimumValue={0}
-                  maximumValue={30}
+                  maximumValue={15}
                   step={0.5}
                   value={speedControl}
                   thumbTintColor="#FFD369"
@@ -882,7 +909,7 @@ const MeditationScreen = ({ navigation, route }) => {
               <Text
                 style={[
                   {
-                    minHeight: (25.0 * width) / 414,
+                    minHeight: 25,
                     textAlign: "center",
                     marginTop: 6,
                   },
@@ -961,13 +988,19 @@ const MeditationScreen = ({ navigation, route }) => {
             }}
           >
             <View
-              style={{ flexGrow: 1, display: "flex", justifyContent: "center" }}
+              style={{
+                flexShrink: 1,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                //margin top if portrait
+                marginTop: height > width ? (height * 0.1) / 2 : 0,
+              }}
             >
               <Lottie
                 source={lottieMeditation?.lottie}
                 style={{
-                  position: "relative",
-                  top: 0,
+                  height: "100%",
                 }}
                 speed={lottieMeditation?.speed ? lottieMeditation?.speed : 0.6}
                 ref={lottieRef}
@@ -1138,7 +1171,11 @@ const MeditationScreen = ({ navigation, route }) => {
             }
             if (musicSound) musicSound.unloadAsync();
             if (pauseInterval) clearTimeout(pauseInterval);
-            navigation.navigate("BottomTabBar");
+
+            navigation.navigate("PurchaseScreen", {
+              isLoading: true,
+              isCTA: true,
+            });
           }}
         />
       </View>
@@ -1682,100 +1719,102 @@ const MeditationScreen = ({ navigation, route }) => {
   }
 };
 
-const styles = StyleSheet.create({
-  playMeditationStyle: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    backgroundColor: "white",
-    justifyContent: "center",
-    display: "flex",
-    flexDirection: "column",
-    marginHorizontal: 5,
-    borderRadius: 10,
-    backgroundColor:
-      Platform.OS === "android"
-        ? "rgba(255, 255, 255, 0.52)"
-        : "rgba(255, 255, 255, 0.46)",
-    borderWidth: 2,
-    borderColor:
-      Platform.OS === "android"
-        ? "rgba(32, 32, 34, 0.42)"
-        : "rgba(32, 32, 34, 0.52)",
-  },
-  meditationText: {
-    paddingHorizontal: 4,
-    marginBottom: 5,
-    display: "flex",
-    alignItems: "center",
-  },
-  notificationIconWrapStyle: {
-    padding: 1,
-    borderRadius: (Sizes.fixPadding * width) / 414,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.22)",
-    width: (40.0 * width) / 414,
-    height: (40.0 * width) / 414,
-  },
-  userImageStyle: {
-    width: (50.0 * width) / 414,
-    height: (50.0 * width) / 414,
-    borderRadius: (25.0 * width) / 414,
-    borderColor: Colors.primaryColor,
-    borderWidth: (1.5 * width) / 414,
-  },
-  sidebarMenuWrap: {
-    paddingRight: (10.0 * width) / 414,
-    display: "flex",
-    flexDirection: "row",
-  },
-  sideBarWrapStyle: {
-    alignItems: "center",
-    borderRadius: 12,
-    height: (42.0 * width * 3) / 414 + 35,
-  },
-  sideMenuWrapStyle: {
-    flexGrow: 1,
-    alignItems: "center",
-    backgroundColor: "transparent",
-    paddingVertical: (8.0 * width) / 414,
-    paddingHorizontal: (8.0 * width) / 414,
-    borderRadius: 12,
-    backgroundColor: "rgba(101, 101, 101, 0.92)",
-  },
-  flatListMenuStyle: {
-    borderRadius: 4,
-    padding: 1,
-    backgroundColor:
-      Platform.OS === "android"
-        ? "rgba(32, 32, 34, 0.42)"
-        : "rgba(32, 32, 34, 0.52)",
-  },
-  closeButtonStyle: {
-    marginLeft: (20.0 * width) / 414,
-    paddingRight: (10.0 * width) / 414,
-    marginTop: (25.0 * width) / 414,
-    zIndex: 4,
-  },
-  BackgroundImage: {
-    flex: 1,
-    resizeMode: "cover",
-    justifyContent: "center",
-  },
-  progressLabelContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  musicControlls: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "55%",
-    alignItems: "center",
-  },
-  musicControllsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-});
+function createStyles(width, height) {
+  return StyleSheet.create({
+    playMeditationStyle: {
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+      backgroundColor: "white",
+      justifyContent: "center",
+      display: "flex",
+      flexDirection: "column",
+      marginHorizontal: 5,
+      borderRadius: 10,
+      backgroundColor:
+        Platform.OS === "android"
+          ? "rgba(255, 255, 255, 0.52)"
+          : "rgba(255, 255, 255, 0.46)",
+      borderWidth: 2,
+      borderColor:
+        Platform.OS === "android"
+          ? "rgba(32, 32, 34, 0.42)"
+          : "rgba(32, 32, 34, 0.52)",
+    },
+    meditationText: {
+      paddingHorizontal: 4,
+      marginBottom: 5,
+      display: "flex",
+      alignItems: "center",
+    },
+    notificationIconWrapStyle: {
+      padding: 1,
+      borderRadius: (Sizes.fixPadding * width) / 414,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(255, 255, 255, 0.22)",
+      width: (40.0 * width) / 414,
+      height: (40.0 * width) / 414,
+    },
+    userImageStyle: {
+      width: (50.0 * width) / 414,
+      height: (50.0 * width) / 414,
+      borderRadius: (25.0 * width) / 414,
+      borderColor: Colors.primaryColor,
+      borderWidth: (1.5 * width) / 414,
+    },
+    sidebarMenuWrap: {
+      paddingRight: (10.0 * width) / 414,
+      display: "flex",
+      flexDirection: "row",
+    },
+    sideBarWrapStyle: {
+      alignItems: "center",
+      borderRadius: 12,
+      height: (42.0 * width * 3) / 414 + 35,
+    },
+    sideMenuWrapStyle: {
+      flexGrow: 1,
+      alignItems: "center",
+      backgroundColor: "transparent",
+      paddingVertical: (8.0 * width) / 414,
+      paddingHorizontal: (8.0 * width) / 414,
+      borderRadius: 12,
+      backgroundColor: "rgba(101, 101, 101, 0.92)",
+    },
+    flatListMenuStyle: {
+      borderRadius: 4,
+      padding: 1,
+      backgroundColor:
+        Platform.OS === "android"
+          ? "rgba(32, 32, 34, 0.42)"
+          : "rgba(32, 32, 34, 0.52)",
+    },
+    closeButtonStyle: {
+      marginLeft: (20.0 * width) / 414,
+      paddingRight: (10.0 * width) / 414,
+      marginTop: 25,
+      zIndex: 4,
+    },
+    BackgroundImage: {
+      flex: 1,
+      resizeMode: "cover",
+      justifyContent: "center",
+    },
+    progressLabelContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    musicControlls: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "55%",
+      alignItems: "center",
+    },
+    musicControllsContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
+    },
+  });
+}
 
 export default MeditationScreen;

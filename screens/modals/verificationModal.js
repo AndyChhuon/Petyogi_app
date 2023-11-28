@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { View, Dimensions, Image, Text } from "react-native";
+import { View, Image, Text, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, Fonts } from "../../constants/styles";
 import AwesomeButton from "react-native-really-awesome-button";
@@ -13,11 +13,28 @@ import {
 } from "../../constants/constants";
 import { useNavigation } from "@react-navigation/native";
 
-const { width, height } = Dimensions.get("window");
-
 const VerificationModal = () => {
   const { verificationModalVisible, setVerificationModalVisible, userValues } =
     useAuth();
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]);
 
   const navigation = useNavigation();
 
@@ -29,7 +46,7 @@ const VerificationModal = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setVerificationModalVisible(false);
     if (userValues.remainingCredits == 0) {
-      navigation.navigate("PurchaseScreen");
+      navigation.navigate("PurchaseScreen", {});
     } else {
       const propsToPass = {
         initMeditationQuestionsJson: initMeditationQuestionsJson,
@@ -60,17 +77,19 @@ const VerificationModal = () => {
       <ScaleInOut
         visible={verificationModalVisible}
         delayIn={creditsDelay}
-        style={{
-          display: "flex",
-          backgroundColor: "rgba(37, 53, 66, 0.5)",
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 38,
-          paddingBottom: "15%",
-        }}
+        style={[
+          {
+            display: "flex",
+            backgroundColor: "rgba(37, 53, 66, 0.5)",
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 38,
+          },
+          width > height ? {} : { paddingBottom: "15%" },
+        ]}
       >
         <View
           style={{

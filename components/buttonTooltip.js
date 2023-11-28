@@ -2,7 +2,6 @@ import AwesomeButton from "react-native-really-awesome-button";
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
-  Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -20,8 +19,6 @@ import * as Haptics from "expo-haptics";
 import Lottie from "lottie-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const { width } = Dimensions.get("window");
-
 function Button(props) {
   const [meditateButtonIsPressed, setMeditateButtonIsPressed] = useState(false);
   const {
@@ -37,7 +34,10 @@ function Button(props) {
     tutorialMeditationShouldShow,
     isOutOfCredits,
     userId,
+    width,
   } = props;
+
+  const styles = createStyles(width);
 
   const dbRef = ref(db);
   const [shouldDisplayTopTooltip, setShouldDisplayTopTooltip] = useState(false);
@@ -123,7 +123,10 @@ function Button(props) {
     } else {
       setTimeout(async () => {
         if (isOutOfCredits) {
-          navigation.navigate("PurchaseScreen");
+          navigation.navigate("PurchaseScreen", {
+            isLoading: false,
+            isCTA: true,
+          });
           setMeditateButtonIsPressed(false);
           return;
         }
@@ -264,8 +267,8 @@ function Button(props) {
                   <Image
                     source={require("../assets/images/icons/checkmark.png")}
                     style={{
-                      width: width / 12 > 40 ? width / 15 : width / 12,
-                      height: width / 12,
+                      width: width / 12 > 50 ? 50 : width / 12,
+                      width: width / 12 > 50 ? 50 : width / 12,
                       resizeMode: "contain",
                       tintColor: dayMode ? Colors.bodyBackColor : "#fffefe",
                     }}
@@ -276,7 +279,13 @@ function Button(props) {
                       ...Fonts.blackMicroma,
                       color: dayMode ? "#fffefe" : "#B99B92",
                       fontSize:
-                        number < 100 ? (25 * width) / 414 : (22 * width) / 414,
+                        number < 100
+                          ? (25 * width) / 414 > 30
+                            ? 30
+                            : (25 * width) / 414
+                          : (22 * width) / 414 > 30
+                          ? 30
+                          : (22 * width) / 414,
                     }}
                   >
                     {number}
@@ -447,84 +456,86 @@ function Button(props) {
   );
 }
 
-const styles = StyleSheet.create({
-  buttonMarginStyle: {
-    width: (45 * width) / 100,
-    position: "relative",
-    zIndex: 1,
-    top: 0,
-  },
-  buttonContainerStyle: {
-    display: "flex",
-    alignItems: "center",
-  },
-  centerAll: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  tooltipTip: {
-    borderLeftWidth: 10,
-    borderRightWidth: 10,
-    borderBottomWidth: 10,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-  },
-  topTooltipTip: {
-    position: "relative",
-    bottom: -8,
-    borderLeftWidth: 10,
-    borderRightWidth: 10,
-    borderTopWidth: 10,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-  },
-  tooltipDisplay: {
-    marginTop: 8,
-    marginLeft: (40 * width) / 414,
-    marginRight: (40 * width) / 414,
-    width: width - (2 * (40 * width)) / 414,
-    position: "absolute",
-    zIndex: 2,
-    borderRadius: 15,
-  },
-  topTooltipDisplay: {
-    zIndex: 1000,
-    width: (90 * width) / 414 > 150 ? 150 : (90 * width) / 414,
-    zIndex: 2,
-    borderRadius: 10,
-    padding: (12 * width) / 414,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-  },
-  touchableStyling: {
-    width: "100%",
-    height: "100%",
-  },
-  tooltipText: {
-    width: "100%",
-    height: "100%",
-    padding: 16,
-  },
-  startButtonStyle: {
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 16,
-    marginTop: 16,
-    marginBottom: 5,
-  },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  floater: {
-    width: 50,
-    height: 50,
-    backgroundColor: "red",
-  },
-});
+function createStyles(width) {
+  return StyleSheet.create({
+    buttonMarginStyle: {
+      width: (45 * width) / 100,
+      position: "relative",
+      zIndex: 1,
+      top: 0,
+    },
+    buttonContainerStyle: {
+      display: "flex",
+      alignItems: "center",
+    },
+    centerAll: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    tooltipTip: {
+      borderLeftWidth: 10,
+      borderRightWidth: 10,
+      borderBottomWidth: 10,
+      borderLeftColor: "transparent",
+      borderRightColor: "transparent",
+    },
+    topTooltipTip: {
+      position: "relative",
+      bottom: -8,
+      borderLeftWidth: 10,
+      borderRightWidth: 10,
+      borderTopWidth: 10,
+      borderLeftColor: "transparent",
+      borderRightColor: "transparent",
+    },
+    tooltipDisplay: {
+      marginTop: 8,
+      marginLeft: (40 * width) / 414,
+      marginRight: (40 * width) / 414,
+      width: width - (2 * (40 * width)) / 414,
+      position: "absolute",
+      zIndex: 2,
+      borderRadius: 15,
+    },
+    topTooltipDisplay: {
+      zIndex: 1000,
+      width: (90 * width) / 414 > 150 ? 150 : (90 * width) / 414,
+      zIndex: 2,
+      borderRadius: 10,
+      padding: (12 * width) / 414 > 30 ? 30 : (12 * width) / 414,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+    },
+    touchableStyling: {
+      width: "100%",
+      height: "100%",
+    },
+    tooltipText: {
+      width: "100%",
+      height: "100%",
+      padding: 16,
+    },
+    startButtonStyle: {
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 16,
+      marginTop: 16,
+      marginBottom: 5,
+    },
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    floater: {
+      width: 50,
+      height: 50,
+      backgroundColor: "red",
+    },
+  });
+}
 
 export default React.memo(Button);

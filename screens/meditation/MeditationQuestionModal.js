@@ -95,9 +95,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   }, [currentQuestionIndex]);
 
   const flatListRef = useRef();
-  console.log(meditationQuestionsJson);
-  console.log(currentQuestionIndex);
-  console.log(meditationQuestionsJson[currentQuestionIndex].Question);
   const meditationQuestion =
     meditationQuestionsJson[currentQuestionIndex]?.Question;
 
@@ -116,7 +113,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       return null; // Return null if the array is empty
     }
     const randomIndex = Math.floor(Math.random() * arr.length);
-    console.log("randomIndex", randomIndex);
     return randomIndex;
   }
 
@@ -125,7 +121,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     introPhraseArr,
     prerecordedType
   ) => {
-    console.log("introUrlArr", introUrlArr);
     // randomly pick intro
     for (const [key, value] of Object.entries(
       prerecordedPhrases[prerecordedType]
@@ -232,7 +227,25 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     Keyboard.dismiss();
   };
 
-  const { width, height } = Dimensions.get("window");
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]);
 
   const handleTextChange = (inputText) => {
     setMeditationQuestionsJson((meditationQuestionsJson) => {
@@ -490,9 +503,9 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         ]}
       >
         <AwesomeButton
-          width={(135 * width) / 414}
+          width={(135 * width) / 414 > 350 ? 350 : (135 * width) / 414}
           backgroundColor="#fcc695"
-          height={(125 * width) / 414}
+          height={(125 * width) / 414 > 350 ? 350 : (125 * width) / 414}
           paddingBottom={10}
           paddingHorizontal={5}
           raiseLevel={7}
@@ -562,9 +575,9 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     return (
       <View style={styles.multipleChoiceButtonContainer}>
         <AwesomeButton
-          width={(100 * width) / 414}
+          width={(100 * width) / 414 > 250 ? 250 : (100 * width) / 414}
           backgroundColor="#fcc695"
-          height={(100 * width) / 414}
+          height={(100 * width) / 414 > 250 ? 250 : (100 * width) / 414}
           paddingHorizontal={0}
           raiseLevel={7}
           borderRadius={8}
@@ -687,13 +700,15 @@ const MeditationQuestionModal = ({ navigation, route }) => {
 
   const initPromptQuestions = React.useMemo(() => {
     if (!questionsPromptsGenerated) return;
+    let newQuestionsPromptsGenerated = userValues.questionsPromptsGenerated;
     if (questionsAreGenerating) {
-      questionsPromptsGenerated?.filter((item) => item != "generating...");
-      questionsPromptsGenerated?.push("generating...");
+      newQuestionsPromptsGenerated?.push("generating...");
     } else {
-      questionsPromptsGenerated?.filter((item) => item != "generating...");
+      newQuestionsPromptsGenerated = newQuestionsPromptsGenerated?.filter(
+        (item) => item != "generating..."
+      );
     }
-    return questionsPromptsGenerated?.map((questionString, index) => ({
+    return newQuestionsPromptsGenerated?.map((questionString, index) => ({
       id: index,
       component: (
         <RenderJournalQuestions
@@ -882,8 +897,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           count += 1;
         });
 
-        console.log("newMeditationQuestionsJson", newMeditationQuestionsJson);
-
         generateNewMeditation(
           user,
           newMeditationQuestionsJson,
@@ -955,17 +968,21 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         style={[
           styles.textBoxContainer,
           {
+            flexShrink: 1,
+            display: "flex",
             justifyContent: "center",
+            alignItems: "center",
           },
         ]}
       >
         <Lottie
           source={meditationLotties[createMeditationLottieIndex].lottie}
-          style={{
-            position: "relative",
-            zIndex: 1,
-            resizeMode: "cover",
-          }}
+          style={
+            //height if landscape, width if portait
+            height < width
+              ? { height: "100%", aspectRatio: 1 }
+              : { width: "100%", aspectRatio: 1 }
+          }
           autoPlay
           loop
           speed={meditationLotties[createMeditationLottieIndex].speed}

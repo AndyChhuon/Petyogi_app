@@ -18,7 +18,6 @@ import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AwesomeButton from "react-native-really-awesome-button";
 import useAuth from "../../hooks/useAuth";
 import * as Haptics from "expo-haptics";
-const { height } = Dimensions.get("window");
 
 const LoginScreen = ({ navigation }) => {
   const [state, setState] = useState({
@@ -26,8 +25,10 @@ const LoginScreen = ({ navigation }) => {
     userEmail: null,
     securePassword: true,
   });
+  const { height } = Dimensions.get("window");
+  const styles = createStyles(height);
 
-  const { emailLogin, user } = useAuth();
+  const { emailLogin } = useAuth();
 
   const [error, setError] = useState(null);
 
@@ -357,68 +358,70 @@ const LoginScreen = ({ navigation }) => {
   }
 };
 
-const styles = StyleSheet.create({
-  loginContainer: {
-    justifyContent: "center",
-    backgroundColor: "red",
-    height: "100%",
-  },
-  textFieldWrapStyle: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderRadius: Sizes.fixPadding - 5.0,
-    paddingHorizontal: Sizes.fixPadding + 2.0,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-  },
-  forgetPasswordTextStyle: {
-    marginTop: ((Sizes.fixPadding - 5.0) * height) / 880,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-    textAlign: "right",
-    textDecorationLine: "underline",
-    ...Fonts.primaryColor14Medium,
-  },
-  loginButtonStyle: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: Sizes.fixPadding * 2.0,
-    borderRadius: Sizes.fixPadding - 5.0,
-    marginTop: (Sizes.fixPadding * 3.0 * height) / 880,
-  },
-  googleAndFacebookButtonWrapStyle: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    paddingVertical: Sizes.fixPadding + 5.0,
-    marginHorizontal: Sizes.fixPadding,
-    borderRadius: Sizes.fixPadding - 5.0,
-  },
-  animatedView: {
-    backgroundColor: "#333333",
-    position: "absolute",
-    bottom: 20,
-    alignSelf: "center",
-    borderRadius: Sizes.fixPadding * 2.0,
-    paddingHorizontal: Sizes.fixPadding + 5.0,
-    paddingVertical: Sizes.fixPadding,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  backArrowWrapStyle: {
-    position: "absolute",
-    width: 40.0,
-    height: 40.0,
-    borderRadius: 20.0,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: Sizes.fixPadding * 3.0,
-    marginBottom: Sizes.fixPadding * 2.0,
-    marginHorizontal: Sizes.fixPadding * 2.0,
-    zIndex: 2,
-  },
-});
+function createStyles(height) {
+  return StyleSheet.create({
+    loginContainer: {
+      justifyContent: "center",
+      backgroundColor: "red",
+      height: "100%",
+    },
+    textFieldWrapStyle: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "rgba(255,255,255,0.05)",
+      borderRadius: Sizes.fixPadding - 5.0,
+      paddingHorizontal: Sizes.fixPadding + 2.0,
+      marginHorizontal: Sizes.fixPadding * 2.0,
+    },
+    forgetPasswordTextStyle: {
+      marginTop: ((Sizes.fixPadding - 5.0) * height) / 880,
+      marginHorizontal: Sizes.fixPadding * 2.0,
+      textAlign: "right",
+      textDecorationLine: "underline",
+      ...Fonts.primaryColor14Medium,
+    },
+    loginButtonStyle: {
+      alignItems: "center",
+      justifyContent: "center",
+      marginHorizontal: Sizes.fixPadding * 2.0,
+      borderRadius: Sizes.fixPadding - 5.0,
+      marginTop: (Sizes.fixPadding * 3.0 * height) / 880,
+    },
+    googleAndFacebookButtonWrapStyle: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(255,255,255,0.05)",
+      paddingVertical: Sizes.fixPadding + 5.0,
+      marginHorizontal: Sizes.fixPadding,
+      borderRadius: Sizes.fixPadding - 5.0,
+    },
+    animatedView: {
+      backgroundColor: "#333333",
+      position: "absolute",
+      bottom: 20,
+      alignSelf: "center",
+      borderRadius: Sizes.fixPadding * 2.0,
+      paddingHorizontal: Sizes.fixPadding + 5.0,
+      paddingVertical: Sizes.fixPadding,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    backArrowWrapStyle: {
+      position: "absolute",
+      width: 40.0,
+      height: 40.0,
+      borderRadius: 20.0,
+      backgroundColor: "rgba(255,255,255,0.05)",
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: Sizes.fixPadding * 3.0,
+      marginBottom: Sizes.fixPadding * 2.0,
+      marginHorizontal: Sizes.fixPadding * 2.0,
+      zIndex: 2,
+    },
+  });
+}
 
 export default LoginScreen;

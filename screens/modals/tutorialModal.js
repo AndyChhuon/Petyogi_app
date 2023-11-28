@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef } from "react";
 
 import {
   View,
-  Dimensions,
   TouchableOpacity,
   Image,
   StyleSheet,
   Text,
   AppState,
+  Dimensions,
 } from "react-native";
 import { Colors, Fonts } from "../../constants/styles";
 import AwesomeButton from "react-native-really-awesome-button";
@@ -17,8 +17,6 @@ import * as Haptics from "expo-haptics";
 import { useNavigationState } from "@react-navigation/native";
 import Purchases from "react-native-purchases";
 import { surprisedImage } from "../../constants/constants";
-
-const { width, height } = Dimensions.get("window");
 
 const TutorialModal = () => {
   const [currentModal, setCurrentModal] = useState(null);
@@ -45,14 +43,36 @@ const TutorialModal = () => {
     pushLogsToServer,
     addToUserLogs,
     userLogs,
+    requestNotificationsPermission,
   } = useAuth();
+  const initDimensions = Dimensions.get("window");
+  const [width, setWidth] = useState(initDimensions.width);
+  const [height, setHeight] = useState(initDimensions.height);
+
+  useEffect(() => {
+    function onChangeDimensions({ window }) {
+      const { width, height } = window;
+      setWidth(width);
+      setHeight(height);
+      console.log("width: " + width + " height: " + height);
+    }
+
+    const subscription = Dimensions.addEventListener(
+      "change",
+      onChangeDimensions
+    );
+
+    return () => subscription.remove();
+  }, [setWidth, setHeight]);
 
   const email = user?.email;
 
   const routeObj = state?.routes[state.routes.length - 1];
+
   const isTutorial =
     userValues?.numMeditations == 0 ||
     (updateTutorialModalVisible && updateTutorialModalVisible != "none");
+
   const isVerified = userValues?.remainingCredits > 0;
 
   const subscriptionWithPrevDate = creditsObj?.subscriptionWithPrevDate
@@ -76,7 +96,7 @@ const TutorialModal = () => {
     gem: {
       title: "PetYogi found new gems!",
       text: `Claimed: ${nbGemsToDisplay}`,
-      bottomText: "Thank you for meditating!",
+      bottomText: "Let's keep this habit going!",
       image: require("../../assets/images/icons/gem.png"),
       displayType: "center",
     },
@@ -429,7 +449,9 @@ const TutorialModal = () => {
               zIndex: 20,
             },
             currentModal == "welcome" || currentModal?.includes("gem")
-              ? { paddingBottom: "15%", height: "100%" }
+              ? width > height
+                ? { paddingTop: 20, height: "100%" }
+                : { paddingBottom: "15%", height: "100%" }
               : {
                   bottom: 0,
                   paddingBottom: "8%",
@@ -481,8 +503,11 @@ const TutorialModal = () => {
                   }
                   style={{
                     position: "relative",
-                    width: (200.0 * width) / 414,
-                    height: (200.0 * width) / 414,
+                    width:
+                      (200.0 * width) / 414 > 400 ? 400 : (200.0 * width) / 414,
+                    height:
+                      (200.0 * width) / 414 > 400 ? 400 : (200.0 * width) / 414,
+
                     marginBottom: 30,
                     borderRadius: 10,
                     borderColor: "#C59FAA",
@@ -620,6 +645,7 @@ const TutorialModal = () => {
                   setCurrentModal(tutorialObj[currentModal]?.nextModal);
                 } else if (currentModal?.includes("gem")) {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  requestNotificationsPermission();
                   setUpdateTutorialModalVisible("none");
                 } else if (updateTutorialModalVisible == "meditationLoading") {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
