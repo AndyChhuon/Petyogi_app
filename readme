@@ -14,5 +14,6 @@ Creating development build
 2. login (ki...@gmail.com)
 
 Apple prod build
-1. eas build --platform ios
-2. eas submit -p ios
+1. Push current code to git
+2. eas build --platform ios
+3. eas submit -p ios
