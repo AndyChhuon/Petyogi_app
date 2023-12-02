@@ -928,7 +928,7 @@ export const AuthProvider = ({ children }) => {
       );
 
       const maxNumPhrases = meditationUrls
-        ? meditationUrls
+        ? meditationUrls.count
           ? Object.keys(meditationUrls).length - 1
           : Object.keys(meditationUrls).length
         : 0;

@@ -16,6 +16,7 @@ import { meditationScreenCustomizeables } from "../../constants/constants";
 import Lottie from "lottie-react-native";
 import AwesomeButton from "react-native-really-awesome-button";
 import { Audio } from "expo-av";
+import * as Haptics from "expo-haptics";
 
 const PurchaseWithGems = ({ navigation, route }) => {
   const {
@@ -26,20 +27,19 @@ const PurchaseWithGems = ({ navigation, route }) => {
   } = useAuth();
   const nbGems = userValues.coins;
   const [music, setMusic] = useState(null);
+  const [closeWasPressed, setCloseWasPressed] = useState(false);
 
   const initDimensions = Dimensions.get("window");
   const [width, setWidth] = useState(initDimensions.width);
   const [height, setHeight] = useState(initDimensions.height);
 
   const styles = createStyles(width);
-  console.log("width: " + width);
 
   useEffect(() => {
     function onChangeDimensions({ window }) {
       const { width, height } = window;
       setWidth(width);
       setHeight(height);
-      console.log("width: " + width + " height: " + height);
     }
 
     const subscription = Dimensions.addEventListener(
@@ -143,6 +143,9 @@ const PurchaseWithGems = ({ navigation, route }) => {
             color={Colors.whiteColor}
             size={32}
             onPress={() => {
+              if (closeWasPressed) return;
+              setCloseWasPressed(true);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               navigation.pop();
               if (type == "music" && musicIsPlaying && MusicRef) {
                 MusicRef.playAsync();

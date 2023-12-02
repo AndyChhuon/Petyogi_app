@@ -27,7 +27,6 @@ const HomeScreen = ({ navigation }) => {
 
   const { width } = Dimensions.get("window");
   const styles = createStyles(width);
-  console.log("width: " + width);
 
   const [dayMode, setDayMode] = useState(initDayMode);
   const [showButton, setShowButton] = useState(false);

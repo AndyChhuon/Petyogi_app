@@ -46,7 +46,6 @@ const ProfileScreen = ({ navigation }) => {
       const { width, height } = window;
       setWidth(width);
       setHeight(height);
-      console.log("width: " + width + " height: " + height);
     }
 
     const subscription = Dimensions.addEventListener(

@@ -23,14 +23,12 @@ const ShopScreen = ({ navigation }) => {
   const { userValues } = useAuth();
   const nbGems = userValues.coins;
   const styles = createStyles(width);
-  console.log("width: " + width);
 
   useEffect(() => {
     function onChangeDimensions({ window }) {
       const { width, height } = window;
       setWidth(width);
       setHeight(height);
-      console.log("width: " + width + " height: " + height);
     }
 
     const subscription = Dimensions.addEventListener(
@@ -52,17 +50,28 @@ const ShopScreen = ({ navigation }) => {
     }
   }
 
+  const [debounceFlag, setDebounceFlag] = useState(true);
+
   const petYogis = meditationScreenCustomizeables?.meditation?.map((item) => ({
     id: item.id,
     component: (
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {
-          navigation.navigate("PurchaseWithGems", {
-            id: item.id,
-            type: "meditation",
-            amount: item.gems,
-          });
+          if (debounceFlag) {
+            setDebounceFlag(false);
+
+            navigation.navigate("PurchaseWithGems", {
+              id: item.id,
+              type: "meditation",
+              amount: item.gems,
+            });
+
+            // Set a timeout to reset the debounce flag after a delay (e.g., 1000 milliseconds)
+            setTimeout(() => {
+              setDebounceFlag(true);
+            }, 1000);
+          }
         }}
         style={{
           width: width / 4 > 230 ? 250 : width / 3.3,
@@ -142,11 +151,19 @@ const ShopScreen = ({ navigation }) => {
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => {
-            navigation.navigate("PurchaseWithGems", {
-              id: item.id,
-              type: "background",
-              amount: item.gems,
-            });
+            if (debounceFlag) {
+              setDebounceFlag(false);
+              navigation.navigate("PurchaseWithGems", {
+                id: item.id,
+                type: "background",
+                amount: item.gems,
+              });
+
+              // Set a timeout to reset the debounce flag after a delay (e.g., 1000 milliseconds)
+              setTimeout(() => {
+                setDebounceFlag(true);
+              }, 1000);
+            }
           }}
           style={{
             width: width / 3.5 > 270 ? 290 : width / 3,
@@ -229,11 +246,18 @@ const ShopScreen = ({ navigation }) => {
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => {
-            navigation.navigate("PurchaseWithGems", {
-              id: item.id,
-              type: "music",
-              amount: item.gems,
-            });
+            if (debounceFlag) {
+              setDebounceFlag(false);
+              navigation.navigate("PurchaseWithGems", {
+                id: item.id,
+                type: "music",
+                amount: item.gems,
+              });
+              // Set a timeout to reset the debounce flag after a delay (e.g., 1000 milliseconds)
+              setTimeout(() => {
+                setDebounceFlag(true);
+              }, 1000);
+            }
           }}
           style={{
             width: width / 3.5 > 250 ? 270 : width / 3,

@@ -236,7 +236,6 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       const { width, height } = window;
       setWidth(width);
       setHeight(height);
-      console.log("width: " + width + " height: " + height);
     }
 
     const subscription = Dimensions.addEventListener(
@@ -640,9 +639,17 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             questionString.length > 70
               ? questionString.length > 120
                 ? questionString.length > 170
-                  ? (115 * width) / 414
+                  ? (115 * width) / 414 > 120
+                    ? 120
+                    : (115 * width) / 414
+                  : (100 * width) / 414 > 110
+                  ? 110
                   : (100 * width) / 414
+                : (85 * width) / 414 > 100
+                ? 100
                 : (85 * width) / 414
+              : (70 * width) / 414 > 90
+              ? 90
               : (70 * width) / 414
           }
           paddingHorizontal={10}
@@ -1115,6 +1122,9 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                   },
                   meditationQuestion.length > 50 && !isDisplayQuestionPrompts
                     ? { fontSize: 17 }
+                    : meditationQuestion.length > 70 &&
+                      !isDisplayQuestionPrompts
+                    ? { fontSize: 16 }
                     : {},
                 ]}
               >
@@ -1131,6 +1141,8 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                     textAlign: "center",
                   },
                   meditationQuestion.length > 50 ? { fontSize: 18.5 } : {},
+                  meditationQuestion.length > 70 ? { fontSize: 17.5 } : {},
+                  meditationQuestion.length > 90 ? { fontSize: 16.5 } : {},
                 ]}
               >
                 {isLastModal

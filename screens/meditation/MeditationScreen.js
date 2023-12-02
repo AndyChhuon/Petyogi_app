@@ -64,7 +64,6 @@ const MeditationScreen = ({ navigation, route }) => {
       const { width, height } = window;
       setWidth(width);
       setHeight(height);
-      console.log("width: " + width + " height: " + height);
     }
 
     const subscription = Dimensions.addEventListener(
@@ -1001,6 +1000,7 @@ const MeditationScreen = ({ navigation, route }) => {
                 source={lottieMeditation?.lottie}
                 style={{
                   height: "100%",
+                  maxWidth: "100%",
                 }}
                 speed={lottieMeditation?.speed ? lottieMeditation?.speed : 0.6}
                 ref={lottieRef}
@@ -1352,10 +1352,10 @@ const MeditationScreen = ({ navigation, route }) => {
           <TouchableOpacity
             activeOpacity={isOwned ? 0.9 : 0.6}
             onPress={() => {
+              setShowMenu(false);
               if (isOwned) {
                 setLottieBackground(item);
                 updateLottieBackgroundStorage(item);
-                setShowMenu(false);
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               } else {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -1442,6 +1442,7 @@ const MeditationScreen = ({ navigation, route }) => {
           <TouchableOpacity
             activeOpacity={isOwned ? 0.9 : 0.6}
             onPress={() => {
+              setShowMenu(false);
               if (isOwned) {
                 setLottieMeditation(item);
                 updateLottieMeditationStorage(item);
@@ -1536,6 +1537,7 @@ const MeditationScreen = ({ navigation, route }) => {
           <TouchableOpacity
             activeOpacity={isOwned ? 0.9 : 0.6}
             onPress={() => {
+              setShowMenu(false);
               if (isOwned) {
                 setMusicMeditation(item);
                 updateMusicStorage(item);
