@@ -15,5 +15,6 @@ Creating development build
 
 Apple prod build
 1. Push current code to git
-2. eas build --platform ios
-3. eas submit -p ios
+2. Increment app.json
+3. eas build --platform ios
+4. eas submit -p ios
