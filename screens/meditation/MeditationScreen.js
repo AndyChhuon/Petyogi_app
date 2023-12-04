@@ -41,7 +41,7 @@ const MeditationScreen = ({ navigation, route }) => {
   const [lastTimePaused, setLastTimePaused] = useState(0);
   const [phraseCurrentlyPlaying, setPhraseCurrentlyPlaying] = useState(0);
   const [musicSound, setMusicSound] = useState(null);
-  const [initialVolume, setInitialVolume] = useState(0.5);
+  const [initialVolume, setInitialVolume] = useState(0.3);
   const [musicVolume, setMusicVolume] = useState(initialVolume);
   const [introOutroWasInitialized, setIntroOutroWasInitialized] =
     useState(false);

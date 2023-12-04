@@ -860,7 +860,9 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             };
 
             navigation.navigate("MeditationScreen", propsToPass);
-            setLoadingClicked(false);
+            setTimeout(() => {
+              setLoadingClicked(false);
+            }, 3500);
           } else {
             //Not done with generation (realtime connection)
 
@@ -885,7 +887,9 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             };
 
             navigation.navigate("MeditationScreen", propsToPass);
-            setLoadingClicked(false);
+            setTimeout(() => {
+              setLoadingClicked(false);
+            }, 3500);
           }
         }, 150);
       }
