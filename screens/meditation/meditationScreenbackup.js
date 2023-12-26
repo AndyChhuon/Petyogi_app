@@ -28,14 +28,12 @@ import FloatingAnimation from "../../Animations/FloatingAnimation";
 import useAuth from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AwesomeButton from "react-native-really-awesome-button";
-import { FontAwesome } from "@expo/vector-icons";
+import { set } from "firebase/database";
 
 const MeditationScreen = ({ navigation, route }) => {
   const [currentPhrase, setCurrentPhrase] = useState(0);
+  const [initValue, setInitValue] = useState(0);
   const [playing, setPlaying] = useState(null);
-  const [isAutoplay, setIsAutoplay] = useState(true);
-  const [prevPhraseFinished, setPrevPhraseFinished] = useState(false);
-  const [audioButtonWasPressed, setAudioButtonWasPressed] = useState(false);
   const [waitingForNextLine, setWaitingForNextLine] = useState(false);
   const [sound, setSound] = useState(null);
   const [pauseTime, setPauseTime] = useState(0);
@@ -43,13 +41,13 @@ const MeditationScreen = ({ navigation, route }) => {
   const [lastTimePaused, setLastTimePaused] = useState(0);
   const [phraseCurrentlyPlaying, setPhraseCurrentlyPlaying] = useState(0);
   const [musicSound, setMusicSound] = useState(null);
-  const [initialVolume, setInitialVolume] = useState(0.4);
+  const [initialVolume, setInitialVolume] = useState(0.3);
   const [musicVolume, setMusicVolume] = useState(initialVolume);
+  const [introOutroWasInitialized, setIntroOutroWasInitialized] =
+    useState(false);
   const [conclusionWasSet, setConclusionWasSet] = useState(false);
   const [meditationHasStarted, setMeditationHasStarted] = useState(false);
   const [displaySpeedModal, setDisplaySpeedModal] = useState(false);
-  const [introOutroWasInitialized, setIntroOutroWasInitialized] =
-    useState(false);
   const {
     listenMeditationUpdate,
     setUpdateTutorialModalVisible,
@@ -123,12 +121,12 @@ const MeditationScreen = ({ navigation, route }) => {
     conclusionPhraseArr,
   } = route.params;
 
-  const introIndexEnd = introPhraseArr.length + outroPhraseArr.length + 1;
   const [meditationInfo, setMeditationInfo] = useState(initMeditationInfo);
   const initLottieBackgroundId = meditationPreferences?.lottieBackground;
   const initLottieMeditationId = meditationPreferences?.lottieMeditation;
   const initMusicMeditationId = meditationPreferences?.musicMeditation;
   const initMeditationSpeed = meditationPreferences?.meditationSpeed;
+  const promptIndexes = meditationInfo.promptIndexes;
   const [lottieBackground, setLottieBackground] = useState(
     initLottieBackgroundId &&
       meditationScreenCustomizeables.background.find(
@@ -142,18 +140,15 @@ const MeditationScreen = ({ navigation, route }) => {
           image: require("../../assets/background_svg/starry_night_preview.png"),
           lottie: require("../../assets/background_svg/starry_night.json"),
           textColor: "#639aba",
-          textColor2: "#639aba",
-
           gems: "Free",
           name: "Starry Night",
         }
   );
-
   const [speedControl, setSpeedControl] = useState(
-    initMeditationSpeed ? initMeditationSpeed : 2
+    initMeditationSpeed ? initMeditationSpeed : 1.5
   );
   const [speedControlTemp, setSpeedControlTemp] = useState(
-    initMeditationSpeed ? initMeditationSpeed : 2
+    initMeditationSpeed ? initMeditationSpeed : 1.5
   );
 
   const [lottieMeditation, setLottieMeditation] = useState(
@@ -214,16 +209,12 @@ const MeditationScreen = ({ navigation, route }) => {
       : Object.keys(meditationInfo.meditationUrls).length
     : 0;
 
-  const generating = meditationInfo.meditationUrls
-    ? meditationInfo.meditationUrls.count
-      ? Object.keys(meditationInfo.meditationUrls).length - 1 !=
-        meditationInfo.meditationUrls.count
-      : true
-    : true;
-
+  // First line has not been generated, play pre recorded audio
   const isWaitingOnFirstLineGeneration = maxNumPhrases == 0;
   const [preRecordedAudioShouldBePlaying, setPreRecordedAudioShouldBePlaying] =
     useState(isWaitingOnFirstLineGeneration);
+  const [isPlayingPrerecordedOutro, setIsPlayingPrerecordedOutro] =
+    useState(false);
   const [prerecordedAudioUrls, setPrerecordedAudioUrls] = useState(
     initPrerecordedAudioUrls
   );
@@ -237,8 +228,41 @@ const MeditationScreen = ({ navigation, route }) => {
       ) + 1
     );
 
+  const introIndexEnd = introPhraseArr.length + outroPhraseArr.length + 1;
+  const deltaIntroOutro = introPhraseArr.length + outroPhraseArr.length;
+
+  const generating = meditationInfo.meditationUrls
+    ? meditationInfo.meditationUrls.count
+      ? Object.keys(meditationInfo.meditationUrls).length - 1 !=
+        meditationInfo.meditationUrls.count
+      : true
+    : true;
+
   const lottieRef = useRef(null);
 
+  const promptIndexEnd0 = promptIndexes?.promptIndexEnd0
+    ? promptIndexes?.promptIndexEnd0 + deltaIntroOutro
+    : 9999;
+
+  const promptIndexEnd1 = promptIndexes?.promptIndexEnd1
+    ? promptIndexes?.promptIndexEnd1 + deltaIntroOutro
+    : 9999;
+
+  const promptIndexEnd2 = promptIndexes?.promptIndexEnd2
+    ? promptIndexes?.promptIndexEnd2 + deltaIntroOutro
+    : 9999;
+  const currentStep =
+    preRecordedAudioShouldBePlaying || currentPhrase < introIndexEnd
+      ? 0
+      : currentPhrase < promptIndexEnd0
+      ? 1
+      : currentPhrase < promptIndexEnd1
+      ? 2
+      : currentPhrase < promptIndexEnd2
+      ? 3
+      : 4;
+
+  const [totalSteps, setTotalSteps] = useState(4);
   const diamondRef = useRef(null);
   const [nbGems, setNbGems] = useState(0);
   const [newGemIsAnimating, setNewGemIsAnimating] = useState(false);
@@ -249,29 +273,38 @@ const MeditationScreen = ({ navigation, route }) => {
     // THe first line has not been generated yet, increment pre recorded audio
     if (preRecordedAudioShouldBePlaying) {
       setCurrentPhrase(currentPhrase + 1);
+      setInitValue(currentPhrase + 1);
     } else {
       if (currentPhrase < maxNumPhrases) {
         setCurrentPhrase(currentPhrase + 1);
+        setInitValue(currentPhrase + 1);
       }
+    }
+  };
+
+  const onBackButtonPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (currentPhrase > 0) {
+      setCurrentPhrase(currentPhrase - 1);
+      setInitValue(currentPhrase - 1);
     }
   };
 
   // Called after the current phrase ends and timeBetweenPhrases has passed
   const incrementPhrase = () => {
+    // THe first line has not been generated yet, increment pre recorded audio
     if (preRecordedAudioShouldBePlaying) {
       setCurrentPhrase((prevPhrase) => prevPhrase + 1);
+      setInitValue(currentPhrase + 1);
     } else {
       if (currentPhrase < maxNumPhrases) {
         setCurrentPhrase((prevPhrase) => prevPhrase + 1);
+        setInitValue(currentPhrase + 1);
       } else if (currentPhrase == maxNumPhrases && generating) {
         //At last line and waiting for generation
         setWaitingForNextLine(true);
       }
     }
-  };
-
-  const phraseJustFinished = () => {
-    setPrevPhraseFinished(true);
   };
 
   const configureAudioSession = async () => {
@@ -357,6 +390,18 @@ const MeditationScreen = ({ navigation, route }) => {
     setIntroOutroWasInitialized(true);
   }, []);
 
+  const addGemsToAsync = async (nbGems) => {
+    if (nbGems > 0) {
+      try {
+        await AsyncStorage.setItem("claimableGems", nbGems.toString());
+      } catch (e) {}
+    }
+  };
+  // set claimable gems in async storage
+  useEffect(() => {
+    addGemsToAsync(nbGems);
+  }, [nbGems]);
+
   useEffect(() => {
     if (!conclusionWasSet && !generating && introOutroWasInitialized) {
       let phraseIncrement = maxNumPhrases + 1;
@@ -377,21 +422,9 @@ const MeditationScreen = ({ navigation, route }) => {
     }
   }, [introOutroWasInitialized, generating]);
 
-  const addGemsToAsync = async (nbGems) => {
-    if (nbGems > 0) {
-      try {
-        await AsyncStorage.setItem("claimableGems", nbGems.toString());
-      } catch (e) {}
-    }
-  };
-  // set claimable gems in async storage
-  useEffect(() => {
-    addGemsToAsync(nbGems);
-  }, [nbGems]);
-
   useEffect(() => {
     setMusicMeditation(initMusic);
-
+    console.log("initMusic", initMusic);
     if (introOutroWasInitialized) {
       setTimeout(() => {
         if (!playing) {
@@ -400,18 +433,6 @@ const MeditationScreen = ({ navigation, route }) => {
       }, 1500);
     }
   }, [introOutroWasInitialized]);
-
-  useEffect(() => {
-    if (prevPhraseFinished && isAutoplay) {
-      incrementPhrase();
-    }
-  }, [prevPhraseFinished, isAutoplay]);
-
-  useEffect(() => {
-    if (sound && isAutoplay) {
-      sound.playAsync();
-    }
-  }, [isAutoplay]);
 
   useEffect(() => {
     let unsubscribe;
@@ -440,7 +461,6 @@ const MeditationScreen = ({ navigation, route }) => {
       }
 
       loadingAudioRef.current = true;
-
       let tempPreRecordedAudioShouldBePlaying = preRecordedAudioShouldBePlaying;
       // change preRecordedAudioShouldBePlaying to false
       if (maxNumPhrases > 0 && preRecordedAudioShouldBePlaying) {
@@ -449,6 +469,7 @@ const MeditationScreen = ({ navigation, route }) => {
 
         if (currentPhrase >= introIndexEnd) {
           setCurrentPhrase(introIndexEnd - 1);
+          setInitValue(introIndexEnd - 1);
           loadingAudioRef.current = false;
           return;
         }
@@ -462,18 +483,25 @@ const MeditationScreen = ({ navigation, route }) => {
 
       const onPlaybackStatusUpdate = (status) => {
         if (status.didJustFinish) {
-          // wait 1.5 seconds if preRecordedAudioShouldBePlaying
-          const timetoWait =
-            currentPhrase < introIndexEnd ? 1500 : timeBetweenPhrases;
-
           // Move to the next phrase when the current one ends
-          setPauseTime(timetoWait); // Set a 5-second pause
-          intervalId = setTimeout(phraseJustFinished, timetoWait);
+          setPauseTime(timeBetweenPhrases); // Set a 5-second pause
+          intervalId = setTimeout(incrementPhrase, timeBetweenPhrases);
           setPauseInterval(intervalId);
           setLastTimePaused(Date.now());
           reveivedGems();
         }
       };
+
+      const onOutroEndUpdate = (status) => {
+        if (status.didJustFinish) {
+          // Move on to the generated meditation
+          setIsPlayingPrerecordedOutro(false);
+          if (currentPhrase > introIndexEnd) setCurrentPhrase(introIndexEnd);
+          setInitValue(0);
+          reveivedGems();
+        }
+      };
+
       const url =
         preRecordedAudioShouldBePlaying && tempPreRecordedAudioShouldBePlaying
           ? currentPhrase > Object.keys(prerecordedAudioUrls.intro).length
@@ -488,11 +516,10 @@ const MeditationScreen = ({ navigation, route }) => {
           : null;
 
       if (url) {
-        setPrevPhraseFinished(false);
         const { sound: newSound } = await Audio.Sound.createAsync(
           { uri: url },
-          { shouldPlay: isAutoplay },
-          onPlaybackStatusUpdate
+          { shouldPlay: playing },
+          isPlayingPrerecordedOutro ? onOutroEndUpdate : onPlaybackStatusUpdate
         );
         setSound(newSound);
         loadingAudioRef.current = false;
@@ -594,22 +621,6 @@ const MeditationScreen = ({ navigation, route }) => {
     }
   }, [maxNumPhrases]);
 
-  useEffect(() => {
-    if (audioButtonWasPressed && sound) {
-      sound
-        .replayAsync()
-        .then(() => {
-          setAudioButtonWasPressed(false);
-        })
-        .catch((err) => {
-          setTimeout(() => {
-            sound.replayAsync().then(() => {
-              setAudioButtonWasPressed(false);
-            });
-          }, 300);
-        });
-    }
-  }, [audioButtonWasPressed, sound]);
   // Case where maxNumPhrases increments while last sentence is playing (stays stuck bc of setInterval)
   useEffect(() => {
     if (waitingForNextLine && currentPhrase < maxNumPhrases) {
@@ -740,7 +751,7 @@ const MeditationScreen = ({ navigation, route }) => {
             }}
           >
             <Text style={[Fonts.streakModalTitle, { textAlign: "center" }]}>
-              Auto Play
+              Speed Controls
             </Text>
           </View>
 
@@ -833,11 +844,10 @@ const MeditationScreen = ({ navigation, route }) => {
             borderWidth={1}
             borderColor="#a82e92"
             borderRadius={8}
-            onPressedOut={() => {
+            onPressOut={() => {
               setDisplaySpeedModal(false);
               setSpeedControl(speedControlTemp);
               updateSpeedStorage(speedControlTemp);
-              setIsAutoplay(true);
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }}
           >
@@ -910,15 +920,19 @@ const MeditationScreen = ({ navigation, route }) => {
                     : {},
                 ]}
               >
-                {currentPhrase} out of{" "}
-                {generating ? maxNumPhrases + " (generating)" : maxNumPhrases}
+                Part {currentStep} :{" "}
+                {currentStep == 0
+                  ? "Let's begin!"
+                  : currentStep == 1
+                  ? "Some personal words"
+                  : currentStep == 2
+                  ? "Visualization exercise"
+                  : currentStep == 3
+                  ? "A few mantras to remember"
+                  : "Namaste"}
               </Text>
               <ProgressBar
-                progress={
-                  maxNumPhrases == 0
-                    ? currentPhrase / 20
-                    : currentPhrase / maxNumPhrases
-                }
+                progress={currentStep / totalSteps}
                 animationType="timing"
                 color={
                   lottieBackground?.textColor
@@ -928,7 +942,7 @@ const MeditationScreen = ({ navigation, route }) => {
                 borderColor="#3a4754"
                 unfilledColor="#30404c"
                 width={null}
-                height={5}
+                height={18}
                 borderWidth={3}
                 borderRadius={8}
               ></ProgressBar>
@@ -987,7 +1001,7 @@ const MeditationScreen = ({ navigation, route }) => {
               <Lottie
                 source={lottieMeditation?.lottie}
                 style={{
-                  height: "110%",
+                  height: "100%",
                   maxWidth: "100%",
                 }}
                 speed={lottieMeditation?.speed ? lottieMeditation?.speed : 0.6}
@@ -1001,140 +1015,135 @@ const MeditationScreen = ({ navigation, route }) => {
                 {
                   alignItems: "center",
                   justifyContent: "center",
-                  minHeight: 120,
-                  marginBottom: "8%",
-                  marginHorizontal: "2%",
-                },
-                lottieBackground?.isLight && {
-                  backgroundColor: "rgba(255, 255, 255, 0.92)",
+                  minHeight: 80,
                 },
               ]}
             >
-              <TouchableOpacity
-                activeOpacity={0.85}
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minHeight: 40,
-                }}
-                onPressIn={() => {
-                  setAudioButtonWasPressed(true);
-                }}
-              >
-                <Text
-                  style={[
-                    Fonts.meditationScreenText,
-                    {
-                      textAlign: "center",
-                      padding: 10,
-                      fontSize: 18,
-                      color: lottieBackground?.textColor2
-                        ? lottieBackground?.textColor2
-                        : lottieBackground?.isLight
-                        ? Colors.bodyBackColor
-                        : Colors.whiteColor,
-                    },
-                  ]}
-                >
-                  {preRecordedAudioShouldBePlaying
-                    ? currentPhrase >
-                      Object.keys(prerecordedAudioPhrases.intro).length
-                      ? prerecordedAudioPhrases.meditations[
-                          ((currentPhrase + randomNumberFirstMeditation) %
-                            Object.keys(prerecordedAudioPhrases.meditations)
-                              .length) +
-                            1
-                        ]
-                      : prerecordedAudioPhrases.intro[currentPhrase]
-                    : meditationInfo?.phrases[currentPhrase]}
-                </Text>
-
-                <FontAwesome
-                  name="volume-down"
-                  color={
-                    lottieBackground?.textColor2
-                      ? lottieBackground?.textColor2
-                      : lottieBackground?.isLight
-                      ? Colors.bodyBackColor
-                      : Colors.whiteColor
-                  }
-                  size={50}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View style={{ marginBottom: "3%" }}>
-              <View
+              <Text
                 style={[
+                  Fonts.meditationText,
                   {
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    color: lottieBackground?.isLight
+                      ? Colors.bodyBackColor
+                      : Colors.whiteColor,
+                    textAlign: "center",
+                    padding: 10,
                   },
+                  lottieBackground?.isLight
+                    ? {
+                        backgroundColor:
+                          Platform.OS === "android"
+                            ? "rgba(255, 255, 255, 0.92)"
+                            : "rgba(255, 255, 255, 0.86)",
+                      }
+                    : {
+                        backgroundColor:
+                          Platform.OS === "android"
+                            ? "rgba(32, 32, 34, 0.42)"
+                            : "rgba(32, 32, 34, 0.52)",
+                      },
                 ]}
               >
-                <View
+                {preRecordedAudioShouldBePlaying
+                  ? isPlayingPrerecordedOutro
+                    ? prerecordedAudioPhrases.outro["1"]
+                    : currentPhrase >
+                      Object.keys(prerecordedAudioPhrases.intro).length
+                    ? prerecordedAudioPhrases.meditations[
+                        ((currentPhrase + randomNumberFirstMeditation) %
+                          Object.keys(prerecordedAudioPhrases.meditations)
+                            .length) +
+                          1
+                      ]
+                    : prerecordedAudioPhrases.intro[currentPhrase]
+                  : meditationInfo?.phrases[currentPhrase]}
+              </Text>
+            </View>
+            <View style={{ marginBottom: "3%" }}>
+              <View style={styles.playMeditationStyle}>
+                <Slider
                   style={{
-                    justifyContent: "center",
-                    backgroundColor: "white",
-                    justifyContent: "center",
-                    borderRadius: 10,
-                    backgroundColor:
-                      Platform.OS === "android"
-                        ? "rgba(255, 255, 255, 0.52)"
-                        : "rgba(255, 255, 255, 0.46)",
-                    borderWidth: 2,
-                    borderColor:
-                      Platform.OS === "android"
-                        ? "rgba(32, 32, 34, 0.42)"
-                        : "rgba(32, 32, 34, 0.52)",
-                    marginRight: 10,
+                    flexDirection: "row",
                   }}
-                >
-                  <TouchableOpacity
-                    onPress={() => {
-                      if (isAutoplay) {
-                        setIsAutoplay(false);
-                      } else {
+                  minimumValue={0}
+                  maximumValue={maxNumPhrases}
+                  step={1}
+                  onValueChange={(val) => {
+                    setCurrentPhrase(val);
+                  }}
+                  disabled={preRecordedAudioShouldBePlaying}
+                  value={initValue}
+                  thumbTintColor="#FFD369"
+                  minimumTrackTintColor="#FFD369"
+                  maximumTrackTintColor={Colors.bodyBackColor}
+                />
+                <View style={styles.progressLabelContainer}>
+                  <Text style={Fonts.progressLabelText}>
+                    {currentPhrase}/{maxNumPhrases}
+                  </Text>
+                  <Text style={Fonts.progressLabelText}>
+                    {generating ? "Generating ..." : "# of phrases"}
+                  </Text>
+                </View>
+                <View style={styles.musicControllsContainer}>
+                  <View style={{ flex: 1 }}></View>
+
+                  <View style={styles.musicControlls}>
+                    <TouchableOpacity onPress={() => onBackButtonPress()}>
+                      <Ionicons
+                        name="play-skip-back"
+                        size={40 * (width / 414)}
+                        color={Colors.bodyBackColor}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (!loadingAudioRef.current) setPlaying(!playing);
+                      }}
+                    >
+                      <Ionicons
+                        name={playing ? "ios-pause-circle" : "ios-play-circle"}
+                        size={60 * (width / 414)}
+                        color={
+                          lottieBackground.id == "2"
+                            ? Colors.bodyBackColor
+                            : Colors.whiteColor
+                        }
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => onNextButtonPress()}>
+                      <Ionicons
+                        name="play-skip-forward"
+                        size={40 * (width / 414)}
+                        color={Colors.bodyBackColor}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {
                         setDisplaySpeedModal(true);
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      }
-                    }}
-                    style={{ padding: 5 }}
-                  >
-                    <Image
-                      source={
-                        isAutoplay
-                          ? require("../../assets/images/icons/clock3.png")
-                          : require("../../assets/images/icons/grey_clock.png")
-                      }
-                      style={{
-                        width: (27.0 * width) / 414,
-                        height: (27.0 * width) / 414,
-                        resizeMode: "contain",
                       }}
-                    />
-                  </TouchableOpacity>
+                      style={{ paddingRight: 10, padding: 5 }}
+                    >
+                      <Image
+                        source={require("../../assets/images/icons/clock3.png")}
+                        style={{
+                          width: (27.0 * width) / 414,
+                          height: (27.0 * width) / 414,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <AwesomeButton
-                  onPressOut={() => onNextButtonPress()}
-                  style={styles.loginButtonStyle}
-                  backgroundColor={isAutoplay ? "#bababa" : "#fcd289"}
-                  raiseLevel={3}
-                  width={width * 0.8}
-                  borderRadius={20}
-                  height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
-                  backgroundDarker={isAutoplay ? "#dbdee8" : "#c8a86d"}
-                  backgroundShadow={isAutoplay ? "#dcdfe7" : "#e7a60b"}
-                  disabled={isAutoplay}
-                >
-                  <FontAwesome
-                    name="chevron-right"
-                    color={Colors.whiteColor}
-                    size={20}
-                  />
-                </AwesomeButton>
               </View>
             </View>
           </View>

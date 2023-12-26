@@ -19,6 +19,7 @@ const LoadingScreen = ({ navigation }) => {
         Sigmar_Regular: require("../assets/fonts/Sigmar-Regular.ttf"),
         Inter_Black: require("../assets/fonts/Inter-Black.ttf"),
         Play_Bold: require("../assets/fonts/Play-Bold.ttf"),
+        RethinkSans: require("../assets/fonts/RethinkSans-VariableFont_wght.ttf"),
       });
 
       if (user && appInitialized) {

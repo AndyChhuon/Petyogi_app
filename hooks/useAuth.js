@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   const [questionsAreGenerating, setQuestionsAreGenerating] = useState(false);
   const APIKeys = {
     apple: "appl_mTTdHSJWtMTIsPypmaQXWiXGVzs",
-    google: "",
+    google: "goog_pcmPvCpEFNxNqfsgFyIENFeFHUk",
   };
   const [deviceUUID, setDeviceUUID] = useState("");
   const [userLogs, setUserLogs] = useState({});
@@ -234,6 +234,7 @@ export const AuthProvider = ({ children }) => {
             })
             .catch((err) => {
               addToUserLogs(`Error getting offerings: ${err}. Trying again.`);
+              console.log(err);
               // try again
               setTimeout(() => {
                 Purchases.getOfferings()
@@ -242,6 +243,7 @@ export const AuthProvider = ({ children }) => {
                     Purchases.syncPurchases();
                   })
                   .catch((err) => {
+                    console.log(err);
                     addToUserLogs(`Error getting offerings again: ${err}.`);
                     showMessage({
                       message:

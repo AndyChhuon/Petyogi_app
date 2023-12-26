@@ -20,6 +20,7 @@ const ShopScreen = ({ navigation }) => {
   const initDimensions = Dimensions.get("window");
   const [width, setWidth] = useState(initDimensions.width);
   const [height, setHeight] = useState(initDimensions.height);
+  const [wasPopped, setWasPopped] = useState(false);
   const { userValues } = useAuth();
   const nbGems = userValues.coins;
   const styles = createStyles(width);
@@ -363,6 +364,8 @@ const ShopScreen = ({ navigation }) => {
               color={Colors.whiteDarker}
               size={32}
               onPress={() => {
+                if (wasPopped) return;
+                setWasPopped(true);
                 navigation.pop();
               }}
             />

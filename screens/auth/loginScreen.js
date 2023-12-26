@@ -31,6 +31,7 @@ const LoginScreen = ({ navigation }) => {
   const { emailLogin } = useAuth();
 
   const [error, setError] = useState(null);
+  const [wasPopped, setWasPopped] = useState(false);
 
   const [emailError, setEmailError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
@@ -196,6 +197,8 @@ const LoginScreen = ({ navigation }) => {
           color={Colors.whiteColor}
           size={26}
           onPress={() => {
+            if (wasPopped) return;
+            setWasPopped(true);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             navigation.pop();
           }}

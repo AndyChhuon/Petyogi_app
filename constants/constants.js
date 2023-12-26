@@ -96,6 +96,8 @@ export const meditationScreenCustomizeables = {
       image: require("../assets/background_svg/starry_night_preview.png"),
       lottie: require("../assets/background_svg/starry_night.json"),
       textColor: "#639aba",
+      textColor2: "#639aba",
+
       gems: "Free",
       name: "Starry Night",
     },
@@ -104,6 +106,7 @@ export const meditationScreenCustomizeables = {
       image: require("../assets/background_svg/fireplace_preview.png"),
       lottie: require("../assets/background_svg/fireplace.json"),
       textColor: "#aca8a6",
+
       gems: 1500,
       name: "Fireplace",
     },

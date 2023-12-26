@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 
 import {
   SafeAreaView,
@@ -16,6 +16,8 @@ import * as Haptics from "expo-haptics";
 const { height } = Dimensions.get("window");
 
 const TermsAndConditions = ({ navigation }) => {
+  const [wasPopped, setWasPopped] = useState(false);
+
   return (
     <Fragment>
       <StatusBar translucent={false} backgroundColor={Colors.bodyBackColor2} />
@@ -426,6 +428,8 @@ const TermsAndConditions = ({ navigation }) => {
           color={Colors.whiteColor}
           size={28}
           onPress={() => {
+            if (wasPopped) return;
+            setWasPopped(true);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             navigation.pop();
           }}

@@ -23,6 +23,7 @@ const PasswordResetScreen = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState(null);
   const [emailError, setEmailError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [wasPopped, setWasPopped] = useState(false);
 
   const { width } = Dimensions.get("window");
   const styles = createStyles(width);
@@ -73,6 +74,8 @@ const PasswordResetScreen = ({ navigation }) => {
           color={Colors.whiteColor}
           size={26}
           onPress={() => {
+            if (wasPopped) return;
+            setWasPopped(true);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             navigation.pop();
           }}

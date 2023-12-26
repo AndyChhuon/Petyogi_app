@@ -19,6 +19,7 @@ const VerificationScreen = ({ navigation }) => {
   const [error, setError] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+  const [wasPopped, setWasPopped] = useState(false);
 
   const { emailVerification, user, reloadUser } = useAuth();
   const email = user.email;
@@ -70,6 +71,8 @@ const VerificationScreen = ({ navigation }) => {
           color={Colors.whiteColor}
           size={26}
           onPress={() => {
+            if (wasPopped) return;
+            setWasPopped(true);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             navigation.pop();
           }}

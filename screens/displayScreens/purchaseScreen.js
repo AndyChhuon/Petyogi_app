@@ -23,6 +23,7 @@ import FloatingAnimation from "../../Animations/FloatingAnimation";
 import Lottie from "lottie-react-native";
 import { meditationScreenCustomizeables } from "../../constants/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { set } from "firebase/database";
 
 const ShopScreen = ({ navigation, route }) => {
   const {
@@ -41,6 +42,7 @@ const ShopScreen = ({ navigation, route }) => {
   const initDimensions = Dimensions.get("window");
   const [width, setWidth] = useState(initDimensions.width);
   const [height, setHeight] = useState(initDimensions.height);
+  const [wasPopped, setWasPopped] = useState(false);
 
   const styles = createStyles(width);
 
@@ -234,6 +236,8 @@ const ShopScreen = ({ navigation, route }) => {
               color={Colors.whiteDarker}
               size={32}
               onPress={() => {
+                if (wasPopped) return;
+                setWasPopped(true);
                 navigation.pop();
               }}
             />

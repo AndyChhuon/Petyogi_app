@@ -23,7 +23,7 @@
     },
     "android": {
       "package": "com.petyogi.app",
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#FFFFFF"

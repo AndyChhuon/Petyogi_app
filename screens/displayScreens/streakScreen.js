@@ -28,6 +28,7 @@ const StreakScreen = ({ navigation }) => {
   const initDimensions = Dimensions.get("window");
   const [width, setWidth] = useState(initDimensions.width);
   const [height, setHeight] = useState(initDimensions.height);
+  const [wasPopped, setWasPopped] = useState(false);
   const styles = createStyles(height, width);
 
   useEffect(() => {
@@ -170,6 +171,8 @@ const StreakScreen = ({ navigation }) => {
             color={Colors.whiteDarker}
             size={32}
             onPress={() => {
+              if (wasPopped) return;
+              setWasPopped(true);
               navigation.pop();
             }}
           />
