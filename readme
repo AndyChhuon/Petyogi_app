@@ -18,3 +18,9 @@ Apple prod build
 2. Increment app.json
 3. eas build --platform ios
 4. eas submit -p ios
+
+Apple and Google prod build
+1. Push current code to git
+2. Increment app.json
+3. eas build --platform all
+4. eas submit -p all
