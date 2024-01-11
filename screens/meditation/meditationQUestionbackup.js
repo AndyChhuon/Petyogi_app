@@ -19,6 +19,8 @@ import {
   multipleChoiceButtons,
   meditationTypeButtons,
   meditationLotties,
+  prerecordedPhrases,
+  prerecordedUrls,
 } from "../../constants/constants";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import AwesomeButton from "react-native-really-awesome-button";
@@ -28,7 +30,6 @@ import Lottie from "lottie-react-native";
 import useAuth from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SlideInFromBottom from "../../Animations/SlideFromBottom";
-import { set } from "firebase/database";
 
 const MeditationQuestionModal = ({ navigation, route }) => {
   const [isTextBoxFocused, setIsTextBoxFocused] = useState(false);
@@ -36,6 +37,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const [wasPopped, setWasPopped] = useState(false);
   const [createMeditationLottieIndex, setCreateMeditationLottieIndex] =
     useState(0);
+  const [generateWasClicked, setGenerateWasClicked] = useState(false);
   const {
     generateNewMeditation,
     user,
@@ -115,6 +117,21 @@ const MeditationQuestionModal = ({ navigation, route }) => {
     const randomIndex = Math.floor(Math.random() * arr.length);
     return randomIndex;
   }
+
+  const randomlyPickIntroAndOutro = (
+    introUrlArr,
+    introPhraseArr,
+    prerecordedType
+  ) => {
+    // randomly pick intro
+    for (const [key, value] of Object.entries(
+      prerecordedPhrases[prerecordedType]
+    )) {
+      const randomIndex = getRandomIndexFromArray(value);
+      introPhraseArr.push(value[randomIndex]);
+      introUrlArr.push(prerecordedUrls[prerecordedType][key][randomIndex]);
+    }
+  };
 
   const updateAsyncStoredMeditationJson = async (question, answer) => {
     try {
@@ -249,8 +266,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const maxChars = meditationQuestionsJson[currentQuestionIndex].maxChars
     ? meditationQuestionsJson[currentQuestionIndex].maxChars
     : 500;
-  const tooManyChars = charCount > maxChars;
-  const noteEnoughChars = charCount < 1;
+  const notEnoughChars = charCount < 1;
   const questionsPromptsGenerated = userValues.questionsPromptsGenerated;
 
   useEffect(() => {
@@ -802,7 +818,20 @@ const MeditationQuestionModal = ({ navigation, route }) => {
       }, 150);
     } else {
       setLoadingClicked(true);
+      const introUrlArr = [];
+      const introPhraseArr = [];
+      const outroUrlArr = [];
+      const outroPhraseArr = [];
+      const conclusionUrlArr = [];
+      const conclusionPhraseArr = [];
 
+      randomlyPickIntroAndOutro(introUrlArr, introPhraseArr, "intro");
+      randomlyPickIntroAndOutro(outroUrlArr, outroPhraseArr, "outro");
+      randomlyPickIntroAndOutro(
+        conclusionUrlArr,
+        conclusionPhraseArr,
+        "conclusion"
+      );
       // Meditation generation was already called
       if (readOnly) {
         setTimeout(() => {
@@ -818,8 +847,17 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               initMeditationInfo: {
                 phrases: phrases,
                 meditationUrls: meditationUrls,
+                shouldListenRealTime: false,
+                promptIndexes: promptIndexes,
               },
+              number: number,
               meditationPreferences: meditationPreferences,
+              introUrlArr: introUrlArr,
+              introPhraseArr: introPhraseArr,
+              outroUrlArr: outroUrlArr,
+              outroPhraseArr: outroPhraseArr,
+              conclusionUrlArr: conclusionUrlArr,
+              conclusionPhraseArr: conclusionPhraseArr,
             };
 
             navigation.navigate("MeditationScreen", propsToPass);
@@ -835,9 +873,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               initMeditationInfo: {
                 phrases: phrases,
                 meditationUrls: meditationUrls,
+                shouldListenRealTime: true,
+                promptIndexes: promptIndexes,
               },
 
+              number: number,
               meditationPreferences: meditationPreferences,
+              introUrlArr: introUrlArr,
+              introPhraseArr: introPhraseArr,
+              outroUrlArr: outroUrlArr,
+              outroPhraseArr: outroPhraseArr,
+              conclusionUrlArr: conclusionUrlArr,
+              conclusionPhraseArr: conclusionPhraseArr,
             };
 
             navigation.navigate("MeditationScreen", propsToPass);
@@ -868,7 +915,15 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           meditationQuestionsJson[meditationTypeQuestionIndex].Answer,
           number,
           setLoadingClicked,
-          meditationPreferences
+          meditationPreferences,
+          {
+            introUrlArr: introUrlArr,
+            introPhraseArr: introPhraseArr,
+            outroUrlArr: outroUrlArr,
+            outroPhraseArr: outroPhraseArr,
+            conclusionUrlArr: conclusionUrlArr,
+            conclusionPhraseArr: conclusionPhraseArr,
+          }
         );
       }
     }
@@ -1012,9 +1067,11 @@ const MeditationQuestionModal = ({ navigation, route }) => {
               borderRadius={8}
               onPressIn={() => {
                 if (!questionsPromptsGenerated) {
+                  if (generateWasClicked) return;
+                  setGenerateWasClicked(true);
                   // generate questions
                   generateMeditationQuestions(
-                    meditationQuestionsJson[JournalQuestionIndex].Answer
+                    `${meditationQuestionsJson[JournalQuestionIndex].Question} ${meditationQuestionsJson[JournalQuestionIndex].Answer}`
                   );
                 }
                 setTimeout(() => {
@@ -1189,6 +1246,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 <TextInput
                   style={[
                     styles.textBoxStyle,
+                    Fonts.meditationInput,
                     readOnly
                       ? {
                           backgroundColor: Colors.goldColor,
@@ -1205,18 +1263,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                   editable={readOnly ? false : true}
                   value={meditationAnswer}
                 ></TextInput>
-                <View style={styles.counterContainer}>
-                  <Text
-                    style={[
-                      styles.counterText,
-                      tooManyChars || noteEnoughChars
-                        ? { color: Colors.errorColor }
-                        : {},
-                    ]}
-                  >
-                    {charCount}/{maxChars}
-                  </Text>
-                </View>
+                {notEnoughChars && (
+                  <View style={styles.counterContainer}>
+                    <Text
+                      style={[
+                        styles.counterText,
+                        notEnoughChars ? { color: Colors.errorColor } : {},
+                      ]}
+                    >
+                      {charCount}
+                    </Text>
+                  </View>
+                )}
               </View>
             )
           ) : (
@@ -1347,20 +1405,14 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                   key={4}
                   onPressIn={onNextButtonPress}
                   style={styles.loginButtonStyle}
-                  backgroundColor={
-                    tooManyChars || noteEnoughChars ? "#bababa" : "#ffc802"
-                  }
+                  backgroundColor={notEnoughChars ? "#bababa" : "#ffc802"}
                   raiseLevel={3}
                   width={width * 0.4}
                   borderRadius={20}
                   height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
-                  backgroundDarker={
-                    tooManyChars || noteEnoughChars ? "#dbdee8" : "#e7a60b"
-                  }
-                  backgroundShadow={
-                    tooManyChars || noteEnoughChars ? "#dcdfe7" : "#e7a60b"
-                  }
-                  disabled={tooManyChars || noteEnoughChars}
+                  backgroundDarker={notEnoughChars ? "#dbdee8" : "#e7a60b"}
+                  backgroundShadow={notEnoughChars ? "#dcdfe7" : "#e7a60b"}
+                  disabled={notEnoughChars}
                 >
                   <FontAwesome
                     name="chevron-right"

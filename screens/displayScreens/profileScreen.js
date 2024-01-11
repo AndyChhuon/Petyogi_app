@@ -26,7 +26,6 @@ const ProfileScreen = ({ navigation }) => {
   const [dialogVisible, setDialogVisible] = React.useState(false);
   const {
     userValues,
-    isWaitingOnEmailVerification,
     currentOffering,
     loadingModalVisible,
     setLoadingModalVisible,
@@ -65,11 +64,6 @@ const ProfileScreen = ({ navigation }) => {
   const [newlyPurchased, setNewlyPurchased] = useState(false);
   const [hasTriedAgain, setHasTriedAgain] = useState(false);
 
-  const tutorialShouldShow =
-    userValues.numMeditations === 0 &&
-    userValues.remainingCredits == 0 &&
-    !isWaitingOnEmailVerification;
-
   const noCreditsLeft = remainingCredits == 0;
   const subscriptionWithPrevDate = creditsObj?.subscriptionWithPrevDate
     ? creditsObj?.subscriptionWithPrevDate
@@ -78,26 +72,17 @@ const ProfileScreen = ({ navigation }) => {
   const accountPlan =
     subscriptionWithPrevDate[0] != "noSubscription"
       ? subscriptionWithPrevDate[0]
-      : accountType == "freeVerified"
-      ? hasFreeTrial
-        ? "freeVerifiedTrial"
-        : "freeVerifiedNoTrial"
-      : accountType;
+      : hasFreeTrial
+      ? "freeVerifiedTrial"
+      : "freeVerifiedNoTrial";
 
-  const hoursIncrementBySubscriptionType = {
-    sloth_plan: 48,
-    turtle_plan: 24,
-    yogi_plan: 12,
-  };
+  const getTimeRemaining = () => {
+    const currentUTC = new Date();
+    const midnightUTC = new Date(currentUTC);
+    midnightUTC.setDate(midnightUTC.getDate() + 1);
+    midnightUTC.setUTCHours(0, 0, 0, 0);
 
-  const getTimeRemaining = (date, subscriptionType) => {
-    const nextDate = new Date(date);
-
-    nextDate.setHours(
-      nextDate.getHours() + hoursIncrementBySubscriptionType[subscriptionType]
-    );
-
-    const minutesLeft = (nextDate - new Date()) / 1000 / 60;
+    const minutesLeft = (midnightUTC - currentUTC) / 1000 / 60;
 
     if (minutesLeft < 0) {
       return "0 minutes";
@@ -127,13 +112,7 @@ const ProfileScreen = ({ navigation }) => {
     }
   }
 
-  const timeRemaining =
-    subscriptionWithPrevDate[0] != "noSubscription" && !newlyPurchased
-      ? getTimeRemaining(
-          subscriptionWithPrevDate[1],
-          subscriptionWithPrevDate[0]
-        )
-      : "";
+  const timeRemaining = getTimeRemaining();
 
   const handlePurchase = async (packageID, isTopUp = false) => {
     if (loadingModalVisible) return;
@@ -178,9 +157,7 @@ const ProfileScreen = ({ navigation }) => {
 
   const onUpgradeClick = () => {
     addToUserLogs("Upgrade modal clicked with accountplan: " + accountPlan);
-    if (accountPlan == "free" || tutorialShouldShow) {
-      navigation.navigate("Verification");
-    } else if (accountPlan == "freeVerifiedTrial") {
+    if (accountPlan == "freeVerifiedTrial") {
       // free trial
       handlePurchase(
         currentOffering?.availablePackages.find(
@@ -207,7 +184,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <Fragment>
-      <StatusBar translucent={false} backgroundColor={Colors.bodyBackColor2} />
+      <StatusBar translucent={false} />
       <SafeAreaView
         style={{ flex: 0, backgroundColor: Colors.bodyBackColor2 }}
       />
@@ -384,12 +361,7 @@ const ProfileScreen = ({ navigation }) => {
                         { fontSize: 16.5 },
                       ]}
                     >
-                      {tutorialShouldShow
-                        ? "You have no credits left. Verify your email and get 2 free credits."
-                        : purchaseScreenCTA[accountPlan]?.noCreditsText}
-                      {subscriptionWithPrevDate[0] != "noSubscription" &&
-                        !tutorialShouldShow &&
-                        ` Less than ${timeRemaining} before your next credit fill.`}
+                      {`${purchaseScreenCTA[accountPlan]?.noCreditsText} Less than ${timeRemaining} before your next credit fill.`}
                     </Text>
                     <TouchableOpacity
                       style={
@@ -405,35 +377,8 @@ const ProfileScreen = ({ navigation }) => {
                           { fontSize: 17, color: "#42c2fa", marginTop: 9 },
                         ]}
                       >
-                        {tutorialShouldShow
-                          ? "VERIFY ACCOUNT"
-                          : purchaseScreenCTA[accountPlan]?.noCreditsCTA}
+                        {purchaseScreenCTA[accountPlan]?.noCreditsCTA}
                       </Text>
-                      {tutorialShouldShow && (
-                        <FloatingAnimation
-                          style={{
-                            position: "absolute",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            bottom: -(30.0 * width) / 414,
-                            paddingLeft: (28.0 * width) / 414,
-                          }}
-                          duration={1200}
-                        >
-                          <Lottie
-                            source={require("../../assets/Lottie/click.json")}
-                            style={{
-                              position: "relative",
-                              width: (60.0 * width) / 414,
-                              height: (60.0 * width) / 414,
-                              resizeMode: "contain",
-                            }}
-                            speed={0.5}
-                            autoPlay
-                            loop
-                          />
-                        </FloatingAnimation>
-                      )}
                     </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
@@ -673,8 +618,64 @@ const ProfileScreen = ({ navigation }) => {
 
             <Text style={[Fonts.purchaseScreenTitle, { marginTop: 10 }]}>
               Subscription Plans
-              <Text style={[Fonts.purchaseScreenSubtitle]}>*</Text>
             </Text>
+            <TouchableOpacity style={{ opacity: 0.5 }} activeOpacity={0.5}>
+              <View
+                style={{
+                  padding: 10,
+                  width: "100%",
+                  borderRadius: 10,
+                  borderWidth: 3,
+                  borderColor: "#39474f",
+                  marginTop: 9,
+                  display: "flex",
+                  flexDirection: "row",
+                }}
+              >
+                <Image
+                  style={{
+                    width: width / 4 > 150 ? 150 : width / 4,
+                    height: width / 4 > 150 ? 150 : width / 4,
+                    borderRadius: 10,
+                  }}
+                  source={require("../../assets/images/purchaseScreen/woman_meditating.jpg")}
+                ></Image>
+                <View
+                  style={{
+                    width: width - width / 4 - 36,
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <Text
+                    style={[Fonts.purchaseScreenSubtitle, { marginLeft: 10 }]}
+                  >
+                    Free Plan
+                  </Text>
+                  <Text
+                    style={[
+                      Fonts.purchaseScreenDescription,
+                      {
+                        marginLeft: 10,
+                        paddingTop: 5,
+                        paddingRight: 5,
+                        flexGrow: 1,
+                        width: width - width / 4 - 46,
+                      },
+                    ]}
+                  >
+                    <Text style={Fonts.decriptionSemiBold}>
+                      1 credit per day,
+                    </Text>{" "}
+                    <Text style={Fonts.decriptionSemiBold}>
+                      25 affirmations
+                    </Text>{" "}
+                    each. Max credits accumulated:{" "}
+                    <Text style={Fonts.decriptionSemiBold}>1</Text>.
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
             <TouchableOpacity
               style={
                 accountPlan == "sloth_plan" ||
@@ -742,17 +743,20 @@ const ProfileScreen = ({ navigation }) => {
                       {
                         marginLeft: 10,
                         paddingTop: 5,
+                        paddingRight: 5,
                         flexGrow: 1,
                         width: width - width / 4 - 46,
                       },
                     ]}
                   >
-                    For the casual meditator.{" "}
                     <Text style={Fonts.decriptionSemiBold}>
-                      1 credit every 2 days.
+                      2 credits per day,
                     </Text>{" "}
-                    Max offline accumulated credits:{" "}
-                    <Text style={Fonts.decriptionSemiBold}>3</Text>.
+                    <Text style={Fonts.decriptionSemiBold}>
+                      55 affirmations
+                    </Text>{" "}
+                    each. Max accumulation:{" "}
+                    <Text style={Fonts.decriptionSemiBold}>2</Text>.
                   </Text>
                   <Text
                     style={[
@@ -820,7 +824,12 @@ const ProfileScreen = ({ navigation }) => {
                   <Text
                     style={[Fonts.purchaseScreenSubtitle, { marginLeft: 10 }]}
                   >
-                    Turtle Plan
+                    Turtle Plan{" "}
+                    <Text
+                      style={[Fonts.purchaseScreenSubtitle, { fontSize: 12 }]}
+                    >
+                      - Best Seller
+                    </Text>
                   </Text>
                   <Text
                     style={[
@@ -828,17 +837,20 @@ const ProfileScreen = ({ navigation }) => {
                       {
                         marginLeft: 10,
                         paddingTop: 5,
+                        paddingRight: 5,
                         flexGrow: 1,
                         width: width - width / 4 - 46,
                       },
                     ]}
                   >
-                    For the regular meditator.{" "}
                     <Text style={Fonts.decriptionSemiBold}>
-                      1 credit per day.
+                      2 credits per day,
                     </Text>{" "}
-                    max offline accumulated credits:{" "}
-                    <Text style={Fonts.decriptionSemiBold}>5</Text>.
+                    <Text style={Fonts.decriptionSemiBold}>
+                      70 affirmations
+                    </Text>{" "}
+                    each. Max accumulation:{" "}
+                    <Text style={Fonts.decriptionSemiBold}>4</Text>.
                   </Text>
                   <Text
                     style={[
@@ -907,17 +919,20 @@ const ProfileScreen = ({ navigation }) => {
                       {
                         marginLeft: 10,
                         paddingTop: 5,
+                        paddingRight: 5,
                         flexGrow: 1,
                         width: width - width / 4 - 46,
                       },
                     ]}
                   >
-                    For the dedicated meditator.{" "}
                     <Text style={Fonts.decriptionSemiBold}>
-                      2 credits per day.
+                      3 credits per day,
                     </Text>{" "}
-                    max offline accumulated credits:{" "}
-                    <Text style={Fonts.decriptionSemiBold}>8</Text>.
+                    <Text style={Fonts.decriptionSemiBold}>
+                      85 affirmations
+                    </Text>{" "}
+                    each. Max accumulation:{" "}
+                    <Text style={Fonts.decriptionSemiBold}>6</Text>.
                   </Text>
                   <Text
                     style={[
@@ -936,9 +951,8 @@ const ProfileScreen = ({ navigation }) => {
             </TouchableOpacity>
             <Text style={[Fonts.purchaseScreenTitle, { paddingTop: 20 }]}>
               Credit Top-Up
-              <Text style={[Fonts.purchaseScreenSubtitle]}>*</Text>
             </Text>
-            <ScrollView horizontal={true}>
+            <ScrollView horizontal={true} style={{ paddingBottom: 25 }}>
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() =>
@@ -1084,23 +1098,6 @@ const ProfileScreen = ({ navigation }) => {
                 </Text>
               </TouchableOpacity>
             </ScrollView>
-            <Text
-              style={[
-                Fonts.purchaseScreenDescription,
-                { paddingTop: 8, fontSize: 12 },
-              ]}
-            >
-              * prices may fluctuate based on location
-            </Text>
-            <Text
-              style={[
-                Fonts.purchaseScreenDescription,
-                { paddingBottom: 35, paddingTop: 2, fontSize: 12 },
-              ]}
-            >
-              * max accumulated credits are credits given while offline, resets
-              every month.
-            </Text>
           </View>
           <View style={{ paddingBottom: 25, alignItems: "center" }}>
             <TouchableOpacity

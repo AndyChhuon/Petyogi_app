@@ -37,7 +37,9 @@ const creditsModal = () => {
 
   useEffect(() => {
     const creditsMsg = creditsObj?.isNewSub
-      ? "newSubMsg"
+      ? creditsObj?.nbCreditsGiven && creditsObj.nbCreditsGiven > 0
+        ? "newSubMsg"
+        : "newSubNoCreditsMsg"
       : creditsObj?.nbCreditsGiven && creditsObj.nbCreditsGiven > 0
       ? "creditsMsg"
       : "nocreditsMsg";
@@ -57,6 +59,7 @@ const creditsModal = () => {
   const creditsBottomText = {
     creditsMsg: "Let's get meditating!",
     newSubMsg: "New subscription, new habits!",
+    newSubNoCreditsMsg: "New subscription, new habits!",
   };
 
   return (
@@ -92,7 +95,9 @@ const creditsModal = () => {
           }}
         >
           <Text style={[Fonts.streakModalTitle, { textAlign: "center" }]}>
-            You obtained new credits!
+            {creditsMsgState == "newSubNoCreditsMsg"
+              ? "Max credits accumulated!"
+              : "You obtained new credits!"}
           </Text>
           <View style={{ position: "absolute", top: -15, right: -10 }}>
             <AwesomeButton

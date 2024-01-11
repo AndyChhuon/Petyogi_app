@@ -28,7 +28,6 @@ import { set } from "firebase/database";
 const ShopScreen = ({ navigation, route }) => {
   const {
     userValues,
-    isWaitingOnEmailVerification,
     currentOffering,
     loadingModalVisible,
     setLoadingModalVisible,
@@ -53,11 +52,6 @@ const ShopScreen = ({ navigation, route }) => {
   const [newlyPurchased, setNewlyPurchased] = useState(false);
   const [hasTriedAgain, setHasTriedAgain] = useState(false);
 
-  const tutorialShouldShow =
-    userValues.numMeditations === 0 &&
-    userValues.remainingCredits == 0 &&
-    !isWaitingOnEmailVerification;
-
   const noCreditsLeft = remainingCredits == 0;
   const subscriptionWithPrevDate = creditsObj?.subscriptionWithPrevDate
     ? creditsObj?.subscriptionWithPrevDate
@@ -66,11 +60,9 @@ const ShopScreen = ({ navigation, route }) => {
   const accountPlan =
     subscriptionWithPrevDate[0] != "noSubscription"
       ? subscriptionWithPrevDate[0]
-      : accountType == "freeVerified"
-      ? hasFreeTrial
-        ? "freeVerifiedTrial"
-        : "freeVerifiedNoTrial"
-      : accountType;
+      : hasFreeTrial
+      ? "freeVerifiedTrial"
+      : "freeVerifiedNoTrial";
 
   const [displayCTA, setDisplayCTA] = useState(
     accountPlan == "yogi_plan" ? false : isCTA
@@ -108,20 +100,13 @@ const ShopScreen = ({ navigation, route }) => {
     return () => subscription.remove();
   }, [setWidth, setHeight]);
 
-  const hoursIncrementBySubscriptionType = {
-    sloth_plan: 48,
-    turtle_plan: 24,
-    yogi_plan: 12,
-  };
+  const getTimeRemaining = () => {
+    const currentUTC = new Date();
+    const midnightUTC = new Date(currentUTC);
+    midnightUTC.setDate(midnightUTC.getDate() + 1);
+    midnightUTC.setUTCHours(0, 0, 0, 0);
 
-  const getTimeRemaining = (date, subscriptionType) => {
-    const nextDate = new Date(date);
-
-    nextDate.setHours(
-      nextDate.getHours() + hoursIncrementBySubscriptionType[subscriptionType]
-    );
-
-    const minutesLeft = (nextDate - new Date()) / 1000 / 60;
+    const minutesLeft = (midnightUTC - currentUTC) / 1000 / 60;
 
     if (minutesLeft < 0) {
       return "0 minutes";
@@ -140,13 +125,7 @@ const ShopScreen = ({ navigation, route }) => {
     }
   };
 
-  const timeRemaining =
-    subscriptionWithPrevDate[0] != "noSubscription" && !newlyPurchased
-      ? getTimeRemaining(
-          subscriptionWithPrevDate[1],
-          subscriptionWithPrevDate[0]
-        )
-      : "";
+  const timeRemaining = getTimeRemaining();
 
   const handlePurchase = async (packageID, isTopUp = false) => {
     if (loadingModalVisible) return;
@@ -191,9 +170,7 @@ const ShopScreen = ({ navigation, route }) => {
 
   const onUpgradeClick = () => {
     addToUserLogs("Upgrade modal clicked with accountplan: " + accountPlan);
-    if (accountPlan == "free" || tutorialShouldShow) {
-      navigation.navigate("Verification");
-    } else if (accountPlan == "freeVerifiedTrial") {
+    if (accountPlan == "freeVerifiedTrial") {
       handlePurchase(
         currentOffering?.availablePackages.find(
           (item) => item.identifier === "Turtle Plan"
@@ -238,7 +215,7 @@ const ShopScreen = ({ navigation, route }) => {
               onPress={() => {
                 if (wasPopped) return;
                 setWasPopped(true);
-                navigation.pop();
+                navigation.navigate("Home");
               }}
             />
             <Text
@@ -352,12 +329,7 @@ const ShopScreen = ({ navigation, route }) => {
                 <Text
                   style={[Fonts.purchaseScreenDescription, { fontSize: 16.5 }]}
                 >
-                  {tutorialShouldShow
-                    ? "You have no credits left. Verify your email and get 2 free credits."
-                    : purchaseScreenCTA[accountPlan]?.noCreditsText}
-                  {subscriptionWithPrevDate[0] != "noSubscription" &&
-                    !tutorialShouldShow &&
-                    ` Less than ${timeRemaining} before your next credit fill.`}
+                  {`${purchaseScreenCTA[accountPlan]?.noCreditsText} Less than ${timeRemaining} before your next credit fill.`}
                 </Text>
                 <TouchableOpacity
                   style={
@@ -373,35 +345,8 @@ const ShopScreen = ({ navigation, route }) => {
                       { fontSize: 17, color: "#42c2fa", marginTop: 9 },
                     ]}
                   >
-                    {tutorialShouldShow
-                      ? "VERIFY ACCOUNT"
-                      : purchaseScreenCTA[accountPlan]?.noCreditsCTA}
+                    {purchaseScreenCTA[accountPlan]?.noCreditsCTA}
                   </Text>
-                  {tutorialShouldShow && (
-                    <FloatingAnimation
-                      style={{
-                        position: "absolute",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        bottom: -(30.0 * width) / 414,
-                        paddingLeft: (28.0 * width) / 414,
-                      }}
-                      duration={1200}
-                    >
-                      <Lottie
-                        source={require("../../assets/Lottie/click.json")}
-                        style={{
-                          position: "relative",
-                          width: (60.0 * width) / 414,
-                          height: (60.0 * width) / 414,
-                          resizeMode: "contain",
-                        }}
-                        speed={0.5}
-                        autoPlay
-                        loop
-                      />
-                    </FloatingAnimation>
-                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -506,8 +451,64 @@ const ShopScreen = ({ navigation, route }) => {
 
               <Text style={[Fonts.purchaseScreenTitle, { marginTop: 10 }]}>
                 Subscription Plans
-                <Text style={[Fonts.purchaseScreenSubtitle]}>*</Text>
               </Text>
+              <TouchableOpacity style={{ opacity: 0.5 }} activeOpacity={0.5}>
+                <View
+                  style={{
+                    padding: 10,
+                    width: "100%",
+                    borderRadius: 10,
+                    borderWidth: 3,
+                    borderColor: "#39474f",
+                    marginTop: 9,
+                    display: "flex",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Image
+                    style={{
+                      width: width / 4.5 > 150 ? 150 : width / 4.5,
+                      height: width / 4.5 > 150 ? 150 : width / 4.5,
+                      borderRadius: 10,
+                    }}
+                    source={require("../../assets/images/purchaseScreen/woman_meditating.jpg")}
+                  ></Image>
+                  <View
+                    style={{
+                      width: width - width / 4 - 36,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Text
+                      style={[Fonts.purchaseScreenSubtitle, { marginLeft: 10 }]}
+                    >
+                      Free Plan
+                    </Text>
+                    <Text
+                      style={[
+                        Fonts.purchaseScreenDescription,
+                        {
+                          marginLeft: 10,
+                          paddingTop: 5,
+                          paddingRight: 5,
+                          flexGrow: 1,
+                          width: width - width / 4 - 46,
+                        },
+                      ]}
+                    >
+                      <Text style={Fonts.decriptionSemiBold}>
+                        1 credit per day,
+                      </Text>{" "}
+                      <Text style={Fonts.decriptionSemiBold}>
+                        25 affirmations
+                      </Text>{" "}
+                      each. Max credits accumulated:{" "}
+                      <Text style={Fonts.decriptionSemiBold}>1</Text>.
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 style={
@@ -552,8 +553,8 @@ const ShopScreen = ({ navigation, route }) => {
                 >
                   <Image
                     style={{
-                      width: width / 4 > 150 ? 150 : width / 4,
-                      height: width / 4 > 150 ? 150 : width / 4,
+                      width: width / 4.5 > 150 ? 150 : width / 4.5,
+                      height: width / 4.5 > 150 ? 150 : width / 4.5,
                       borderRadius: 10,
                     }}
                     source={require("../../assets/images/purchaseScreen/sloth_meditating.png")}
@@ -575,18 +576,21 @@ const ShopScreen = ({ navigation, route }) => {
                         Fonts.purchaseScreenDescription,
                         {
                           marginLeft: 10,
+                          paddingRight: 5,
                           paddingTop: 5,
                           flexGrow: 1,
                           width: width - width / 4 - 46,
                         },
                       ]}
                     >
-                      For the casual meditator.{" "}
                       <Text style={Fonts.decriptionSemiBold}>
-                        1 credit every 2 days.
+                        2 credits per day,
                       </Text>{" "}
-                      Max accumulated credits:{" "}
-                      <Text style={Fonts.decriptionSemiBold}>3</Text>.
+                      <Text style={Fonts.decriptionSemiBold}>
+                        55 affirmations
+                      </Text>{" "}
+                      each. Max accumulation:{" "}
+                      <Text style={Fonts.decriptionSemiBold}>2</Text>.
                     </Text>
                     <Text
                       style={[
@@ -641,8 +645,8 @@ const ShopScreen = ({ navigation, route }) => {
                 >
                   <Image
                     style={{
-                      width: width / 4 > 150 ? 150 : width / 4,
-                      height: width / 4 > 150 ? 150 : width / 4,
+                      width: width / 4.5 > 150 ? 150 : width / 4.5,
+                      height: width / 4.5 > 150 ? 150 : width / 4.5,
                       borderRadius: 10,
                     }}
                     source={require("../../assets/images/purchaseScreen/turtle_meditating.png")}
@@ -657,25 +661,33 @@ const ShopScreen = ({ navigation, route }) => {
                     <Text
                       style={[Fonts.purchaseScreenSubtitle, { marginLeft: 10 }]}
                     >
-                      Turtle Plan
+                      Turtle Plan{" "}
+                      <Text
+                        style={[Fonts.purchaseScreenSubtitle, { fontSize: 12 }]}
+                      >
+                        - Best Seller
+                      </Text>
                     </Text>
                     <Text
                       style={[
                         Fonts.purchaseScreenDescription,
                         {
                           marginLeft: 10,
+                          paddingRight: 5,
                           paddingTop: 5,
                           flexGrow: 1,
                           width: width - width / 4 - 46,
                         },
                       ]}
                     >
-                      For the regular meditator.{" "}
                       <Text style={Fonts.decriptionSemiBold}>
-                        1 credit per day.
+                        2 credits per day,
                       </Text>{" "}
-                      Max accumulated credits:{" "}
-                      <Text style={Fonts.decriptionSemiBold}>5</Text>.
+                      <Text style={Fonts.decriptionSemiBold}>
+                        70 affirmations
+                      </Text>{" "}
+                      each. Max accumulation:{" "}
+                      <Text style={Fonts.decriptionSemiBold}>4</Text>.
                     </Text>
                     <Text
                       style={[
@@ -720,8 +732,8 @@ const ShopScreen = ({ navigation, route }) => {
                 >
                   <Image
                     style={{
-                      width: width / 4 > 150 ? 150 : width / 4,
-                      height: width / 4 > 150 ? 150 : width / 4,
+                      width: width / 4.5 > 150 ? 150 : width / 4.5,
+                      height: width / 4.5 > 150 ? 150 : width / 4.5,
                       borderRadius: 10,
                     }}
                     source={require("../../assets/images/purchaseScreen/dog_meditating.png")}
@@ -744,17 +756,20 @@ const ShopScreen = ({ navigation, route }) => {
                         {
                           marginLeft: 10,
                           paddingTop: 5,
+                          paddingRight: 5,
                           flexGrow: 1,
                           width: width - width / 4 - 46,
                         },
                       ]}
                     >
-                      For the dedicated meditator.{" "}
                       <Text style={Fonts.decriptionSemiBold}>
-                        2 credits per day.
+                        3 credits per day,
                       </Text>{" "}
-                      Max accumulated credits:{" "}
-                      <Text style={Fonts.decriptionSemiBold}>8</Text>.
+                      <Text style={Fonts.decriptionSemiBold}>
+                        85 affirmations
+                      </Text>{" "}
+                      each. Max accumulation:{" "}
+                      <Text style={Fonts.decriptionSemiBold}>6</Text>.
                     </Text>
                     <Text
                       style={[
@@ -773,7 +788,6 @@ const ShopScreen = ({ navigation, route }) => {
               </TouchableOpacity>
               <Text style={[Fonts.purchaseScreenTitle, { paddingTop: 20 }]}>
                 Credit Top-Up
-                <Text style={[Fonts.purchaseScreenSubtitle]}>*</Text>
               </Text>
               <ScrollView horizontal={true}>
                 <TouchableOpacity
@@ -923,19 +937,10 @@ const ShopScreen = ({ navigation, route }) => {
               <Text
                 style={[
                   Fonts.purchaseScreenDescription,
-                  { paddingTop: 8, fontSize: 12 },
+                  { paddingTop: 8, fontSize: 12, paddingBottom: 35 },
                 ]}
               >
                 * prices may fluctuate based on location
-              </Text>
-              <Text
-                style={[
-                  Fonts.purchaseScreenDescription,
-                  { paddingBottom: 35, paddingTop: 2, fontSize: 12 },
-                ]}
-              >
-                * max accumulated credits are credits given while offline,
-                resets every month.
               </Text>
             </View>
           </ScrollView>
@@ -1127,7 +1132,7 @@ const ShopScreen = ({ navigation, route }) => {
                                 },
                               ]}
                             >
-                              More Credits!
+                              More Affirmations!
                             </Text>
 
                             <Text

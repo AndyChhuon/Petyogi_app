@@ -17,6 +17,8 @@ import * as Haptics from "expo-haptics";
 import { useNavigationState } from "@react-navigation/native";
 import Purchases from "react-native-purchases";
 import { surprisedImage } from "../../constants/constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { set } from "firebase/database";
 
 const TutorialModal = () => {
   const [currentModal, setCurrentModal] = useState(null);
@@ -48,6 +50,50 @@ const TutorialModal = () => {
   const initDimensions = Dimensions.get("window");
   const [width, setWidth] = useState(initDimensions.width);
   const [height, setHeight] = useState(initDimensions.height);
+  const [hasAskedNotifs, setHasAskedNotifs] = useState(false);
+
+  const getTimeRemaining = () => {
+    const currentUTC = new Date();
+    const midnightUTC = new Date(currentUTC);
+    midnightUTC.setDate(midnightUTC.getDate() + 1);
+    midnightUTC.setUTCHours(0, 0, 0, 0);
+
+    const minutesLeft = (midnightUTC - currentUTC) / 1000 / 60;
+
+    if (minutesLeft < 0) {
+      return "0 minutes";
+    } else if (minutesLeft > 60) {
+      const hoursLeft = Math.ceil(minutesLeft / 60);
+      if (hoursLeft == 1) {
+        return "1 hour";
+      }
+      return hoursLeft + " hours";
+    } else {
+      const roundedMinutesLeft = Math.ceil(minutesLeft);
+      if (roundedMinutesLeft == 1) {
+        return "1 minute";
+      }
+      return roundedMinutesLeft + " minutes";
+    }
+  };
+
+  const getHasAskedNotifs = async () => {
+    try {
+      const value = await AsyncStorage.getItem("hasAskedNotifs");
+      if (value !== null) {
+        setHasAskedNotifs(true);
+      } else {
+        setHasAskedNotifs(false);
+      }
+    } catch (e) {}
+  };
+
+  const updateHasAskedNotifs = async () => {
+    try {
+      await AsyncStorage.setItem("hasAskedNotifs", "true");
+      setHasAskedNotifs(true);
+    } catch (e) {}
+  };
 
   useEffect(() => {
     function onChangeDimensions({ window }) {
@@ -88,8 +134,11 @@ const TutorialModal = () => {
       text: "I am PetYogi",
       bottomText: "Let me introduce you!",
       image: require("../../assets/images/icons/heart.png"),
-      nextModal: "verifyEmailHome",
+      nextModal: "firstMeditation",
       displayType: "center",
+      colorTop: "#5ea591",
+      colorBottom: "#9be1cd",
+      borderBottomColor: "#5f94ae",
     },
 
     gem: {
@@ -98,6 +147,20 @@ const TutorialModal = () => {
       bottomText: "Let's keep this habit going!",
       image: require("../../assets/images/icons/gem.png"),
       displayType: "center",
+      colorTop: "#00CCBB",
+      colorBottom: "#A0DED9",
+      borderBottomColor: "#00CCBB",
+    },
+
+    notifs: {
+      title: "Maintain your streak!",
+      text: `Your streak: ${userValues?.streak}`,
+      bottomText: `Your next credit refill is in less than ${getTimeRemaining()}.\n PetYogi will remind you!`,
+      image: require("../../assets/images/icons/streak.png"),
+      displayType: "center",
+      colorTop: "#FFA226",
+      colorBottom: "#FFE5AB",
+      borderBottomColor: "#FFA226",
     },
 
     verifyEmailHome: {
@@ -120,22 +183,22 @@ const TutorialModal = () => {
       colorBottom: "#b7dffd",
     },
     firstMeditation: {
-      title: "Your first meditation!",
-      text: "You are set to generate your first meditation! Start by pressing the button above.",
-      image: require("../../assets/images/tutorialModal/meditating_bear.png"),
+      title: "Let's get started!",
+      text: "You are set to generate your first affirmations meditation! Start by pressing the button above.",
+      image: require("../../assets/images/tutorialModal/excited_monkey.png"),
       colorTop: "#FFA226",
       colorBottom: "#FFE5AB",
     },
     meditationTutorialQuestions: {
       title: "Journal your emotions!",
-      text: "PetYogi will generate the perfect meditation based on your journal entry!",
+      text: "PetYogi will create the perfect personalized affirmations based on your journal entry!",
       image: require("../../assets/images/tutorialModal/meditating_bear_2.png"),
       colorTop: "#00CCBB",
       colorBottom: "#A0DED9",
     },
     meditationLoading: {
       title: "Your meditation begins!",
-      text: "While PetYogi generates your personalized meditation, listen to these tips and relax!",
+      text: "PetYogi has made you the perfect personalized affirmations! Sit back, relax, and enjoy!",
       image: require("../../assets/images/tutorialModal/relaxing_panda.png"),
       colorTop: "#FFA226",
       colorBottom: "#FFE5AB",
@@ -160,6 +223,8 @@ const TutorialModal = () => {
 
       appState.current = nextAppState;
     });
+
+    getHasAskedNotifs();
 
     return () => {
       subscription.remove();
@@ -285,16 +350,10 @@ const TutorialModal = () => {
           : 0;
         const currentBottomTab = bottomTabIndex == 0 ? "Home" : "Profile";
 
-        if (currentBottomTab == "Home" && !isVerified) {
-          if (isWaitingOnEmailVerification) {
-            setCurrentModal("verifyEmailSent");
-          } else {
-            if (!currentModal || currentModal == "none") {
-              setCurrentModal("welcome");
-              setDisplayTutorial(true);
-            } else {
-              setCurrentModal("verifyEmailHome");
-            }
+        if (currentBottomTab == "Home") {
+          if (!currentModal || currentModal == "none") {
+            setCurrentModal("welcome");
+            setDisplayTutorial(true);
           }
         } else if (currentBottomTab == "Home" && isVerified) {
           setCurrentModal("firstMeditation");
@@ -433,7 +492,9 @@ const TutorialModal = () => {
         <ScaleInOut
           visible={displayTutorial && currentModal != "none"}
           delayIn={
-            currentModal == "welcome" || currentModal?.includes("gem")
+            currentModal?.includes("gem") ||
+            currentModal == "notifs" ||
+            currentModal == "welcome"
               ? 1000
               : creditsDelay
           }
@@ -447,7 +508,9 @@ const TutorialModal = () => {
               justifyContent: "center",
               zIndex: 20,
             },
-            currentModal == "welcome" || currentModal?.includes("gem")
+            currentModal?.includes("gem") ||
+            currentModal == "notifs" ||
+            currentModal == "welcome"
               ? width > height
                 ? { paddingTop: 20, height: "100%" }
                 : { paddingBottom: "15%", height: "100%" }
@@ -458,21 +521,22 @@ const TutorialModal = () => {
                 },
           ]}
         >
-          {currentModal == "welcome" || currentModal?.includes("gem") ? (
+          {currentModal?.includes("gem") ||
+          currentModal == "notifs" ||
+          currentModal == "welcome" ? (
             <>
               <View
                 style={{
                   width: "80%",
                   paddingVertical: (20 * height) / 880,
-                  backgroundColor:
-                    currentModal == "welcome" ? "#5ea591" : "#00CCBB",
+                  backgroundColor: tutorialObj[currentModal]?.colorTop,
                   paddingHorizontal: 5,
                   alignItems: "center",
                   borderTopLeftRadius: 10,
                   borderTopRightRadius: 10,
                   borderWidth: 0,
                   borderBottomColor:
-                    currentModal == "welcome" ? "#5f94ae" : "#00CCBB",
+                    tutorialObj[currentModal]?.borderBottomColor,
                 }}
               >
                 <Text style={[Fonts.streakModalTitle, { textAlign: "center" }]}>
@@ -484,8 +548,7 @@ const TutorialModal = () => {
                 style={{
                   width: "80%",
                   alignItems: "center",
-                  backgroundColor:
-                    currentModal == "welcome" ? "#9be1cd" : "#A0DED9",
+                  backgroundColor: tutorialObj[currentModal]?.colorBottom,
                   paddingVertical: (35 * height) / 880,
                   paddingBottom: (25 * height) / 880,
                   borderBottomLeftRadius: 10,
@@ -498,7 +561,9 @@ const TutorialModal = () => {
                   source={
                     currentModal == "welcome"
                       ? require("../../assets/images/tutorialModal/waving_penguin.png")
-                      : surprisedImage[newGemsImageIndex].image
+                      : currentModal?.includes("gem")
+                      ? surprisedImage[newGemsImageIndex].image
+                      : require("../../assets/images/tutorialModal/angry_unicorn.jpg")
                   }
                   style={{
                     position: "relative",
@@ -521,22 +586,24 @@ const TutorialModal = () => {
                     minWidth: "75%",
                     alignItems: "center",
                     borderColor: "#e9d076",
+                    flexDirection: "row",
+                    justifyContent: "center",
                     borderWidth: 1,
                   }}
                 >
                   <Text style={[Fonts.streakModalText]}>
                     {tutorialObj[currentModal]?.text}
-                    <Image
-                      source={tutorialObj[currentModal]?.image}
-                      style={{
-                        width: 19,
-                        height: 19,
-                        resizeMode: "contain",
-                        marginLeft: 5,
-                        //grey out
-                      }}
-                    />
                   </Text>
+                  <Image
+                    source={tutorialObj[currentModal]?.image}
+                    style={{
+                      width: 19,
+                      height: 19,
+                      resizeMode: "contain",
+                      marginLeft: 5,
+                      //grey out
+                    }}
+                  />
                 </View>
                 <View style={{ paddingTop: 5, justifyContent: "center" }}>
                   <Text
@@ -644,7 +711,17 @@ const TutorialModal = () => {
                   setCurrentModal(tutorialObj[currentModal]?.nextModal);
                 } else if (currentModal?.includes("gem")) {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  if (!hasAskedNotifs) {
+                    setUpdateTutorialModalVisible("notifs");
+                  } else {
+                    // request for those who accepted, updates the notifs
+                    requestNotificationsPermission();
+                    setUpdateTutorialModalVisible("none");
+                  }
+                } else if (currentModal == "notifs") {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   requestNotificationsPermission();
+                  updateHasAskedNotifs();
                   setUpdateTutorialModalVisible("none");
                 } else if (updateTutorialModalVisible == "meditationLoading") {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -671,6 +748,10 @@ const TutorialModal = () => {
                     <Text style={Fonts.streakModalButton}>Begin</Text>
                     <Text style={Fonts.streakModalButton}>Intro</Text>
                   </>
+                ) : currentModal == "notifs" ? (
+                  <Text style={[Fonts.streakModalButton, { fontSize: 16 }]}>
+                    Notify me!
+                  </Text>
                 ) : (
                   <Text style={[Fonts.streakModalButton, { fontSize: 16 }]}>
                     Got it!

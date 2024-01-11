@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -10,7 +10,6 @@ import {
   StyleSheet,
   Text,
   FlatList,
-  BackHandler,
 } from "react-native";
 import {
   initPrerecordedAudioUrls,
@@ -30,7 +29,6 @@ import useAuth from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AwesomeButton from "react-native-really-awesome-button";
 import { FontAwesome } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
 
 const MeditationScreen = ({ navigation, route }) => {
   const [currentPhrase, setCurrentPhrase] = useState(0);
@@ -62,33 +60,6 @@ const MeditationScreen = ({ navigation, route }) => {
   const initDimensions = Dimensions.get("window");
   const [width, setWidth] = useState(initDimensions.width);
   const [height, setHeight] = useState(initDimensions.height);
-
-  const backAction = () => {
-    if (!meditationHasStarted) return;
-    if (pauseInterval) clearTimeout(pauseInterval);
-    if (sound) sound.unloadAsync();
-    setPlaying(false);
-    setIsAutoplay(false);
-
-    if (tutorialShouldShow) {
-      setUpdateTutorialModalVisible("none");
-    }
-    if (musicSound) musicSound.unloadAsync();
-    navigation.goBack();
-    navigation.navigate("PurchaseScreen", {
-      isLoading: true,
-      isCTA: true,
-    });
-    return true;
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      BackHandler.addEventListener("hardwareBackPress", backAction);
-      return () =>
-        BackHandler.removeEventListener("hardwareBackPress", backAction);
-    }, [backAction])
-  );
 
   useEffect(() => {
     function onChangeDimensions({ window }) {
@@ -281,12 +252,6 @@ const MeditationScreen = ({ navigation, route }) => {
     } else {
       if (currentPhrase < maxNumPhrases) {
         setCurrentPhrase(currentPhrase + 1);
-      } else if (
-        currentPhrase == maxNumPhrases &&
-        meditationInfo.meditationUrls
-      ) {
-        //Go back to first phrase
-        setCurrentPhrase(1);
       }
     }
   };
@@ -412,13 +377,6 @@ const MeditationScreen = ({ navigation, route }) => {
     }
   }, [introOutroWasInitialized, generating]);
 
-  // useEffect for starting the recording when tutorial is over
-  useEffect(() => {
-    if (updateTutorialModalVisible == "none" && meditationHasStarted) {
-      setPlaying(true);
-    }
-  }, [updateTutorialModalVisible]);
-
   const addGemsToAsync = async (nbGems) => {
     if (nbGems > 0) {
       try {
@@ -436,7 +394,7 @@ const MeditationScreen = ({ navigation, route }) => {
 
     if (introOutroWasInitialized) {
       setTimeout(() => {
-        if (!playing && !tutorialShouldShow) {
+        if (!playing) {
           setPlaying(true);
         }
       }, 1500);
@@ -924,36 +882,7 @@ const MeditationScreen = ({ navigation, route }) => {
               height: showMenu ? "100%" : "auto",
             }}
           >
-            <View
-              style={[
-                styles.closeButtonStyle,
-                showMenu ? { display: "none" } : {},
-                displaySpeedModal ? { opacity: 0 } : {},
-              ]}
-            >
-              <Ionicons
-                name="close"
-                color={Colors.whiteColor}
-                size={32}
-                onPress={() => {
-                  if (!meditationHasStarted) return;
-                  if (pauseInterval) clearTimeout(pauseInterval);
-                  if (sound) sound.unloadAsync();
-                  setPlaying(false);
-                  setIsAutoplay(false);
-
-                  if (tutorialShouldShow) {
-                    setUpdateTutorialModalVisible("none");
-                  }
-                  if (musicSound) musicSound.unloadAsync();
-                  navigation.goBack();
-                  navigation.navigate("PurchaseScreen", {
-                    isLoading: true,
-                    isCTA: true,
-                  });
-                }}
-              />
-            </View>
+            {closeButton()}
             <View
               style={[
                 {
@@ -981,15 +910,10 @@ const MeditationScreen = ({ navigation, route }) => {
                     : {},
                 ]}
               >
-                {currentPhrase} out of{" "}
-                {generating ? maxNumPhrases + " (generating)" : maxNumPhrases}
+                6 out of 6
               </Text>
               <ProgressBar
-                progress={
-                  maxNumPhrases == 0
-                    ? currentPhrase / 20
-                    : currentPhrase / maxNumPhrases
-                }
+                progress={6 / 6}
                 animationType="timing"
                 color={
                   lottieBackground?.textColor
@@ -1107,17 +1031,9 @@ const MeditationScreen = ({ navigation, route }) => {
                     },
                   ]}
                 >
-                  {preRecordedAudioShouldBePlaying
-                    ? currentPhrase >
-                      Object.keys(prerecordedAudioPhrases.intro).length
-                      ? prerecordedAudioPhrases.meditations[
-                          ((currentPhrase + randomNumberFirstMeditation) %
-                            Object.keys(prerecordedAudioPhrases.meditations)
-                              .length) +
-                            1
-                        ]
-                      : prerecordedAudioPhrases.intro[currentPhrase]
-                    : meditationInfo?.phrases[currentPhrase]}
+                  In the end, it's a silent symphony of unnoticed affection,
+                  leaving you gazing at the stars of uncertainty, seeking
+                  closure in a story that never unfolded.
                 </Text>
 
                 <FontAwesome
@@ -1213,6 +1129,38 @@ const MeditationScreen = ({ navigation, route }) => {
       </SafeAreaView>
     </>
   );
+
+  function closeButton() {
+    return (
+      <View
+        style={[
+          styles.closeButtonStyle,
+          showMenu ? { display: "none" } : {},
+          displaySpeedModal ? { opacity: 0 } : {},
+        ]}
+      >
+        <Ionicons
+          name="close"
+          color={Colors.whiteColor}
+          size={32}
+          onPress={() => {
+            if (!meditationHasStarted) return;
+            if (sound) sound.unloadAsync();
+            if (tutorialShouldShow) {
+              setUpdateTutorialModalVisible("none");
+            }
+            if (musicSound) musicSound.unloadAsync();
+            if (pauseInterval) clearTimeout(pauseInterval);
+
+            navigation.navigate("PurchaseScreen", {
+              isLoading: true,
+              isCTA: true,
+            });
+          }}
+        />
+      </View>
+    );
+  }
 
   function sidebarMenu() {
     return (

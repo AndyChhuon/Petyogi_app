@@ -64,6 +64,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const planOrder = ["yogi_plan", "turtle_plan", "sloth_plan"];
+  const herokuUrl = "https://petyogi-landing-page-77105aa4f183.herokuapp.com"; //https://sleepy-bastion-87226-0172f309845e.herokuapp.com
+
+  const numPhrasesBySubscription = {
+    yogi_plan: 85,
+    turtle_plan: 70,
+    sloth_plan: 55,
+    noSubscription: 25,
+  };
 
   useEffect(() => {
     if (
@@ -258,18 +266,15 @@ export const AuthProvider = ({ children }) => {
 
           getIdToken(user).then((idToken) => {
             //post request
-            fetch(
-              "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  idToken: idToken,
-                }),
-              }
-            ).then((res) => {
+            fetch(`${herokuUrl}/initializeUser`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                idToken: idToken,
+              }),
+            }).then((res) => {
               if (res.ok) {
                 return res.json().then(async (data) => {
                   setUserValues(data.userValues);
@@ -390,19 +395,16 @@ export const AuthProvider = ({ children }) => {
     });
 
     getIdToken(user, true).then((idToken) => {
-      fetch(
-        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/generateQuestions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idToken: idToken,
-            prompt: prompt,
-          }),
-        }
-      )
+      fetch(`${herokuUrl}/generateQuestions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idToken: idToken,
+          prompt: prompt,
+        }),
+      })
         .then((response) => {
           setQuestionsAreGenerating(false);
 
@@ -448,20 +450,19 @@ export const AuthProvider = ({ children }) => {
   ) => {
     getIdToken(user, true).then((idToken) => {
       //post request
-      fetch(
-        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/createMeditation",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idToken: idToken,
-            userInput: userInput,
-            meditationType: meditationType,
-          }),
-        }
-      ).then((res) => {
+      fetch(`${herokuUrl}/createAffirmations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idToken: idToken,
+          userInput: userInput,
+          meditationType: meditationType,
+          numPhrases:
+            numPhrasesBySubscription[creditsObj?.subscriptionWithPrevDate[0]],
+        }),
+      }).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -512,19 +513,16 @@ export const AuthProvider = ({ children }) => {
   const claimGems = (amountGems) => {
     getIdToken(user).then((idToken) => {
       //post request
-      fetch(
-        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/claimGems",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idToken: idToken,
-            amountGems: amountGems,
-          }),
-        }
-      ).then((res) => {
+      fetch(`${herokuUrl}/claimGems`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idToken: idToken,
+          amountGems: amountGems,
+        }),
+      }).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
             addToUserLogs("Claim gems successful.");
@@ -550,20 +548,17 @@ export const AuthProvider = ({ children }) => {
     getIdToken(user)
       .then((idToken) => {
         //post request
-        fetch(
-          "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/purchaseWithGems",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              idToken: idToken,
-              purchaseId: purchaseId,
-              purchaseType: purchaseType,
-            }),
-          }
-        ).then((res) => {
+        fetch(`${herokuUrl}/purchaseWithGems`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+            purchaseId: purchaseId,
+            purchaseType: purchaseType,
+          }),
+        }).then((res) => {
           if (res.ok) {
             return res.json().then((data) => {
               addToUserLogs("Purchase with gems successful.");
@@ -590,18 +585,15 @@ export const AuthProvider = ({ children }) => {
   const checkStreaks = () => {
     getIdToken(user).then((idToken) => {
       //post request
-      fetch(
-        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idToken: idToken,
-          }),
-        }
-      ).then((res) => {
+      fetch(`${herokuUrl}/initializeUser`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idToken: idToken,
+        }),
+      }).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
             addToUserLogs("Check streaks successful.");
@@ -630,18 +622,15 @@ export const AuthProvider = ({ children }) => {
     setLoadingModalVisible(true);
     getIdToken(user).then((idToken) => {
       //post request
-      fetch(
-        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/saveStreak",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idToken: idToken,
-          }),
-        }
-      ).then((res) => {
+      fetch(`${herokuUrl}/saveStreak`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idToken: idToken,
+        }),
+      }).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
             addToUserLogs("Streak saved successfully.");
@@ -725,6 +714,25 @@ export const AuthProvider = ({ children }) => {
       },
     });
 
+    const currentUTC = new Date();
+
+    // Received credit
+    const creditUTC = new Date(currentUTC);
+    creditUTC.setDate(creditUTC.getDate() + 1);
+    creditUTC.setUTCHours(0, 0, 0, 0);
+
+    const minutesLeftCredit = (creditUTC - currentUTC) / 1000 / 60;
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Your credits have been refilled!",
+        body: "Come tell PetYogi all about your day and keep this streak going.",
+      },
+      trigger: {
+        seconds: minutesLeftCredit * 60 + 2,
+      },
+    });
+
     const increment = isSaveStreak ? 1 : 2;
     const streak = streakNb ? streakNb : userValues?.streak;
 
@@ -734,7 +742,6 @@ export const AuthProvider = ({ children }) => {
     // Set reminder to meditate 1 hour before UTC
 
     //date tomorrow
-    const currentUTC = new Date();
     const midnightUTC = new Date(currentUTC);
     midnightUTC.setDate(midnightUTC.getDate() + increment);
     midnightUTC.setUTCHours(0, 0, 0, 0);
@@ -810,18 +817,15 @@ export const AuthProvider = ({ children }) => {
     setCheckIfUserHasCreditsCalled(true);
     getIdToken(user).then((idToken) => {
       //post request
-      fetch(
-        "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/updateCredits",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idToken: idToken,
-          }),
-        }
-      ).then((res) => {
+      fetch(`${herokuUrl}/updateCredits`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idToken: idToken,
+        }),
+      }).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
             addToUserLogs("Successfully updated credits.");
@@ -867,18 +871,15 @@ export const AuthProvider = ({ children }) => {
       if (userValues.accountType == "free" && user.emailVerified) {
         getIdToken(user).then((idToken) => {
           //post request
-          fetch(
-            "https://sleepy-bastion-87226-0172f309845e.herokuapp.com/initializeUser",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                idToken: idToken,
-              }),
-            }
-          ).then((res) => {
+          fetch(`${herokuUrl}/initializeUser`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              idToken: idToken,
+            }),
+          }).then((res) => {
             if (res.ok) {
               addToUserLogs("Successfully reloaded user.");
               return res.json().then((data) => {

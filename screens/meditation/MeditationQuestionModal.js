@@ -266,8 +266,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
   const maxChars = meditationQuestionsJson[currentQuestionIndex].maxChars
     ? meditationQuestionsJson[currentQuestionIndex].maxChars
     : 500;
-  const tooManyChars = charCount > maxChars;
-  const noteEnoughChars = charCount < 1;
+  const notEnoughChars = charCount < 1;
   const questionsPromptsGenerated = userValues.questionsPromptsGenerated;
 
   useEffect(() => {
@@ -548,7 +547,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
         <Text
           style={[
             Fonts.musicMeditationText,
-            { color: "white", fontSize: 15.5, marginTop: 6 },
+            { color: "#f6eee3", fontSize: 15.5, marginTop: 6 },
           ]}
         >
           {text}
@@ -618,7 +617,10 @@ const MeditationQuestionModal = ({ navigation, route }) => {
           />
         </AwesomeButton>
         <Text
-          style={[Fonts.musicMeditationText, { color: "white", fontSize: 14 }]}
+          style={[
+            Fonts.musicMeditationText,
+            { color: "#f6eee3", fontSize: 14 },
+          ]}
         >
           {item.text}
         </Text>
@@ -641,12 +643,12 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             questionString.length > 70
               ? questionString.length > 120
                 ? questionString.length > 170
-                  ? (115 * width) / 414 > 120
+                  ? (125 * width) / 414 > 120
                     ? 120
-                    : (115 * width) / 414
-                  : (100 * width) / 414 > 110
+                    : (125 * width) / 414
+                  : (110 * width) / 414 > 110
                   ? 110
-                  : (100 * width) / 414
+                  : (110 * width) / 414
                 : (85 * width) / 414 > 100
                 ? 100
                 : (85 * width) / 414
@@ -673,9 +675,9 @@ const MeditationQuestionModal = ({ navigation, route }) => {
             <Text
               style={[
                 Fonts.journalPromptQuestions,
-                { color: "white", fontSize: 14 },
-                questionString.length > 50 ? { fontSize: 13 } : {},
-                questionString.length > 70 ? { fontSize: 12 } : {},
+                { color: "#eee7d7", fontSize: 15 },
+                questionString.length > 50 ? { fontSize: 14 } : {},
+                questionString.length > 70 ? { fontSize: 13 } : {},
               ]}
             >
               {questionString}
@@ -1072,7 +1074,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                   setGenerateWasClicked(true);
                   // generate questions
                   generateMeditationQuestions(
-                    meditationQuestionsJson[JournalQuestionIndex].Answer
+                    `${meditationQuestionsJson[JournalQuestionIndex].Question} ${meditationQuestionsJson[JournalQuestionIndex].Answer}`
                   );
                 }
                 setTimeout(() => {
@@ -1169,6 +1171,7 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                     ...Fonts.whiteColor20SemiBold,
                     textAlign: "center",
                     paddingHorizontal: 4,
+                    color: "#d9bda5",
                   },
                   meditationQuestion.length > 50 && !isDisplayQuestionPrompts
                     ? { fontSize: 17 }
@@ -1189,10 +1192,11 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                     marginBottom: 8,
                     paddingHorizontal: 4,
                     textAlign: "center",
+                    color: "#d9bda5",
                   },
-                  meditationQuestion.length > 50 ? { fontSize: 18.5 } : {},
-                  meditationQuestion.length > 70 ? { fontSize: 17.5 } : {},
-                  meditationQuestion.length > 90 ? { fontSize: 16.5 } : {},
+                  meditationQuestion.length > 50 ? { fontSize: 19 } : {},
+                  meditationQuestion.length > 70 ? { fontSize: 18 } : {},
+                  meditationQuestion.length > 90 ? { fontSize: 17 } : {},
                 ]}
               >
                 {isLastModal
@@ -1247,13 +1251,19 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                 <TextInput
                   style={[
                     styles.textBoxStyle,
+                    Fonts.meditationInput,
                     readOnly
                       ? {
                           backgroundColor: Colors.goldColor,
                           color: Colors.bodyBackColor,
                           fontWeight: "bold",
                         }
-                      : {},
+                      : {
+                          backgroundColor: "#121f24",
+                          borderColor: "#38464f",
+                          borderWidth: 3,
+                          color: "#eee7d7",
+                        },
                   ]}
                   multiline={true}
                   underlineColorAndroid="transparent"
@@ -1263,18 +1273,18 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                   editable={readOnly ? false : true}
                   value={meditationAnswer}
                 ></TextInput>
-                <View style={styles.counterContainer}>
-                  <Text
-                    style={[
-                      styles.counterText,
-                      tooManyChars || noteEnoughChars
-                        ? { color: Colors.errorColor }
-                        : {},
-                    ]}
-                  >
-                    {charCount}/{maxChars}
-                  </Text>
-                </View>
+                {notEnoughChars && (
+                  <View style={styles.counterContainer}>
+                    <Text
+                      style={[
+                        styles.counterText,
+                        notEnoughChars ? { color: Colors.errorColor } : {},
+                      ]}
+                    >
+                      {charCount}
+                    </Text>
+                  </View>
+                )}
               </View>
             )
           ) : (
@@ -1405,20 +1415,14 @@ const MeditationQuestionModal = ({ navigation, route }) => {
                   key={4}
                   onPressIn={onNextButtonPress}
                   style={styles.loginButtonStyle}
-                  backgroundColor={
-                    tooManyChars || noteEnoughChars ? "#bababa" : "#ffc802"
-                  }
+                  backgroundColor={notEnoughChars ? "#bababa" : "#ffc802"}
                   raiseLevel={3}
                   width={width * 0.4}
                   borderRadius={20}
                   height={(width * 45) / 414 > 60 ? 60 : (width * 45) / 414}
-                  backgroundDarker={
-                    tooManyChars || noteEnoughChars ? "#dbdee8" : "#e7a60b"
-                  }
-                  backgroundShadow={
-                    tooManyChars || noteEnoughChars ? "#dcdfe7" : "#e7a60b"
-                  }
-                  disabled={tooManyChars || noteEnoughChars}
+                  backgroundDarker={notEnoughChars ? "#dbdee8" : "#e7a60b"}
+                  backgroundShadow={notEnoughChars ? "#dcdfe7" : "#e7a60b"}
+                  disabled={notEnoughChars}
                 >
                   <FontAwesome
                     name="chevron-right"

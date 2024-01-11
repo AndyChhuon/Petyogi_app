@@ -353,6 +353,9 @@ export const Fonts = {
   meditationScreenText: {
     fontFamily: "RethinkSans",
   },
+  meditationInput: {
+    fontFamily: "SF_Compact_Display_SemiBold",
+  },
 };
 
 export const Colors = {
