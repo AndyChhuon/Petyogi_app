@@ -7,7 +7,7 @@ PetYogi is a mobile journaling app, which uses AI to generate personalized journ
 
 With a UI inspired by Duolingo, PetYogi uses gamification to get the user coming back for daily journaling and meditations but don't forget your streak! 🔥
 
-Note: This project is no longer maintained.
+Note: This project is no longer being maintained.
 
 ---
 ## 🎥 Demo
